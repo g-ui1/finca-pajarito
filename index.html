@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#2e7d32">
-    <title>AgroSystems - Gestión Integral</title>
+    <title>AgroSystems - Gestión Integral V7</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -15,7 +15,6 @@
         :root { --primary: #2e7d32; --secondary: #f1f8e9; --dark: #1b5e20; }
         body { background-color: #f4f6f4; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
         
-        /* Evitar auto-zoom en iPhone/Android al tocar inputs */
         input, select, textarea { font-size: 16px !important; }
 
         #init-loader { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: white; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
@@ -26,7 +25,6 @@
         .sidebar-desktop, .offcanvas, .offcanvas-md, .offcanvas-body { background-color: var(--primary) !important; }
         .sidebar-menu a { color: #e8f5e9 !important; text-decoration: none; padding: 12px 20px; display: block; margin-bottom: 5px; border-radius: 8px; font-size: 1.1rem; transition: 0.2s; }
         .sidebar-menu a:hover, .sidebar-menu a.active { background-color: var(--dark) !important; color: white !important; font-weight: bold; }
-        .logo-finca { font-size: 1.6rem; font-weight: bold; text-align: center; margin-bottom: 20px; border-bottom: 1px solid #4caf50; padding-bottom: 15px; color: white !important;}
         
         @media (min-width: 768px) {
             .sidebar-desktop { position: fixed; top: 0; left: 0; width: 250px; height: 100vh; overflow-y: auto; padding-top: 20px; border-right: 2px solid var(--dark); z-index: 1000; }
@@ -56,6 +54,7 @@
         .btn-depto { white-space: nowrap; border-radius: 25px; font-weight: 700; padding: 8px 20px; transition: all 0.2s; }
         .card-producto-img { height: 200px; object-fit: contain; background-color: white; padding: 10px; border-bottom: 1px solid #f0f0f0; }
         #badge-rol { font-size: 0.75rem; margin-top: 5px; display: inline-block; padding: 4px 10px; border-radius: 15px; background: rgba(255,255,255,0.2); }
+        .badge-nube { font-size: 0.5em; vertical-align: middle; padding: 5px 8px; border-radius: 10px; transition: all 0.3s; }
     </style>
 </head>
 <body>
@@ -68,7 +67,7 @@
 
 <div id="auth-screen">
     <div class="auth-box">
-        <h2 class="fw-bold text-success mb-0">🌿 AgroSystems <span class="badge bg-primary fs-6 align-middle">V6</span></h2>
+        <h2 class="fw-bold text-success mb-0">🌿 AgroSystems <span class="badge bg-primary fs-6 align-middle">V7</span></h2>
         <p class="text-muted mb-4">Gestión Inteligente de Fincas</p>
         
         <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
@@ -157,8 +156,9 @@
         
         <div id="view-dashboard" class="view-section">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold text-dark m-0" id="display-finca-nombre">Mi Finca</h2>
-                <span class="badge bg-primary ms-2" style="font-size:0.5em;">NUBE ACTIVA</span>
+                <!-- PANEL DE GUARDADO VISUAL AQUI -->
+                <h2 class="fw-bold text-dark m-0" id="display-finca-nombre">Mi Finca </h2>
+                <span id="nube-status" class="badge bg-primary badge-nube ms-2">☁️ Conectado</span>
             </div>
             <p class="text-muted mb-4" id="display-finca-info">📍 Ubicación | 📞 Teléfono</p>
             
@@ -269,7 +269,6 @@
 <div class="modal fade" id="modalConfigWA" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">📞 WhatsApp</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-config-wa" onsubmit="guardarWhatsApp(event)"><label class="fw-bold text-muted mb-2">Ingresa número (Ej: +584141234567):</label><input type="text" id="input-wa-numero" class="form-control" required></form></div><div class="modal-footer border-0"><button type="submit" form="form-config-wa" class="btn btn-success w-100 fw-bold">Guardar</button></div></div></div></div>
 <div class="modal fade" id="modalProducto" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold" id="modalProductoTitle">Registrar Producto</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-producto" onsubmit="guardarProducto(event)"><input type="hidden" id="prod-id-edit"> <div class="row g-2"><div class="col-12 mb-2"><label class="fw-bold">Nombre</label><input type="text" id="prod-nombre" class="form-control" required></div><div class="col-12 mb-2"><label class="fw-bold">Categoría</label><select id="prod-categoria" class="form-select" required><option value="Medicamentos">Medicamentos</option><option value="Accesorios">Accesorios</option><option value="Utensilios">Utensilios</option><option value="Otros">Otros</option></select></div><div class="col-6 mb-2"><label class="fw-bold">Precio ($)</label><input type="number" step="0.01" id="prod-precio" class="form-control" required></div><div class="col-6 mb-2"><label class="fw-bold">Stock</label><input type="number" id="prod-stock" class="form-control" required></div><div class="col-12 mb-2"><label class="fw-bold">Descripción</label><textarea id="prod-descripcion" class="form-control" rows="2"></textarea></div><div class="col-12 mb-2"><label class="fw-bold">Foto</label><input type="file" id="prod-foto-file" class="form-control" accept="image/*" capture="environment"><input type="hidden" id="prod-foto-base64"><div class="text-center mt-2"><img id="prod-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-producto" class="btn btn-success w-100 fw-bold">Guardar</button></div></div></div></div>
 
-<!-- Modal Animal (CON RAZA Y GENÉTICA) -->
 <div class="modal fade" id="modalAnimal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold" id="modalAnimalTitle">Registrar Animal</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-animal" onsubmit="guardarAnimal(event)"><input type="hidden" id="ani-id-interno-edit"> <div class="row g-2">
 <div class="col-6 mb-2"><label class="fw-bold text-primary">Chapa / ID *</label><input type="text" id="ani-id-animal" class="form-control border-primary" required></div>
 <div class="col-6 mb-2"><label class="fw-bold">Nombre</label><input type="text" id="ani-nombre" class="form-control"></div>
@@ -290,12 +289,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // ==========================================
-    // ☁️ CONFIGURACIÓN NUBE Y SEGURIDAD (V6)
-    // ==========================================
     const SUPABASE_URL = 'https://pznaumhcnpotlarvrcjl.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_3Upyqun-W_H5F7KdOQpMpQ_HuHHtJXp';
-    
     let supabaseClient = null;
     let session = null;
     let miFincaInfo = null; 
@@ -304,11 +299,9 @@
     let limiteAnimalesMostrados = 50; let limiteOrdenoMostrados = 50; let temporizadorBusqueda; let chartModalUnico = null; let categoriaTiendaActual = 'Todos';
 
     document.addEventListener('DOMContentLoaded', async () => {
-        const errorBox = document.getElementById('auth-error');
         try {
-            if (typeof window.supabase === 'undefined') throw new Error("No se pudo cargar la librería de la nube. Revisa tu internet.");
+            if (typeof window.supabase === 'undefined') throw new Error("No se pudo cargar la librería de la nube.");
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            
             document.getElementById('init-loader').style.display = 'none';
             document.getElementById('auth-screen').style.display = 'flex';
             
@@ -317,11 +310,10 @@
             
             session = currentSession;
             if (session) await verificarFincaUsuario(); 
-            
         } catch (e) {
             document.getElementById('init-loader').style.display = 'none';
             document.getElementById('auth-screen').style.display = 'flex';
-            if(errorBox) errorBox.innerText = "❌ " + e.message;
+            document.getElementById('auth-error').innerText = "❌ " + e.message;
         }
     });
 
@@ -336,17 +328,14 @@
     async function login() {
         const email = document.getElementById('auth-email').value.trim();
         const pass = document.getElementById('auth-pass').value.trim();
-        const errorBox = document.getElementById('auth-error');
-        
-        if(!email || !pass) return errorBox.innerText = "⚠️ Ingresa correo y contraseña.";
-        errorBox.innerText = "Conectando...";
-        
+        if(!email || !pass) return document.getElementById('auth-error').innerText = "⚠️ Ingresa correo y contraseña.";
+        document.getElementById('auth-error').innerText = "Conectando...";
         try {
             const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
             if (error) throw error;
             session = data.session;
             await verificarFincaUsuario();
-        } catch (error) { errorBox.innerText = "❌ Correo o clave incorrectos."; }
+        } catch (error) { document.getElementById('auth-error').innerText = "❌ Correo o clave incorrectos."; }
     }
 
     async function registrarUsuario() {
@@ -361,32 +350,22 @@
         
         errorBox.innerText = "Creando cuenta en AgroSystems...";
         try {
-            // Se guardan los datos personales en Auth de Supabase
-            const { data, error } = await supabaseClient.auth.signUp({ 
-                email, password: pass, options: { data: { nombre: nombre, apellido: apellido } }
-            });
+            const { data, error } = await supabaseClient.auth.signUp({ email, password: pass, options: { data: { nombre: nombre, apellido: apellido } } });
             if (error) throw error;
-            
             if (!data.session) {
                 const { data: loginData, error: loginError } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
                 if(loginError) throw new Error("Registrado. Vuelve a iniciar sesión.");
                 session = loginData.session;
-            } else {
-                session = data.session;
-            }
+            } else { session = data.session; }
             showAuthView('setup-finca');
         } catch(e) { errorBox.innerText = "❌ " + e.message; }
     }
 
     async function cerrarSesion() { await supabaseClient.auth.signOut(); window.location.reload(); }
 
-    // ==========================================
-    // 2. GESTIÓN FINCA
-    // ==========================================
     async function verificarFincaUsuario() {
         document.getElementById('auth-screen').style.display = 'flex';
         document.getElementById('auth-error').innerText = 'Cargando perfil...';
-
         try {
             const { data: miembroData, error } = await supabaseClient.from('miembros').select('finca_id, rol').eq('user_id', session.user.id).single();
             if (miembroData && miembroData.finca_id) {
@@ -406,13 +385,10 @@
         if(!nombre) return errorBox.innerText = '⚠️ Escribe el nombre de Finca o Hato.';
         errorBox.innerText = "Registrando Finca..."; 
         const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
-
         try {
             const { data: nuevaFinca, error: errFinca } = await supabaseClient.from('fincas').insert([{ nombre: nombre, admin_id: session.user.id, codigo_invitacion: codigo }]).select().single();
             if (errFinca) throw errFinca;
-            
             await supabaseClient.from('miembros').insert([ { finca_id: nuevaFinca.id, user_id: session.user.id, correo: session.user.email, rol: 'admin' } ]);
-            // Se guardan ubicacion y telefono dentro del JSONB
             await supabaseClient.from('finca_data').insert([ { finca_id: nuevaFinca.id, data: { fincaExtra: { ubicacion: ubicacion, telefono: telefono } } } ]);
             await verificarFincaUsuario();
         } catch(e) { errorBox.innerText = "❌ No se pudo crear. " + e.message; }
@@ -423,7 +399,6 @@
         const errorBox = document.getElementById('auth-error');
         if(!codigo) return errorBox.innerText = '⚠️ Escribe el código.';
         errorBox.innerText = "Buscando..."; 
-
         try {
             const { data: finca, error: errFinca } = await supabaseClient.from('fincas').select('id').eq('codigo_invitacion', codigo).single();
             if (errFinca || !finca) throw new Error("Código no válido.");
@@ -432,22 +407,15 @@
         } catch(e) { errorBox.innerText = "❌ " + e.message; }
     }
 
-    // ==========================================
-    // 3. ARRANQUE PRINCIPAL
-    // ==========================================
     async function arrancarAplicacion() {
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('app-screen').style.display = 'block';
         
-        // Poner Nombre del Usuario
         const meta = session.user.user_metadata;
-        if(meta && meta.nombre) {
-            document.getElementById('badge-nombre').innerText = `👤 ${meta.nombre} ${meta.apellido || ''}`;
-        } else {
-            document.getElementById('badge-nombre').innerText = `👤 ${session.user.email}`;
-        }
+        if(meta && meta.nombre) { document.getElementById('badge-nombre').innerText = `👤 ${meta.nombre} ${meta.apellido || ''}`; } 
+        else { document.getElementById('badge-nombre').innerText = `👤 ${session.user.email}`; }
 
-        document.getElementById('display-finca-nombre').innerText = miFincaInfo.nombre;
+        document.getElementById('display-finca-nombre').innerHTML = `${miFincaInfo.nombre}`;
         document.getElementById('badge-rol').innerText = miFincaInfo.rol === 'admin' ? '👑 Admin / Dueño' : '🧑‍🌾 Empleado';
         document.getElementById('badge-codigo').innerText = `Código Invite: ${miFincaInfo.codigo}`;
 
@@ -469,10 +437,27 @@
         actualizarSelectsLotes(); showView('dashboard'); iniciarSincronizacionEnTiempoReal();
     }
 
+    // ==========================================
+    // SISTEMA DE GUARDADO CON INDICADOR VISUAL
+    // ==========================================
     async function guardarDatos() {
         if(!miFincaInfo) return;
-        const estadoCompleto = { animales, vacunas, productos, lotes, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda } };
-        await supabaseClient.from('finca_data').update({ data: estadoCompleto }).eq('finca_id', miFincaInfo.id);
+        const statusBadge = document.getElementById('nube-status');
+        if(statusBadge) { statusBadge.className = 'badge bg-warning text-dark badge-nube ms-2'; statusBadge.innerText = '⏳ Guardando...'; }
+        
+        try {
+            const estadoCompleto = { animales, vacunas, productos, lotes, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda } };
+            const { error } = await supabaseClient.from('finca_data').update({ data: estadoCompleto }).eq('finca_id', miFincaInfo.id);
+            if (error) throw error;
+            
+            if(statusBadge) { 
+                statusBadge.className = 'badge bg-success badge-nube ms-2'; statusBadge.innerText = '✅ Guardado'; 
+                setTimeout(()=> { statusBadge.className = 'badge bg-primary badge-nube ms-2'; statusBadge.innerText = '☁️ Conectado'; }, 2500); 
+            }
+        } catch (e) {
+            alert("Error guardando en la nube: " + e.message);
+            if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube ms-2'; statusBadge.innerText = '❌ Error de Guardado'; }
+        }
     }
 
     function iniciarSincronizacionEnTiempoReal() {
@@ -481,8 +466,7 @@
                 const rawData = payload.new.data;
                 animales = rawData.animales || []; vacunas = rawData.vacunas || []; productos = rawData.productos || []; lotes = rawData.lotes || ['Ordeño', 'Horro', 'Mautes', 'Becerros']; 
                 const extraInfo = rawData.fincaExtra || {};
-                telefono_tienda = extraInfo.telefono || rawData.telefono_tienda || '';
-                ubicacion_finca = extraInfo.ubicacion || '';
+                telefono_tienda = extraInfo.telefono || rawData.telefono_tienda || ''; ubicacion_finca = extraInfo.ubicacion || '';
                 document.getElementById('display-finca-info').innerText = `📍 ${ubicacion_finca || 'Sin ubicación'} | 📞 ${telefono_tienda || 'Sin teléfono'}`;
                 
                 actualizarSelectsLotes(); renderDashboard();
@@ -493,41 +477,21 @@
             }).subscribe();
     }
 
-    // ==========================================
-    // UI Y CERRADO AUTOMÁTICO DE MENÚ
-    // ==========================================
-    function cerrarMenuCelular() { 
-        if(window.innerWidth < 768) { 
-            const offcanvasEl = document.getElementById('sidebarOffcanvas'); 
-            if(offcanvasEl && offcanvasEl.classList.contains('show')) { 
-                const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl); 
-                if(bsOffcanvas) bsOffcanvas.hide(); 
-            } 
-        } 
-    }
+    function cerrarMenuCelular() { if(window.innerWidth < 768) { const offcanvasEl = document.getElementById('sidebarOffcanvas'); if(offcanvasEl && offcanvasEl.classList.contains('show')) { const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl); if(bsOffcanvas) bsOffcanvas.hide(); } } }
     
     function showView(viewId) { 
         document.querySelectorAll('.view-section').forEach(v => v.classList.add('hidden')); 
         document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active')); 
         document.getElementById(`view-${viewId}`).classList.remove('hidden'); 
         document.querySelectorAll(`.nav-btn-${viewId}`).forEach(el => el.classList.add('active')); 
-        
-        if(viewId === 'dashboard') renderDashboard(); 
-        if(viewId === 'animales') reiniciarYRenderAnimales(); 
-        if(viewId === 'ordeño') reiniciarYRenderOrdeno(); 
-        if(viewId === 'sanidad') renderVacunas(); 
-        if(viewId === 'tienda') renderTienda(); 
-        if(viewId === 'equipo') renderEquipo();
-        
+        if(viewId === 'dashboard') renderDashboard(); if(viewId === 'animales') reiniciarYRenderAnimales(); if(viewId === 'ordeño') reiniciarYRenderOrdeno(); if(viewId === 'sanidad') renderVacunas(); if(viewId === 'tienda') renderTienda(); if(viewId === 'equipo') renderEquipo();
         cerrarMenuCelular(); window.scrollTo(0, 0); 
     }
 
-    // Equipo de Trabajo
     async function renderEquipo() {
         if(miFincaInfo.rol !== 'admin') return;
         document.getElementById('display-codigo-equipo').innerText = miFincaInfo.codigo;
-        const tabla = document.getElementById('tabla-equipo');
-        tabla.innerHTML = '<tr><td colspan="3" class="text-center">Cargando equipo...</td></tr>';
+        const tabla = document.getElementById('tabla-equipo'); tabla.innerHTML = '<tr><td colspan="3" class="text-center">Cargando equipo...</td></tr>';
         try {
             const { data: miembros } = await supabaseClient.from('miembros').select('*').eq('finca_id', miFincaInfo.id);
             tabla.innerHTML = '';
@@ -540,8 +504,7 @@
     }
     async function eliminarMiembro(idMiembro) {
         if(!confirm("⚠️ ¿Estás seguro de ELIMINAR a este empleado de tu finca? Perderá el acceso de inmediato.")) return;
-        await supabaseClient.from('miembros').delete().eq('id', idMiembro);
-        renderEquipo();
+        await supabaseClient.from('miembros').delete().eq('id', idMiembro); renderEquipo();
     }
 
     function guardarWhatsApp(e) { e.preventDefault(); telefono_tienda = document.getElementById('input-wa-numero').value.trim(); document.getElementById('display-wa-num').innerText = telefono_tienda; document.getElementById('display-finca-info').innerText = `📍 ${ubicacion_finca || 'Sin ubicación'} | 📞 ${telefono_tienda || 'Sin teléfono'}`; bootstrap.Modal.getInstance(document.getElementById('modalConfigWA')).hide(); guardarDatos(); renderTienda(); }
@@ -552,7 +515,6 @@
     document.getElementById('ani-foto-file').addEventListener('change', function(e) { if(e.target.files[0]) comprimirImagen(e.target.files[0], 'ani-foto-base64', 'ani-foto-preview'); });
     document.getElementById('prod-foto-file').addEventListener('change', function(e) { if(e.target.files[0]) comprimirImagen(e.target.files[0], 'prod-foto-base64', 'prod-foto-preview'); });
 
-    // Tienda
     function setCategoriaTienda(categoria) { categoriaTiendaActual = categoria; const botones = document.querySelectorAll('.btn-depto'); botones.forEach(btn => { btn.classList.remove('btn-primary', 'active'); btn.classList.add('btn-outline-primary'); }); const btnActivo = document.getElementById(`btn-depto-${categoria}`); if(btnActivo) { btnActivo.classList.remove('btn-outline-primary'); btnActivo.classList.add('btn-primary', 'active'); } renderTienda(); }
     function abrirModalNuevoProducto() { document.getElementById('prod-id-edit').value = ''; document.getElementById('prod-foto-base64').value = ''; document.getElementById('prod-foto-preview').style.display = 'none'; document.getElementById('modalProductoTitle').innerText = 'Registrar Producto'; document.getElementById('form-producto').reset(); if(categoriaTiendaActual !== 'Todos') document.getElementById('prod-categoria').value = categoriaTiendaActual; new bootstrap.Modal(document.getElementById('modalProducto')).show(); }
     function abrirModalEditarProducto(id) { const prod = productos.find(p => p.id === id); if(!prod) return; document.getElementById('modalProductoTitle').innerText = '✏️ Editar Producto'; document.getElementById('prod-id-edit').value = prod.id; document.getElementById('prod-nombre').value = prod.nombre; document.getElementById('prod-categoria').value = prod.categoria; document.getElementById('prod-precio').value = prod.precio; document.getElementById('prod-stock').value = prod.stock; document.getElementById('prod-descripcion').value = prod.descripcion; if (prod.foto && !prod.foto.includes('placehold')) { document.getElementById('prod-foto-base64').value = prod.foto; document.getElementById('prod-foto-preview').src = prod.foto; document.getElementById('prod-foto-preview').style.display = 'block'; } else { document.getElementById('prod-foto-base64').value = ''; document.getElementById('prod-foto-preview').style.display = 'none'; } new bootstrap.Modal(document.getElementById('modalProducto')).show(); }
@@ -560,7 +522,6 @@
     function guardarProducto(e) { e.preventDefault(); const editId = document.getElementById('prod-id-edit').value; const fotoGuardada = document.getElementById('prod-foto-base64').value || 'https://placehold.co/400x400/2e7d32/ffffff?text=Producto'; if (editId) { const indice = productos.findIndex(p => p.id === editId); if(indice !== -1) { productos[indice].nombre = document.getElementById('prod-nombre').value.trim(); productos[indice].categoria = document.getElementById('prod-categoria').value; productos[indice].precio = parseFloat(document.getElementById('prod-precio').value); productos[indice].stock = parseInt(document.getElementById('prod-stock').value); productos[indice].descripcion = document.getElementById('prod-descripcion').value.trim(); productos[indice].foto = fotoGuardada; } } else { productos.push({ id: Date.now().toString() + Math.random().toString(36).substr(2, 5), nombre: document.getElementById('prod-nombre').value.trim(), categoria: document.getElementById('prod-categoria').value, precio: parseFloat(document.getElementById('prod-precio').value), stock: parseInt(document.getElementById('prod-stock').value), descripcion: document.getElementById('prod-descripcion').value.trim(), foto: fotoGuardada }); } guardarDatos(); bootstrap.Modal.getInstance(document.getElementById('modalProducto')).hide(); setCategoriaTienda(document.getElementById('prod-categoria').value); }
     function renderTienda() { const busqueda = document.getElementById('busqueda-producto').value.toLowerCase(); const lista = document.getElementById('lista-productos'); lista.innerHTML = ''; let filtrados = productos; if(categoriaTiendaActual !== 'Todos') filtrados = filtrados.filter(p => p.categoria === categoriaTiendaActual); if(busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda) || p.descripcion.toLowerCase().includes(busqueda)); filtrados.forEach(p => { const telLimpio = telefono_tienda.replace(/\D/g,''); const mensajeWa = encodeURIComponent(`Hola! 🌿 Me interesa comprar: *${p.nombre}*. Precio: $${p.precio.toFixed(2)}`); const urlWhatsapp = `https://api.whatsapp.com/send?phone=${telLimpio}&text=${mensajeWa}`; const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<div class="d-flex gap-2 justify-content-between border-top pt-2 mt-2"><button class="btn btn-sm btn-outline-primary w-50 fw-bold" onclick="abrirModalEditarProducto('${p.id}')">✏️ Editar</button><button class="btn btn-sm btn-outline-danger w-50 fw-bold" onclick="eliminarProducto('${p.id}')">🗑️</button></div>` : ''; lista.innerHTML += `<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3"><div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;"><img src="${p.foto}" onclick="verImagen('${p.foto}')" class="card-img-top card-producto-img" alt="Producto"><div class="card-body d-flex flex-column p-3 bg-white"><span class="badge bg-secondary mb-2 align-self-start">${p.categoria}</span><h5 class="card-title fw-bold text-dark mb-1" style="font-size: 1.15rem;">${p.nombre}</h5><p class="precio-tag mb-2">$${p.precio.toFixed(2)}</p><p class="text-muted small mb-2" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.5em;">${p.descripcion}</p><p class="mb-3 text-dark small fw-bold">Stock: ${p.stock} und.</p><div class="mt-auto"><a href="${urlWhatsapp}" target="_blank" class="btn btn-whatsapp w-100 fw-bold mb-2 shadow-sm d-flex align-items-center justify-content-center">💬 WhatsApp</a>${botonesAdmin}</div></div></div></div>`; }); if(filtrados.length === 0) lista.innerHTML = `<div class="col-12 text-center text-muted mt-5"><h4>No hay productos.</h4></div>`; }
 
-    // Animales (Con Duplicados, Especies, Razas y Potrero)
     function toggleMadre() { const check = document.getElementById('ani-madre-desc').checked; const input = document.getElementById('ani-madre'); input.disabled = check; if(check) input.value = 'Desconocida'; else input.value = ''; }
     
     function prepararModalNuevoAnimal() { 
@@ -597,7 +558,6 @@
         const editId = document.getElementById('ani-id-interno-edit').value; 
         const inputIdAnimal = document.getElementById('ani-id-animal').value.trim();
         
-        // VERIFICAR DUPLICADOS ANTES DE GUARDAR
         const animalExistente = animales.find(a => a.id_animal === inputIdAnimal);
         if (animalExistente && editId !== animalExistente.id_interno) {
             const msg = `⚠️ ¡ATENCIÓN! La Chapa/ID "${inputIdAnimal}" ya existe.\n\nPertenece a:\n- Nombre: ${animalExistente.nombre || 'Sin nombre'}\n- Especie: ${animalExistente.especie}\n- Lote: ${animalExistente.lote}\n\n¿Deseas CANCELAR tu registro nuevo y EDITAR el animal que ya existe?`;
@@ -605,7 +565,7 @@
                 bootstrap.Modal.getInstance(document.getElementById('modalAnimal')).hide();
                 setTimeout(() => abrirModalEditar(animalExistente.id_interno), 400);
                 return;
-            } else { return; } // Si dice que no, se queda en el formulario para cambiar la chapa.
+            } else { return; } 
         }
 
         const fotoGuardada = document.getElementById('ani-foto-base64').value || 'https://placehold.co/400x400/2e7d32/ffffff?text=Sin+Foto'; 
@@ -643,7 +603,15 @@
                 foto: fotoGuardada, historialLeche: [], historialPeso: [], vacunas: [] 
             }); 
         } 
-        guardarDatos(); bootstrap.Modal.getInstance(document.getElementById('modalAnimal')).hide(); reiniciarYRenderAnimales(); renderDashboard(); 
+        
+        guardarDatos(); 
+        // Cerramos el modal de forma segura sin generar choque de interfaz
+        const modalEl = document.getElementById('modalAnimal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if(modalInstance) modalInstance.hide();
+        
+        reiniciarYRenderAnimales(); 
+        renderDashboard(); 
     }
     
     function eliminarAnimal(id_interno) { if(confirm("⚠️ ¿Eliminar este animal?")) { animales = animales.filter(a => a.id_interno !== id_interno && a.id !== id_interno); guardarDatos(); reiniciarYRenderAnimales(); renderDashboard(); } }
@@ -689,7 +657,7 @@
     function abrirModalLeche(id_interno) { document.getElementById('leche-id-interno').value = id_interno; document.getElementById('leche-fecha').valueAsDate = new Date(); document.getElementById('leche-litros').value = ''; document.getElementById('leche-personal').value = ''; new bootstrap.Modal(document.getElementById('modalLeche')).show(); }
     function guardarLeche(e) { e.preventDefault(); const id = document.getElementById('leche-id-interno').value; const vaca = animales.find(a => a.id_interno === id || a.id === id); if(vaca) { vaca.historialLeche = vaca.historialLeche || []; vaca.historialLeche.push({ fecha: document.getElementById('leche-fecha').value, litros: parseFloat(document.getElementById('leche-litros').value), personal: document.getElementById('leche-personal').value.trim() }); vaca.historialLeche.sort((a,b) => new Date(a.fecha) - new Date(b.fecha)); guardarDatos(); } bootstrap.Modal.getInstance(document.getElementById('modalLeche')).hide(); reiniciarYRenderOrdeno(); }
     function ejecutarBorradoLote(e) { e.preventDefault(); const lote = document.getElementById('borrar-lote-select').value; const confirmacion = document.getElementById('borrar-lote-confirmacion').value; if (confirmacion !== 'ELIMINAR') { alert('Escribe ELIMINAR.'); return; } animales = animales.filter(a => a.lote !== lote); guardarDatos(); bootstrap.Modal.getInstance(document.getElementById('modalBorrarLote')).hide(); document.getElementById('form-borrar-lote').reset(); reiniciarYRenderAnimales(); renderDashboard(); }
-    function aplicarVacuna(e) { e.preventDefault(); vacunas.push({ lote: document.getElementById('vacuna-lote').value, tipo: document.getElementById('vacuna-tipo').value.trim(), personal: document.getElementById('vacuna-personal').value.trim(), fecha: document.getElementById('vacuna-fecha').value }); guardarDatos(); e.target.reset(); renderVacunas(); alert('Vacuna registrada con éxito.'); }
+    function aplicarVacuna(e) { e.preventDefault(); vacunas.push({ lote: document.getElementById('vacuna-lote').value, tipo: document.getElementById('vacuna-tipo').value.trim(), personal: document.getElementById('vacuna-personal').value.trim(), fecha: document.getElementById('vacuna-fecha').value }); guardarDatos(); e.target.reset(); renderVacunas(); }
     function renderVacunas() { const lista = document.getElementById('lista-vacunas'); lista.innerHTML = ''; const ultimasVacunas = vacunas.slice().reverse().slice(0, 50); ultimasVacunas.forEach(v => { lista.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-start border-0 border-bottom mb-1"><div><h6 class="mb-1 fw-bold text-dark">${v.tipo}</h6><small class="text-muted">Lote aplicado: ${v.lote}</small><br><small class="text-primary">🧑‍⚕️ Por: ${v.personal || 'N/A'}</small></div><span class="badge bg-secondary rounded-pill mt-2">${v.fecha}</span></li>`; }); }
 
     function renderDashboard() { 
@@ -701,7 +669,6 @@
         if(destetesPendientes === 0) alertasBox.innerHTML = '<li class="list-group-item text-muted border-0">Sin alertas.</li>';
     }
 
-    // EXCEL ACTUALIZADO
     function exportarExcel() { 
         const wb = XLSX.utils.book_new();
         const animalesData = animales.map(a => ({ "ID Por Animal": a.id_animal || a.id || '', "Nombre": a.nombre !== 'undefined' ? a.nombre : '', "Especie": a.especie || 'Bovino', "Raza": a.raza || 'No definida', "Genética": a.genetica || 'Puro', "PROVENIENTE": a.proveniente !== 'undefined' ? a.proveniente : '', "Sexo": a.sexo || '', "Lote": a.lote, "Potrero": a.potrero || 'No asignado', "Nacimiento": a.nacimiento !== 'undefined' ? a.nacimiento : '', "Madre": a.madre !== 'undefined' ? a.madre : '', "Foto": a.foto })); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(animalesData, {header: ["ID Por Animal", "Nombre", "Especie", "Raza", "Genética", "PROVENIENTE", "Sexo", "Lote", "Potrero", "Nacimiento", "Madre", "Foto"]}), "Animales");
