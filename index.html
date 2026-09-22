@@ -68,36 +68,35 @@
         <h2 class="fw-bold text-success mb-0">🌿 AgroSistema</h2>
         <p class="text-muted mb-4">Gestión Multi-Especie Cloud</p>
         
+        <!-- LOGIN VIEW (Sin etiquetas Form para evitar bugs de recarga en celulares) -->
         <div id="auth-login-view">
-            <form onsubmit="login(event)">
-                <input type="email" id="auth-email" class="form-control mb-3 form-control-lg" placeholder="Correo Electrónico" required>
-                <input type="password" id="auth-pass" class="form-control mb-3 form-control-lg" placeholder="Contraseña" required>
-                <button type="submit" class="btn btn-success btn-lg w-100 fw-bold mb-3 shadow-sm">Iniciar Sesión</button>
-                <button type="button" class="btn btn-outline-secondary w-100" onclick="showAuthView('register')">Crear una cuenta nueva</button>
-            </form>
+            <input type="email" id="auth-email" class="form-control mb-3 form-control-lg" placeholder="Correo Electrónico">
+            <input type="password" id="auth-pass" class="form-control mb-3 form-control-lg" placeholder="Contraseña">
+            <button class="btn btn-success btn-lg w-100 fw-bold mb-3 shadow-sm" onclick="login()">Iniciar Sesión</button>
+            <button class="btn btn-outline-secondary w-100" onclick="showAuthView('register')">Crear una cuenta nueva</button>
         </div>
 
+        <!-- REGISTER VIEW -->
         <div id="auth-register-view" class="hidden">
-            <form onsubmit="registrarUsuario(event)">
-                <h5 class="fw-bold mb-3">Crear Cuenta</h5>
-                <input type="email" id="reg-email" class="form-control mb-3 form-control-lg" placeholder="Tu Correo" required>
-                <input type="password" id="reg-pass" class="form-control mb-3 form-control-lg" placeholder="Crea una contraseña" required>
-                <button type="submit" class="btn btn-success btn-lg w-100 fw-bold mb-3">Registrarme</button>
-                <button type="button" class="btn btn-link text-muted w-100" onclick="showAuthView('login')">Volver al inicio</button>
-            </form>
+            <h5 class="fw-bold mb-3">Crear Cuenta</h5>
+            <input type="email" id="reg-email" class="form-control mb-3 form-control-lg" placeholder="Tu Correo">
+            <input type="password" id="reg-pass" class="form-control mb-3 form-control-lg" placeholder="Crea una contraseña">
+            <button class="btn btn-success btn-lg w-100 fw-bold mb-3" onclick="registrarUsuario()">Registrarme</button>
+            <button class="btn btn-link text-muted w-100" onclick="showAuthView('login')">Volver al inicio</button>
         </div>
 
+        <!-- SETUP FINCA VIEW -->
         <div id="auth-setup-finca-view" class="hidden">
             <h5 class="fw-bold text-success mb-3">¡Bienvenido!</h5>
-            <p class="text-muted small">Para empezar, crea tu finca (Dueño) o únete a una existente con un código (Empleado).</p>
+            <p class="text-muted small">Crea tu finca (Dueño) o únete a una existente con código (Empleado).</p>
             <hr>
             <h6 class="fw-bold text-start">Soy Dueño:</h6>
-            <input type="text" id="nueva-finca-nombre" class="form-control mb-2" placeholder="Nombre de mi finca (Ej: Los Pinos)">
+            <input type="text" id="nueva-finca-nombre" class="form-control mb-2" placeholder="Nombre (Ej: Los Pinos)">
             <button class="btn btn-primary w-100 fw-bold mb-4" onclick="crearNuevaFinca()">Crear Finca (Admin)</button>
             
             <h6 class="fw-bold text-start">Soy Empleado:</h6>
-            <input type="text" id="unirme-codigo" class="form-control mb-2" placeholder="Código de invitación (Ej: ABCD12)">
-            <button class="btn btn-warning text-dark w-100 fw-bold" onclick="unirmeAFinca()">Unirme a Finca Existente</button>
+            <input type="text" id="unirme-codigo" class="form-control mb-2" placeholder="Código (Ej: ABCD12)">
+            <button class="btn btn-warning text-dark w-100 fw-bold" onclick="unirmeAFinca()">Unirme a Finca</button>
         </div>
         
         <p id="auth-error" class="text-danger mt-3 fw-bold small"></p>
@@ -263,20 +262,20 @@
 <!-- Modal Producto -->
 <div class="modal fade" id="modalProducto" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold" id="modalProductoTitle">Registrar Producto</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-producto" onsubmit="guardarProducto(event)"><input type="hidden" id="prod-id-edit"> <div class="row g-2"><div class="col-12 mb-2"><label class="fw-bold">Nombre</label><input type="text" id="prod-nombre" class="form-control" required></div><div class="col-12 mb-2"><label class="fw-bold">Categoría</label><select id="prod-categoria" class="form-select" required><option value="Medicamentos">Medicamentos</option><option value="Accesorios">Accesorios</option><option value="Utensilios">Utensilios</option><option value="Otros">Otros</option></select></div><div class="col-6 mb-2"><label class="fw-bold">Precio ($)</label><input type="number" step="0.01" id="prod-precio" class="form-control" required></div><div class="col-6 mb-2"><label class="fw-bold">Stock</label><input type="number" id="prod-stock" class="form-control" required></div><div class="col-12 mb-2"><label class="fw-bold">Descripción</label><textarea id="prod-descripcion" class="form-control" rows="2"></textarea></div><div class="col-12 mb-2"><label class="fw-bold">Foto</label><input type="file" id="prod-foto-file" class="form-control" accept="image/*" capture="environment"><input type="hidden" id="prod-foto-base64"><div class="text-center mt-2"><img id="prod-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-producto" class="btn btn-success btn-lg w-100 fw-bold">Guardar</button></div></div></div></div>
 
-<!-- Modal Animal (AHORA MULTI-ESPECIE Y CON POTRERO) -->
+<!-- Modal Animal (Multi-Especie y Potrero) -->
 <div class="modal fade" id="modalAnimal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold" id="modalAnimalTitle">Registrar Animal</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-animal" onsubmit="guardarAnimal(event)"><input type="hidden" id="ani-id-interno-edit"> <div class="row g-2"><div class="col-6 mb-2"><label class="fw-bold">Chapa / ID</label><input type="text" id="ani-id-animal" class="form-control" required></div><div class="col-6 mb-2"><label class="fw-bold">Nombre</label><input type="text" id="ani-nombre" class="form-control"></div>
 <div class="col-6 mb-2"><label class="fw-bold">Especie</label><select id="ani-especie" class="form-select" required><option value="Bovino">Bovino (Vacas/Toros)</option><option value="Porcino">Porcino (Cerdos)</option><option value="Caprino">Caprino (Cabras)</option><option value="Ovino">Ovino (Ovejas)</option><option value="Equino">Equino (Caballos)</option><option value="Avícola">Avícola (Gallinas)</option><option value="Otro">Otro</option></select></div>
 <div class="col-6 mb-2"><label class="fw-bold">Sexo</label><select id="ani-sexo" class="form-select" required><option value="Hembra">Hembra</option><option value="Macho">Macho</option></select></div><div class="col-6 mb-2"><label class="fw-bold">Lote / Grupo</label><select id="ani-lote" class="form-select" required></select></div><div class="col-6 mb-2"><label class="fw-bold">Potrero / Galpón</label><input type="text" id="ani-potrero" class="form-control" placeholder="Ej. Potrero 1"></div><div class="col-6 mb-2"><label class="fw-bold">Origen</label><input type="text" id="ani-proveniente" class="form-control"></div><div class="col-6 mb-2"><label class="fw-bold">Nacimiento</label><input type="date" id="ani-fecha" class="form-control" required></div><div class="col-12 mb-2"><label class="fw-bold">Madre</label><input type="text" id="ani-madre" class="form-control"><div class="form-check mt-1"><input class="form-check-input" type="checkbox" id="ani-madre-desc" onchange="toggleMadre()"><label class="form-check-label text-muted">Madre desconocida</label></div></div><div class="col-12 mb-2"><label class="fw-bold">Foto (Cámara)</label><input type="file" id="ani-foto-file" class="form-control" accept="image/*" capture="environment"><input type="hidden" id="ani-foto-base64"><div class="text-center mt-2"><img id="ani-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-animal" class="btn btn-success btn-lg w-100 fw-bold">Guardar Perfil</button></div></div></div></div>
 
-<!-- Resto Modales -->
+<!-- Resto Modales Base -->
 <div class="modal fade" id="modalConfigWA" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">📞 WhatsApp</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-config-wa" onsubmit="guardarWhatsApp(event)"><label class="fw-bold text-muted mb-2">Ingresa número:</label><input type="text" id="input-wa-numero" class="form-control form-control-lg" required></form></div><div class="modal-footer border-0"><button type="submit" form="form-config-wa" class="btn btn-success btn-lg w-100 fw-bold">Guardar</button></div></div></div></div>
 <div class="modal fade" id="modalTrasladoLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">🔄 Trasladar</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-traslado" onsubmit="ejecutarTraslado(event)"><input type="hidden" id="traslado-id-interno"><label class="fw-bold mb-2">Nuevo Lote:</label><select id="traslado-nuevo-lote" class="form-select form-select-lg" required></select></form></div><div class="modal-footer border-0"><button type="submit" form="form-traslado" class="btn btn-success btn-lg w-100">Confirmar</button></div></div></div></div>
 <div class="modal fade" id="modalRegistroPeso" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-warning text-dark"><h5 class="modal-title fw-bold">⚖️ Registrar Peso</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-peso" onsubmit="guardarPeso(event)"><input type="hidden" id="peso-id-interno"><div class="mb-3"><label class="fw-bold">Fecha</label><input type="date" id="peso-fecha" class="form-control form-control-lg" required></div><div class="mb-3"><label class="fw-bold">Peso (Kg)</label><input type="number" step="0.1" id="peso-kilos" class="form-control form-control-lg" required></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-peso" class="btn btn-warning btn-lg w-100 fw-bold">Guardar</button></div></div></div></div>
 <div class="modal fade" id="modalGraficoHistorial" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-info text-dark" id="headerModalGrafico"><h5 class="modal-title fw-bold" id="tituloModalGrafico">Historial</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-1 p-md-3"><div class="chart-container-modal"><canvas id="canvas-grafico-unico"></canvas></div></div></div></div></div>
-<div class="modal fade" id="modalNuevoLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">Nuevo Lote</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-lote-manual" onsubmit="guardarNuevoLote(event)"><label class="fw-bold">Nombre del Lote:</label><input type="text" id="nuevo-lote-nombre" class="form-control form-control-lg mt-2" required></form></div><div class="modal-footer border-0"><button type="submit" form="form-lote-manual" class="btn btn-success btn-lg w-100">Crear</button></div></div></div></div>
-<div class="modal fade" id="modalLeche" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">Producción</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-leche" onsubmit="guardarLeche(event)"><input type="hidden" id="leche-id-interno"><div class="mb-3"><label class="fw-bold">Fecha</label><input type="date" id="leche-fecha" class="form-control form-control-lg" required></div><div class="mb-3"><label class="fw-bold">Cantidad Producida</label><input type="number" step="0.1" id="leche-litros" class="form-control form-control-lg" required></div><div class="mb-3"><label class="fw-bold">Encargado</label><input type="text" id="leche-personal" class="form-control" required></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-leche" class="btn btn-primary btn-lg w-100 fw-bold">Registrar</button></div></div></div></div>
-<div class="modal fade" id="modalBorrarLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-danger shadow-lg"><div class="modal-header bg-danger text-white"><h5 class="modal-title fw-bold">⚠️ PELIGRO</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-borrar-lote" onsubmit="ejecutarBorradoLote(event)"><p>Se eliminarán todos los animales de un lote.</p><select id="borrar-lote-select" class="form-select form-select-lg mb-3" required></select><input type="text" id="borrar-lote-confirmacion" class="form-control border-danger form-control-lg" placeholder="Escribe ELIMINAR" required></form></div><div class="modal-footer border-0"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" form="form-borrar-lote" class="btn btn-danger fw-bold">Destruir</button></div></div></div></div>
-<div class="modal fade" id="modalImagenGrande" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content bg-transparent border-0"><div class="modal-body text-center position-relative p-0"><button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 shadow" data-bs-dismiss="modal" style="background-color: rgba(255,255,255,0.8); padding: 12px; border-radius: 50%; z-index: 1055;"></button><img id="img-zoom" src="" class="img-fluid rounded shadow-lg w-100" style="max-height: 85vh; border: 4px solid white; object-fit: contain;" alt="Foto"></div></div></div></div>
+<div class="modal fade" id="modalNuevoLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">Nuevo Lote</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-lote-manual" onsubmit="guardarNuevoLote(event)"><label class="fw-bold">Nombre del Lote:</label><input type="text" id="nuevo-lote-nombre" class="form-control form-control-lg mt-2" required></form></div><div class="modal-footer border-0"><button type="submit" form="form-lote-manual" class="btn btn-success btn-lg w-100">Crear Lote</button></div></div></div></div>
+<div class="modal fade" id="modalLeche" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">Producción Semanal</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-leche" onsubmit="guardarLeche(event)"><input type="hidden" id="leche-id-interno"><div class="mb-3"><label class="fw-bold">Fecha</label><input type="date" id="leche-fecha" class="form-control form-control-lg" required></div><div class="mb-3"><label class="fw-bold">Cantidad Producida</label><input type="number" step="0.1" id="leche-litros" class="form-control form-control-lg" required></div><div class="mb-3"><label class="fw-bold">Encargado</label><input type="text" id="leche-personal" class="form-control" required></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-leche" class="btn btn-primary btn-lg w-100 fw-bold">Registrar</button></div></div></div></div>
+<div class="modal fade" id="modalBorrarLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-danger shadow-lg"><div class="modal-header bg-danger text-white"><h5 class="modal-title fw-bold">⚠️ ZONA DE PELIGRO</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-borrar-lote" onsubmit="ejecutarBorradoLote(event)"><p>Vas a eliminar <strong>todos los animales</strong> de un lote. No se puede deshacer.</p><label class="fw-bold">Lote a vaciar:</label><select id="borrar-lote-select" class="form-select form-select-lg mb-3" required></select><label class="fw-bold text-danger">Escribe ELIMINAR en mayúsculas:</label><input type="text" id="borrar-lote-confirmacion" class="form-control border-danger form-control-lg" placeholder="ELIMINAR" required></form></div><div class="modal-footer border-0"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" form="form-borrar-lote" class="btn btn-danger fw-bold">Destruir Datos</button></div></div></div></div>
+<div class="modal fade" id="modalImagenGrande" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content bg-transparent border-0"><div class="modal-body text-center position-relative p-0"><button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 shadow" data-bs-dismiss="modal" style="background-color: rgba(255,255,255,0.8); padding: 12px; border-radius: 50%; z-index: 1055;"></button><img id="img-zoom" src="" class="img-fluid rounded shadow-lg w-100" style="max-height: 85vh; border: 4px solid white; object-fit: contain;" alt="Foto Grande"></div></div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -284,7 +283,7 @@
     // ☁️ CONFIGURACIÓN NUBE Y SEGURIDAD
     // ==========================================
     const SUPABASE_URL = 'https://pznaumhcnpotlarvrcjl.supabase.co';
-    const SUPABASE_KEY = 'PEGAR_AQUI_TU_CLAVE_PUBLISHABLE_COPIADA'; // <-- ¡Tu clave va aquí!
+    const SUPABASE_KEY = 'sb_publishable_3Upyqun-W_H5F7KdOQpMpQ_HuHHtJXp'; // <- TU CLAVE AQUI
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let session = null;
@@ -312,10 +311,11 @@
         document.getElementById(`auth-${view}-view`).classList.remove('hidden');
     }
 
-    async function login(e) {
-        e.preventDefault();
+    async function login() {
         const email = document.getElementById('auth-email').value;
         const pass = document.getElementById('auth-pass').value;
+        if(!email || !pass) return document.getElementById('auth-error').innerText = "Llena todos los campos.";
+        
         document.getElementById('auth-error').innerText = 'Conectando...';
         const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
         if (error) { document.getElementById('auth-error').innerText = "Error: Correo o clave incorrectos."; return; }
@@ -323,19 +323,24 @@
         await verificarFincaUsuario();
     }
 
-    async function registrarUsuario(e) {
-        e.preventDefault();
+    async function registrarUsuario() {
         const email = document.getElementById('reg-email').value;
         const pass = document.getElementById('reg-pass').value;
-        document.getElementById('auth-error').innerText = 'Registrando...';
-        const { data, error } = await supabase.auth.signUp({ email, password: pass });
-        if (error) { document.getElementById('auth-error').innerText = "Error: " + error.message; return; }
+        if(!email || !pass) return document.getElementById('auth-error').innerText = "Llena todos los campos.";
         
-        if (!data.session) {
-            document.getElementById('auth-error').innerHTML = "<span class='text-primary fw-bold'>Registro exitoso. Para poder entrar directo, recuerda APAGAR 'Confirm email' en las opciones de Supabase.</span>";
-        } else {
-            session = data.session;
-            showAuthView('setup-finca');
+        document.getElementById('auth-error').innerText = 'Registrando...';
+        try {
+            const { data, error } = await supabase.auth.signUp({ email, password: pass });
+            if (error) { document.getElementById('auth-error').innerText = "Error: " + error.message; return; }
+            
+            if (!data.session) {
+                document.getElementById('auth-error').innerHTML = "<span class='text-primary fw-bold'>Registro exitoso. Para entrar directo, apaga 'Confirm email' en Supabase.</span>";
+            } else {
+                session = data.session;
+                showAuthView('setup-finca');
+            }
+        } catch(e) {
+            document.getElementById('auth-error').innerText = "Error general: " + e.message;
         }
     }
 
@@ -393,7 +398,7 @@
     }
 
     // ==========================================
-    // 3. CARGAR DATOS DE LA FINCA CORRESPONDIENTE
+    // 3. CARGAR DATOS Y TIEMPO REAL
     // ==========================================
     async function arrancarAplicacion() {
         document.getElementById('auth-screen').style.display = 'none';
@@ -420,9 +425,7 @@
         document.getElementById('display-wa-num').innerText = telefono_tienda || 'No configurado';
         document.getElementById('input-wa-numero').value = telefono_tienda;
         
-        actualizarSelectsLotes();
-        showView('dashboard');
-        iniciarSincronizacionEnTiempoReal();
+        actualizarSelectsLotes(); showView('dashboard'); iniciarSincronizacionEnTiempoReal();
     }
 
     async function guardarDatos() {
@@ -435,13 +438,8 @@
         supabase.channel('custom-all-channel')
             .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'finca_data', filter: `finca_id=eq.${miFincaInfo.id}` }, (payload) => {
                 const rawData = payload.new.data;
-                animales = rawData.animales || [];
-                vacunas = rawData.vacunas || [];
-                productos = rawData.productos || [];
-                lotes = rawData.lotes || ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
-                telefono_tienda = rawData.telefono_tienda || '';
-                actualizarSelectsLotes();
-                renderDashboard();
+                animales = rawData.animales || []; vacunas = rawData.vacunas || []; productos = rawData.productos || []; lotes = rawData.lotes || ['Ordeño', 'Horro', 'Mautes', 'Becerros']; telefono_tienda = rawData.telefono_tienda || '';
+                actualizarSelectsLotes(); renderDashboard();
                 if(!document.getElementById('view-animales').classList.contains('hidden')) renderAnimales();
                 if(!document.getElementById('view-ordeño').classList.contains('hidden')) renderOrdeno();
                 if(!document.getElementById('view-tienda').classList.contains('hidden')) renderTienda();
@@ -567,7 +565,6 @@
             const idInternoReal = a.id_interno || a.id; const pesos = a.historialPeso || []; const ultimoPeso = pesos.length > 0 ? pesos[pesos.length-1].peso + ' Kg' : 'Sin registro'; 
             let imgSrc = a.foto; if(imgSrc.includes('placeholder.com')) imgSrc = 'https://placehold.co/400x400/2e7d32/ffffff?text=Sin+Foto'; 
             
-            // Lógica de Especies
             let iconEspecie = '🐄';
             if(a.especie === 'Porcino') iconEspecie = '🐖';
             else if(a.especie === 'Caprino') iconEspecie = '🐐';
