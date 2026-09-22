@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#2e7d32">
+    
+    <title>Finca Pajarito - Control y Tienda</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <style>
+        :root { --primary: #2e7d32; --secondary: #f1f8e9; --dark: #1b5e20; }
+        body { background-color: #f4f6f4; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
+        
+        /* CORRECCIÓN DE COLORES DEL MENÚ */
+        .sidebar-desktop, .offcanvas, .offcanvas-md, .offcanvas-body { background-color: var(--primary) !important; }
+        .sidebar-menu a { color: #e8f5e9 !important; text-decoration: none; padding: 12px 20px; display: block; margin-bottom: 5px; border-radius: 8px; font-size: 1.1rem; transition: 0.2s; }
+        .sidebar-menu a:hover, .sidebar-menu a.active { background-color: var(--dark) !important; color: white !important; font-weight: bold; }
+        .logo-finca { font-size: 1.6rem; font-weight: bold; text-align: center; margin-bottom: 20px; border-bottom: 1px solid #4caf50; padding-bottom: 15px; color: white !important;}
+        
+        /* Ajustes de Pantalla Escritorio (Desktop) */
+        @media (min-width: 768px) {
+            .sidebar-desktop { position: fixed; width: 250px; height: 100vh; overflow-y: auto; padding-top: 20px; border-right: 2px solid var(--dark); z-index: 1000; }
+            .main-content { margin-left: 250px; padding: 2rem; }
+            .mobile-header { display: none !important; }
+        }
+        
+        /* Ajustes de Pantalla Celular (Mobile) */
+        @media (max-width: 767.98px) {
+            .main-content { padding: 1rem; padding-top: 85px; padding-bottom: 40px; }
+            .mobile-header { position: fixed; top: 0; left: 0; right: 0; height: 65px; background-color: var(--primary); color: white; z-index: 1030; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+            .animal-card-body { flex-direction: column !important; align-items: center !important; text-align: center; }
+            .img-thumbnail-animal { margin-bottom: 15px; margin-right: 0 !important; width: 110px !important; height: 110px !important; }
+            .animal-info-col { border-left: none !important; border-top: 1px solid #dee2e6; margin-top: 10px; padding-top: 10px; }
+            .btn-action-mobile-group { justify-content: center !important; margin-bottom: 10px; }
+        }
+
+        .card-stat { border-left: 5px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .card-lote { box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-radius: 8px; border: none; }
+        .hidden { display: none !important; }
+        .chart-container-modal { position: relative; height: 300px; width: 100%; }
+        .preview-img { max-width: 100%; height: 150px; object-fit: cover; display: none; margin-top: 10px; border-radius: 8px; }
+        .btn-card-action { font-size: 0.9rem; padding: 0.3rem 0.6rem; margin: 0 2px;}
+        .img-thumbnail-animal { width: 90px; height: 90px; border-radius: 10px; object-fit: cover; cursor: pointer; border: 2px solid #ddd; transition: transform 0.2s; }
+        .img-thumbnail-animal:hover { transform: scale(1.05); border-color: var(--primary); }
+        
+        /* Estilos Tienda */
+        .precio-tag { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<!-- Cabecera Celular -->
+<div class="mobile-header d-md-none">
+    <h5 class="m-0 fw-bold text-white">🌿 Finca Pajarito</h5>
+    <button class="btn btn-outline-light border-0 fs-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">☰</button>
+</div>
+
+<!-- Menú Lateral -->
+<div class="offcanvas-md offcanvas-start sidebar-desktop" tabindex="-1" id="sidebarOffcanvas">
+    <div class="offcanvas-header d-md-none border-bottom border-success" style="background-color: var(--dark) !important;">
+        <h5 class="offcanvas-title text-white fw-bold">🌿 Menú Principal</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body sidebar-menu flex-column p-3">
+        <div class="logo-finca d-none d-md-block">🌿 Finca Pajarito</div>
+        <a href="#" onclick="showView('dashboard')" id="nav-dashboard" class="active">📊 Dashboard</a>
+        <a href="#" onclick="showView('animales')" id="nav-animales">🐄 Perfiles y Lotes</a>
+        <a href="#" onclick="showView('ordeño')" id="nav-ordeño">🥛 Control de Leche</a>
+        <a href="#" onclick="showView('sanidad')" id="nav-sanidad">💉 Sanidad y Vacunas</a>
+        <a href="#" onclick="showView('tienda')" id="nav-tienda">🛒 Tienda / Catálogo</a>
+        <hr class="border-light opacity-50 w-100 my-3">
+        <a href="#" onclick="showView('datos')" id="nav-datos">💾 Respaldo (Excel)</a>
+    </div>
+</div>
+
+<!-- Contenido Principal -->
+<div class="main-content">
+    
+    <!-- VIEW: DASHBOARD -->
+    <div id="view-dashboard" class="view-section">
+        <h2 class="mb-4 fw-bold text-dark">Resumen de la Finca</h2>
+        <div class="row mb-3 g-3">
+            <div class="col-md-4 col-12">
+                <div class="card card-stat p-3 h-100">
+                    <h6 class="text-muted">Total Inventario (Cabezas)</h6>
+                    <h2 id="stat-total" class="fw-bold m-0">0</h2>
+                </div>
+            </div>
+            <div class="col-md-4 col-12">
+                <div class="card card-stat p-3 h-100 border-primary">
+                    <h6 class="text-muted">Producción Semanal (Lts)</h6>
+                    <h2 id="stat-leche" class="text-primary fw-bold m-0">0.0</h2>
+                </div>
+            </div>
+            <div class="col-md-4 col-12">
+                <div class="card card-stat p-3 h-100 border-success">
+                    <h6 class="text-muted">Est. Queso Semanal (Kg)</h6>
+                    <h2 id="stat-queso" class="text-success fw-bold m-0">0.0</h2>
+                    <small class="text-muted" style="font-size: 0.7rem;">*Basado en 8.5 lts/kg</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mt-4 mb-3">
+            <h4 class="m-0 mb-2 mb-md-0 fw-bold">Distribución por Lotes</h4>
+            <button class="btn btn-sm btn-outline-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalNuevoLote">➕ Crear Lote Manual</button>
+        </div>
+        <div class="row mb-4 g-2" id="dashboard-lotes-container"></div>
+        
+        <h4 class="text-danger mt-4 fw-bold">⚠️ Alertas de Destete</h4>
+        <p class="text-muted">Becerros con más de 7 meses listos para destete.</p>
+        <ul class="list-group shadow-sm border-0" id="alertas-destete"></ul>
+    </div>
+
+    <!-- VIEW: TIENDA -->
+    <div id="view-tienda" class="view-section hidden">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Tienda y Catálogo</h2>
+            <button class="btn btn-success fw-bold" onclick="abrirModalNuevoProducto()">➕ Nuevo Producto</button>
+        </div>
+        <div class="row mb-3 g-2">
+            <div class="col-12 col-md-4">
+                <select id="filtro-categoria" class="form-select form-select-lg" onchange="renderTienda()">
+                    <option value="Todos">Todas las Categorías</option>
+                    <option value="Medicamentos">Medicamentos</option>
+                    <option value="Accesorios">Accesorios</option>
+                    <option value="Utensilios">Utensilios</option>
+                    <option value="Otros">Otros</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-8">
+                <input type="text" id="busqueda-producto" class="form-control form-control-lg" placeholder="🔍 Buscar producto..." onkeyup="renderTienda()">
+            </div>
+        </div>
+        <div class="row g-3" id="lista-productos"></div>
+    </div>
+
+    <!-- VIEW: ANIMALES -->
+    <div id="view-animales" class="view-section hidden">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Perfiles de Ganado</h2>
+            <button class="btn btn-success fw-bold" onclick="abrirModalNuevoAnimal()">➕ Nuevo</button>
+        </div>
+
+        <div class="row mb-3 g-2">
+            <div class="col-12 col-md-3">
+                <select id="filtro-lote" class="form-select form-select-lg" onchange="reiniciarYRenderAnimales()"></select>
+            </div>
+            <div class="col-12 col-md-6">
+                <input type="text" id="busqueda-animal" class="form-control form-control-lg" placeholder="🔍 Buscar Chapa o Nombre..." onkeyup="busquedaInteligenteAnimales()">
+            </div>
+            <div class="col-12 col-md-3 text-end">
+                <button class="btn btn-danger btn-lg w-100" data-bs-toggle="modal" data-bs-target="#modalBorrarLote">⚠️ Vaciar Lote</button>
+            </div>
+        </div>
+
+        <div class="row g-3" id="lista-animales"></div>
+        <div id="btn-cargar-mas-animales" class="text-center mt-4 hidden">
+            <button class="btn btn-primary px-5 rounded-pill shadow" onclick="cargarMasAnimales()">🔽 Mostrar Más Animales</button>
+        </div>
+    </div>
+
+    <!-- VIEW: ORDEÑO -->
+    <div id="view-ordeño" class="view-section hidden">
+        <h2 class="fw-bold mb-3">Control Lechero</h2>
+        <div class="table-responsive bg-white rounded shadow-sm p-2 p-md-3">
+            <table class="table table-hover align-middle">
+                <thead class="table-success">
+                    <tr>
+                        <th>Vaca (ID y Nombre)</th>
+                        <th>Último Registro</th>
+                        <th>Litros / Ordeñador</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-ordeno"></tbody>
+            </table>
+        </div>
+        <div id="btn-cargar-mas-ordeno" class="text-center mt-4 hidden">
+            <button class="btn btn-primary px-5 rounded-pill shadow" onclick="cargarMasOrdeno()">🔽 Mostrar Más Vacas</button>
+        </div>
+    </div>
+
+    <!-- VIEW: SANIDAD -->
+    <div id="view-sanidad" class="view-section hidden">
+        <h2 class="fw-bold mb-3">Control Sanitario</h2>
+        <div class="card p-3 p-md-4 mb-4 shadow-sm border-0">
+            <h4 class="mb-3">Aplicar Vacuna por Lote</h4>
+            <form id="form-vacuna" onsubmit="aplicarVacuna(event)">
+                <div class="row g-2">
+                    <div class="col-12 col-md-3">
+                        <label>Lote a vacunar:</label>
+                        <select id="vacuna-lote" class="form-select form-select-lg" required></select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label>Tipo de Vacuna:</label>
+                        <input type="text" id="vacuna-tipo" class="form-control form-control-lg" placeholder="Ej. Aftosa..." required>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label>Fecha:</label>
+                        <input type="date" id="vacuna-fecha" class="form-control form-control-lg" required>
+                    </div>
+                    <div class="col-6 col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">Vacunar</button>
+                    </div>
+                    <div class="col-12 mt-2">
+                        <label>Personal a cargo:</label>
+                        <input type="text" id="vacuna-personal" class="form-control" placeholder="Ej. Dr. Carlos" required>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <h4 class="fw-bold">Historial de Vacunación</h4>
+        <ul class="list-group shadow-sm border-0" id="lista-vacunas"></ul>
+    </div>
+
+    <!-- VIEW: RESPALDO EXCEL -->
+    <div id="view-datos" class="view-section hidden">
+        <h2 class="mb-4 fw-bold">Respaldo de Datos (Excel)</h2>
+        <div class="row g-3">
+            <div class="col-12 col-md-6">
+                <div class="card p-4 text-center h-100 shadow-sm border-success">
+                    <h4 class="text-success mb-3 fw-bold">📤 Exportar a Excel</h4>
+                    <p class="text-muted">Descarga un archivo con tus Animales, Vacunas, Ordeños, Pesos y Tienda.</p>
+                    <button class="btn btn-success btn-lg mt-auto shadow" onclick="exportarExcel()">Descargar Archivo</button>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card p-4 text-center h-100 shadow-sm border-primary">
+                    <h4 class="text-primary mb-3 fw-bold">📥 Importar desde Excel</h4>
+                    <p class="text-muted">Sube tu Excel. <strong class="text-danger">Esto reemplazará los datos actuales.</strong></p>
+                    <input type="file" id="input-importar" class="form-control form-control-lg mb-3" accept=".xlsx, .xls">
+                    <button class="btn btn-primary btn-lg mt-auto shadow" onclick="importarExcel()">Restaurar Datos</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!-- MODALES -->
+<!-- ============================================== -->
+
+<!-- Modal Formulario Producto (Tienda) -->
+<div class="modal fade" id="modalProducto" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold" id="modalProductoTitle">Registrar Producto</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form onsubmit="guardarProducto(event)">
+          <div class="modal-body">
+              <input type="hidden" id="prod-id-edit"> 
+              <div class="row g-2">
+                  <div class="col-12 mb-2">
+                      <label class="fw-bold">Nombre del Producto</label>
+                      <input type="text" id="prod-nombre" class="form-control" placeholder="Ej. Jeringa 50ml, Sal Mineral..." required>
+                  </div>
+                  <div class="col-12 mb-2">
+                      <label class="fw-bold">Categoría</label>
+                      <select id="prod-categoria" class="form-select" required>
+                          <option value="Medicamentos">Medicamentos</option>
+                          <option value="Accesorios">Accesorios</option>
+                          <option value="Utensilios">Utensilios</option>
+                          <option value="Otros">Otros</option>
+                      </select>
+                  </div>
+                  <div class="col-6 mb-2">
+                      <label class="fw-bold">Precio ($)</label>
+                      <input type="number" step="0.01" id="prod-precio" class="form-control" placeholder="Ej. 15.50" required>
+                  </div>
+                  <div class="col-6 mb-2">
+                      <label class="fw-bold">Stock (Unidades)</label>
+                      <input type="number" id="prod-stock" class="form-control" placeholder="Ej. 20" required>
+                  </div>
+                  <div class="col-12 mb-2">
+                      <label class="fw-bold">Descripción / Detalles</label>
+                      <textarea id="prod-descripcion" class="form-control" rows="2" placeholder="Detalles del producto..."></textarea>
+                  </div>
+                  <div class="col-12 mb-2">
+                      <label class="fw-bold">Foto del Producto</label>
+                      <input type="file" id="prod-foto-file" class="form-control" accept="image/*" capture="environment">
+                      <input type="hidden" id="prod-foto-base64">
+                      <div class="text-center mt-2">
+                          <img id="prod-foto-preview" class="preview-img mx-auto" alt="Vista previa">
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="submit" class="btn btn-success btn-lg w-100 fw-bold">Guardar Producto</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Traslado Lote -->
+<div class="modal fade" id="modalTrasladoLote" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold">🔄 Trasladar</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form onsubmit="ejecutarTraslado(event)">
+          <div class="modal-body">
+              <input type="hidden" id="traslado-id-interno">
+              <label class="fw-bold mb-2">Nuevo Lote:</label>
+              <select id="traslado-nuevo-lote" class="form-select form-select-lg" required></select>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="submit" class="btn btn-success btn-lg w-100">Confirmar</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Registro Peso -->
+<div class="modal fade" id="modalRegistroPeso" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title fw-bold">⚖️ Registrar Peso</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form onsubmit="guardarPeso(event)">
+          <div class="modal-body">
+              <input type="hidden" id="peso-id-interno">
+              <div class="mb-3">
+                  <label class="fw-bold">Fecha</label>
+                  <input type="date" id="peso-fecha" class="form-control form-control-lg" required>
+              </div>
+              <div class="mb-3">
+                  <label class="fw-bold">Peso (Kg)</label>
+                  <input type="number" step="0.1" id="peso-kilos" class="form-control form-control-lg" required>
+              </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold">Guardar Peso</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Grafico Historial -->
+<div class="modal fade" id="modalGraficoHistorial" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-info text-dark" id="headerModalGrafico">
+        <h5 class="modal-title fw-bold" id="tituloModalGrafico">Historial</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-1 p-md-3">
+          <div class="chart-container-modal">
+              <canvas id="canvas-grafico-unico"></canvas>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Formulario Animal -->
+<div class="modal fade" id="modalAnimal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold" id="modalAnimalTitle">Registrar Animal</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="form-animal" onsubmit="guardarAnimal(event)">
+          <div class="modal-body">
+              <input type="hidden" id="ani-id-interno-edit"> 
+              <div class="row g-2">
+                  <div class="col-6 mb-2">
+                      <label class="fw-bold">Chapa</label>
+                      <input type="text" id="ani-id-animal" class="form-control" placeholder="Ej. 001" required>
+                  </div>
+                  <div class="col-6 mb-2">
+                      <label class="fw-bold">Nombre</label>
+                      <input type="text" id="ani-nombre" class="form-control">
+                  </div>
+                  <div class="col-6 mb-2">
+                      <label class="fw-bold">Sexo</label>
+                      <select id="ani-sexo" class="form-select" required>
+                          <option value="Hembra">Hembra</option>
+                          <option value="Macho">Macho</option>
+                      </select>
+                  </div>
+                  <div class="col-6 mb-2">
+                      <label class="fw-bold">Origen</label>
+                      <input type="text" id="ani-proveniente" class="form-control">
+                  </div>
+                  <div class="col-12 mb-2">
+                      <label class="fw-bold">Lote Actual</label>
+                      <select id="ani-lote" class="form-select" required></select>
+                  </div>
+                  <div class="col-12 mb-2">
+                      <label class="fw-bold">Nacimiento</label>
+                      <input type="date" id="ani-fecha" class="form-control" required>
+                  </div>
+                  <div class="col-12 mb-2">
+                      <label class="fw-bold">Madre</label>
+                      <input type="text" id="ani-madre" class="form-control">
+                      <div class="form-check mt-1">
+                          <input class="form-check-input" type="checkbox" id="ani-madre-desc" onchange="toggleMadre()">
+                          <label class="form-check-label text-muted">Madre desconocida</label>
+                      </div>
+                  </div>
+                  <div class="col-12 mb-2">
+                      <label class="fw-bold">Foto (Cámara)</label>
+                      <input type="file" id="ani-foto-file" class="form-control" accept="image/*" capture="environment">
+                      <input type="hidden" id="ani-foto-base64">
+                      <div class="text-center mt-2">
+                          <img id="ani-foto-preview" class="preview-img mx-auto" alt="Vista previa">
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="submit" class="btn btn-success btn-lg w-100 fw-bold">Guardar Perfil</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Registro Leche -->
+<div class="modal fade" id="modalLeche" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold">Producción Semanal</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="form-leche" onsubmit="guardarLeche(event)">
+          <div class="modal-body">
+              <input type="hidden" id="leche-id-interno">
+              <div class="mb-3">
+                  <label class="fw-bold">Fecha</label>
+                  <input type="date" id="leche-fecha" class="form-control form-control-lg" required>
+              </div>
+              <div class="mb-3">
+                  <label class="fw-bold">Litros Producidos</label>
+                  <input type="number" step="0.1" id="leche-litros" class="form-control form-control-lg" required>
+              </div>
+              <div class="mb-3">
+                  <label class="fw-bold">Ordeñador</label>
+                  <input type="text" id="leche-personal" class="form-control" required>
+              </div>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">Registrar</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Crear Lote Manual -->
+<div class="modal fade" id="modalNuevoLote" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold">Nuevo Lote</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form onsubmit="guardarNuevoLote(event)">
+          <div class="modal-body">
+              <label class="fw-bold">Nombre del Lote:</label>
+              <input type="text" id="nuevo-lote-nombre" class="form-control form-control-lg mt-2" required>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="submit" class="btn btn-success btn-lg w-100">Crear Lote</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Seguro: Borrar Lote -->
+<div class="modal fade" id="modalBorrarLote" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-danger shadow-lg">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title fw-bold">⚠️ ZONA DE PELIGRO</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="form-borrar-lote" onsubmit="ejecutarBorradoLote(event)">
+          <div class="modal-body">
+              <p>Vas a eliminar <strong>todos los animales</strong> de un lote. No se puede deshacer.</p>
+              <label class="fw-bold">Lote a vaciar:</label>
+              <select id="borrar-lote-select" class="form-select form-select-lg mb-3" required></select>
+              <label class="fw-bold text-danger">Escribe ELIMINAR en mayúsculas:</label>
+              <input type="text" id="borrar-lote-confirmacion" class="form-control border-danger form-control-lg" placeholder="ELIMINAR" required>
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-danger fw-bold">Destruir Datos</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Visor de Imagen Grande -->
+<div class="modal fade" id="modalImagenGrande" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-transparent border-0">
+      <div class="modal-body text-center position-relative p-0">
+        <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 shadow" data-bs-dismiss="modal" style="background-color: rgba(255,255,255,0.8); padding: 12px; border-radius: 50%; z-index: 1055;"></button>
+        <img id="img-zoom" src="" class="img-fluid rounded shadow-lg w-100" style="max-height: 85vh; border: 4px solid white; object-fit: contain;" alt="Foto Grande">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let animales = JSON.parse(localStorage.getItem('pajarito_animales')) || [];
+    let vacunas = JSON.parse(localStorage.getItem('pajarito_vacunas')) || [];
+    let productos = JSON.parse(localStorage.getItem('pajarito_productos')) || []; // NUEVO: TIENDA
+    
+    let lotes_predeterminados = ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
+    let lotes = JSON.parse(localStorage.getItem('pajarito_lotes')) || lotes_predeterminados;
+    
+    let limiteAnimalesMostrados = 50;
+    let limiteOrdenoMostrados = 50;
+    let temporizadorBusqueda;
+    let chartModalUnico = null; 
+
+    function inicializarApp() {
+        actualizarSelectsLotes();
+        showView('dashboard');
+    }
+
+    function cerrarMenuCelular() {
+        if(window.innerWidth < 768) {
+            const offcanvasEl = document.getElementById('sidebarOffcanvas');
+            const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl) || new bootstrap.Offcanvas(offcanvasEl);
+            bsOffcanvas.hide();
+        }
+    }
+
+    function actualizarSelectsLotes() {
+        const selects = ['filtro-lote', 'ani-lote', 'vacuna-lote', 'borrar-lote-select', 'traslado-nuevo-lote'];
+        selects.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                if(id === 'filtro-lote') el.innerHTML = '<option value="Todos">Todos los Lotes</option>';
+                else el.innerHTML = '';
+                lotes.forEach(lote => { el.innerHTML += `<option value="${lote}">${lote}</option>`; });
+                if(id === 'vacuna-lote') el.innerHTML += `<option value="Todos">Todos</option>`;
+            }
+        });
+    }
+
+    function guardarNuevoLote(e) {
+        e.preventDefault();
+        let nombre = document.getElementById('nuevo-lote-nombre').value.trim();
+        nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase();
+        
+        if (nombre && !lotes.includes(nombre)) {
+            lotes.push(nombre); localStorage.setItem('pajarito_lotes', JSON.stringify(lotes));
+            actualizarSelectsLotes(); renderDashboard(); alert(`Lote "${nombre}" creado exitosamente.`);
+        } else { alert("El lote ya existe o el nombre no es válido."); }
+        bootstrap.Modal.getInstance(document.getElementById('modalNuevoLote')).hide();
+        e.target.reset();
+    }
+
+    function showView(viewId) {
+        document.querySelectorAll('.view-section').forEach(v => v.classList.add('hidden'));
+        document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+        document.getElementById(`view-${viewId}`).classList.remove('hidden');
+        document.getElementById(`nav-${viewId}`).classList.add('active');
+        
+        if(viewId === 'dashboard') renderDashboard();
+        if(viewId === 'animales') reiniciarYRenderAnimales();
+        if(viewId === 'ordeño') reiniciarYRenderOrdeno();
+        if(viewId === 'sanidad') renderVacunas();
+        if(viewId === 'tienda') renderTienda();
+        
+        cerrarMenuCelular(); window.scrollTo(0, 0); 
+    }
+
+    function verImagen(url) {
+        document.getElementById('img-zoom').src = url;
+        new bootstrap.Modal(document.getElementById('modalImagenGrande')).show();
+    }
+
+    function comprimirImagen(file, outputBase64Id, outputPreviewId) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 400; 
+                const scaleSize = MAX_WIDTH / img.width;
+                canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                document.getElementById(outputBase64Id).value = canvas.toDataURL('image/jpeg', 0.6);
+                document.getElementById(outputPreviewId).src = document.getElementById(outputBase64Id).value;
+                document.getElementById(outputPreviewId).style.display = 'block';
+            }
+            img.src = event.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+
+    document.getElementById('ani-foto-file').addEventListener('change', function(e) { if(e.target.files[0]) comprimirImagen(e.target.files[0], 'ani-foto-base64', 'ani-foto-preview'); });
+    document.getElementById('prod-foto-file').addEventListener('change', function(e) { if(e.target.files[0]) comprimirImagen(e.target.files[0], 'prod-foto-base64', 'prod-foto-preview'); });
+
+    // -------------------------------------------------------------
+    // FUNCIONES DE TIENDA (CATÁLOGO)
+    // -------------------------------------------------------------
+    document.getElementById('modalProducto').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('prod-id-edit').value = '';
+        document.getElementById('prod-foto-base64').value = '';
+        document.getElementById('prod-foto-preview').style.display = 'none';
+        document.getElementById('modalProductoTitle').innerText = 'Registrar Producto';
+        document.querySelector('#modalProducto form').reset();
+    });
+
+    function abrirModalNuevoProducto() {
+        document.getElementById('modalProductoTitle').innerText = 'Registrar Producto';
+        new bootstrap.Modal(document.getElementById('modalProducto')).show();
+    }
+
+    function abrirModalEditarProducto(id) {
+        const prod = productos.find(p => p.id === id);
+        if(!prod) return;
+        document.getElementById('modalProductoTitle').innerText = '✏️ Editar Producto';
+        document.getElementById('prod-id-edit').value = prod.id;
+        document.getElementById('prod-nombre').value = prod.nombre;
+        document.getElementById('prod-categoria').value = prod.categoria;
+        document.getElementById('prod-precio').value = prod.precio;
+        document.getElementById('prod-stock').value = prod.stock;
+        document.getElementById('prod-descripcion').value = prod.descripcion;
+        
+        if (prod.foto && !prod.foto.includes('placehold')) {
+            document.getElementById('prod-foto-base64').value = prod.foto;
+            document.getElementById('prod-foto-preview').src = prod.foto;
+            document.getElementById('prod-foto-preview').style.display = 'block';
+        }
+        new bootstrap.Modal(document.getElementById('modalProducto')).show();
+    }
+
+    function eliminarProducto(id) {
+        if(confirm("⚠️ ¿Estás seguro de eliminar este producto de la tienda?")) {
+            productos = productos.filter(p => p.id !== id);
+            guardarDatos(); renderTienda();
+        }
+    }
+
+    function guardarProducto(e) {
+        e.preventDefault();
+        const editId = document.getElementById('prod-id-edit').value;
+        const fotoGuardada = document.getElementById('prod-foto-base64').value || 'https://placehold.co/400x400/2e7d32/ffffff?text=Producto';
+        
+        if (editId) {
+            const indice = productos.findIndex(p => p.id === editId);
+            if(indice !== -1) {
+                productos[indice].nombre = document.getElementById('prod-nombre').value.trim();
+                productos[indice].categoria = document.getElementById('prod-categoria').value;
+                productos[indice].precio = parseFloat(document.getElementById('prod-precio').value);
+                productos[indice].stock = parseInt(document.getElementById('prod-stock').value);
+                productos[indice].descripcion = document.getElementById('prod-descripcion').value.trim();
+                productos[indice].foto = fotoGuardada;
+            }
+        } else {
+            productos.push({
+                id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                nombre: document.getElementById('prod-nombre').value.trim(),
+                categoria: document.getElementById('prod-categoria').value,
+                precio: parseFloat(document.getElementById('prod-precio').value),
+                stock: parseInt(document.getElementById('prod-stock').value),
+                descripcion: document.getElementById('prod-descripcion').value.trim(),
+                foto: fotoGuardada
+            });
+        }
+        guardarDatos();
+        bootstrap.Modal.getInstance(document.getElementById('modalProducto')).hide();
+        renderTienda();
+    }
+
+    function renderTienda() {
+        const filtro = document.getElementById('filtro-categoria').value;
+        const busqueda = document.getElementById('busqueda-producto').value.toLowerCase();
+        const lista = document.getElementById('lista-productos');
+        lista.innerHTML = '';
+        
+        let filtrados = productos;
+        if(filtro !== 'Todos') filtrados = filtrados.filter(p => p.categoria === filtro);
+        if(busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda) || p.descripcion.toLowerCase().includes(busqueda));
+        
+        filtrados.forEach(p => {
+            lista.innerHTML += `
+                <div class="col-6 col-md-4 col-lg-3 mb-3">
+                    <div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+                        <img src="${p.foto}" onclick="verImagen('${p.foto}')" class="card-img-top" style="height: 180px; object-fit: cover; cursor:pointer;" alt="Producto">
+                        <div class="card-body d-flex flex-column">
+                            <span class="badge bg-secondary mb-2 align-self-start">${p.categoria}</span>
+                            <h5 class="card-title fw-bold text-dark mb-1" style="font-size: 1.1rem;">${p.nombre}</h5>
+                            <p class="precio-tag mb-1">$${p.precio.toFixed(2)}</p>
+                            <p class="text-muted small mb-2" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${p.descripcion || 'Sin descripción'}</p>
+                            <p class="mb-3 text-dark small fw-bold">Stock: ${p.stock} und.</p>
+                            <div class="mt-auto d-flex gap-1 justify-content-between">
+                                <button class="btn btn-sm btn-outline-primary w-50" onclick="abrirModalEditarProducto('${p.id}')">✏️ Editar</button>
+                                <button class="btn btn-sm btn-outline-danger w-50" onclick="eliminarProducto('${p.id}')">🗑️ Borrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        });
+        if(filtrados.length === 0) lista.innerHTML = `<div class="col-12 text-center text-muted mt-4"><h4>No hay productos en esta categoría.</h4></div>`;
+    }
+
+    // -------------------------------------------------------------
+    // ANIMALES, ORDEÑO, SANIDAD, DASHBOARD
+    // -------------------------------------------------------------
+    function toggleMadre() {
+        const check = document.getElementById('ani-madre-desc').checked;
+        const input = document.getElementById('ani-madre');
+        input.disabled = check;
+        if(check) input.value = 'Desconocida'; else input.value = '';
+    }
+
+    document.getElementById('modalAnimal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('form-animal').reset();
+        document.getElementById('ani-id-interno-edit').value = '';
+        document.getElementById('ani-foto-base64').value = '';
+        document.getElementById('ani-foto-preview').style.display = 'none';
+        document.getElementById('ani-madre').disabled = false;
+        document.getElementById('modalAnimalTitle').innerText = 'Registrar Animal';
+    });
+
+    function abrirModalNuevoAnimal() {
+        document.getElementById('modalAnimalTitle').innerText = 'Registrar Animal';
+        new bootstrap.Modal(document.getElementById('modalAnimal')).show();
+    }
+
+    function abrirModalEditar(id_interno) {
+        const vaca = animales.find(a => a.id_interno === id_interno || a.id === id_interno);
+        if(!vaca) return;
+        document.getElementById('modalAnimalTitle').innerText = '✏️ Editar Animal';
+        document.getElementById('ani-id-interno-edit').value = vaca.id_interno || vaca.id;
+        document.getElementById('ani-id-animal').value = vaca.id_animal || vaca.id || '';
+        document.getElementById('ani-nombre').value = vaca.nombre && vaca.nombre !== 'undefined' ? vaca.nombre : '';
+        document.getElementById('ani-sexo').value = vaca.sexo || 'Hembra';
+        document.getElementById('ani-proveniente').value = vaca.proveniente && vaca.proveniente !== 'undefined' ? vaca.proveniente : '';
+        document.getElementById('ani-lote').value = vaca.lote || lotes[0];
+        document.getElementById('ani-fecha').value = vaca.nacimiento && vaca.nacimiento !== 'undefined' ? vaca.nacimiento : '';
+        document.getElementById('ani-madre').value = vaca.madre && vaca.madre !== 'undefined' ? vaca.madre : '';
+        if (vaca.foto && !vaca.foto.includes('placehold')) {
+            document.getElementById('ani-foto-base64').value = vaca.foto;
+            document.getElementById('ani-foto-preview').src = vaca.foto;
+            document.getElementById('ani-foto-preview').style.display = 'block';
+        }
+        new bootstrap.Modal(document.getElementById('modalAnimal')).show();
+    }
+
+    function guardarAnimal(e) {
+        e.preventDefault();
+        const editId = document.getElementById('ani-id-interno-edit').value;
+        const fotoGuardada = document.getElementById('ani-foto-base64').value || 'https://placehold.co/400x400/2e7d32/ffffff?text=Vaca+Sin+Foto';
+        
+        if (editId) {
+            const indice = animales.findIndex(a => a.id_interno === editId || a.id === editId);
+            if(indice !== -1) {
+                animales[indice].id_animal = document.getElementById('ani-id-animal').value.trim();
+                animales[indice].nombre = document.getElementById('ani-nombre').value.trim();
+                animales[indice].sexo = document.getElementById('ani-sexo').value;
+                animales[indice].proveniente = document.getElementById('ani-proveniente').value.trim();
+                animales[indice].lote = document.getElementById('ani-lote').value;
+                animales[indice].nacimiento = document.getElementById('ani-fecha').value;
+                animales[indice].madre = document.getElementById('ani-madre').value.trim() || 'No registrada';
+                animales[indice].foto = fotoGuardada;
+                animales[indice].historialPeso = animales[indice].historialPeso || [];
+                animales[indice].historialLeche = animales[indice].historialLeche || [];
+            }
+        } else {
+            animales.push({
+                id_interno: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                id_animal: document.getElementById('ani-id-animal').value.trim(),
+                nombre: document.getElementById('ani-nombre').value.trim(),
+                sexo: document.getElementById('ani-sexo').value,
+                proveniente: document.getElementById('ani-proveniente').value.trim(),
+                lote: document.getElementById('ani-lote').value,
+                nacimiento: document.getElementById('ani-fecha').value,
+                madre: document.getElementById('ani-madre').value.trim() || 'No registrada',
+                foto: fotoGuardada, historialLeche: [], historialPeso: [], vacunas: []
+            });
+        }
+        guardarDatos();
+        bootstrap.Modal.getInstance(document.getElementById('modalAnimal')).hide();
+        reiniciarYRenderAnimales(); renderDashboard();
+    }
+
+    function eliminarAnimal(id_interno) {
+        if(confirm("⚠️ ¿Estás seguro de que deseas ELIMINAR este animal?")) {
+            animales = animales.filter(a => a.id_interno !== id_interno && a.id !== id_interno);
+            guardarDatos(); reiniciarYRenderAnimales(); renderDashboard();
+        }
+    }
+
+    function abrirModalTraslado(id_interno, lote_actual) {
+        document.getElementById('traslado-id-interno').value = id_interno;
+        document.getElementById('traslado-nuevo-lote').value = lote_actual;
+        new bootstrap.Modal(document.getElementById('modalTrasladoLote')).show();
+    }
+
+    function ejecutarTraslado(e) {
+        e.preventDefault();
+        const id = document.getElementById('traslado-id-interno').value;
+        const vaca = animales.find(a => a.id_interno === id || a.id === id);
+        if(vaca) { vaca.lote = document.getElementById('traslado-nuevo-lote').value; guardarDatos(); }
+        bootstrap.Modal.getInstance(document.getElementById('modalTrasladoLote')).hide();
+        reiniciarYRenderAnimales(); renderDashboard();
+    }
+
+    function abrirModalPeso(id_interno) {
+        document.getElementById('peso-id-interno').value = id_interno;
+        document.getElementById('peso-fecha').valueAsDate = new Date();
+        document.getElementById('peso-kilos').value = '';
+        new bootstrap.Modal(document.getElementById('modalRegistroPeso')).show();
+    }
+
+    function guardarPeso(e) {
+        e.preventDefault();
+        const id = document.getElementById('peso-id-interno').value;
+        const vaca = animales.find(a => a.id_interno === id || a.id === id);
+        if(vaca) {
+            vaca.historialPeso = vaca.historialPeso || [];
+            vaca.historialPeso.push({ fecha: document.getElementById('peso-fecha').value, peso: parseFloat(document.getElementById('peso-kilos').value) });
+            vaca.historialPeso.sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+            guardarDatos();
+        }
+        bootstrap.Modal.getInstance(document.getElementById('modalRegistroPeso')).hide();
+        reiniciarYRenderAnimales();
+    }
+
+    function busquedaInteligenteAnimales() {
+        clearTimeout(temporizadorBusqueda);
+        temporizadorBusqueda = setTimeout(() => { reiniciarYRenderAnimales(); }, 400); 
+    }
+
+    function reiniciarYRenderAnimales() { limiteAnimalesMostrados = 50; renderAnimales(); }
+    function cargarMasAnimales() { limiteAnimalesMostrados += 50; renderAnimales(); }
+
+    function renderAnimales() {
+        const filtroLote = document.getElementById('filtro-lote').value;
+        const busqueda = document.getElementById('busqueda-animal').value.toLowerCase();
+        const lista = document.getElementById('lista-animales');
+        const btnCargarMas = document.getElementById('btn-cargar-mas-animales');
+        lista.innerHTML = '';
+        
+        let filtrados = animales;
+        if(filtroLote !== 'Todos') filtrados = filtrados.filter(a => a.lote === filtroLote);
+        if(busqueda) {
+            filtrados = filtrados.filter(a => {
+                const idStr = (a.id_animal || a.id || '').toLowerCase();
+                const nomStr = (a.nombre && a.nombre !== 'undefined' ? a.nombre : '').toLowerCase();
+                return idStr.includes(busqueda) || nomStr.includes(busqueda);
+            });
+        }
+        
+        const arrayPaginado = filtrados.slice(0, limiteAnimalesMostrados);
+        
+        arrayPaginado.forEach(a => {
+            const idMostrar = a.id_animal || a.id || 'Sin ID';
+            const nomMostrar = (a.nombre && a.nombre !== 'undefined') ? a.nombre : '';
+            const tituloVaca = nomMostrar ? `#${idMostrar} - ${nomMostrar}` : `#${idMostrar}`;
+            const sexMostrar = a.sexo || 'N/A';
+            const iconSexo = sexMostrar === 'Macho' ? '🐂' : '🐄';
+            const provMostrar = (a.proveniente && a.proveniente !== 'undefined') ? a.proveniente : 'N/A';
+            const nacMostrar = (a.nacimiento && a.nacimiento !== 'undefined') ? a.nacimiento : 'Sin registro';
+            const madMostrar = (a.madre && a.madre !== 'undefined') ? a.madre : 'N/A';
+            const idInternoReal = a.id_interno || a.id;
+            const pesos = a.historialPeso || [];
+            const ultimoPeso = pesos.length > 0 ? pesos[pesos.length-1].peso + ' Kg' : 'Sin registro';
+            
+            let imgSrc = a.foto;
+            if(imgSrc.includes('placeholder.com')) imgSrc = 'https://placehold.co/400x400/2e7d32/ffffff?text=Sin+Foto';
+
+            lista.innerHTML += `
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body bg-white d-flex flex-column justify-content-between p-3">
+                            <div class="d-flex flex-md-row flex-column align-items-center align-items-md-start animal-card-body">
+                                <img src="${imgSrc}" onclick="verImagen('${imgSrc}')" class="img-thumbnail-animal me-md-3 mb-2 mb-md-0" alt="Foto Vaca">
+                                <div class="flex-grow-1 w-100">
+                                    <div class="d-flex justify-content-between align-items-start border-bottom pb-2 mb-2">
+                                        <h5 class="fw-bold text-dark mb-0">${tituloVaca}</h5>
+                                        <div class="d-flex">
+                                            <button class="btn btn-sm btn-outline-primary btn-card-action" onclick="abrirModalEditar('${idInternoReal}')">✏️</button>
+                                            <button class="btn btn-sm btn-outline-danger btn-card-action" onclick="eliminarAnimal('${idInternoReal}')">🗑️</button>
+                                        </div>
+                                    </div>
+                                    <div class="row text-start animal-info-col" style="font-size: 0.85rem;">
+                                        <div class="col-6">
+                                            <strong>Lote:</strong> <span class="badge bg-success">${a.lote}</span><br>
+                                            <strong>Sexo:</strong> ${iconSexo} ${sexMostrar}<br>
+                                            <strong>Origen:</strong> ${provMostrar}
+                                        </div>
+                                        <div class="col-6 border-start">
+                                            <strong>Peso:</strong> <span class="text-primary fw-bold">${ultimoPeso}</span><br>
+                                            <strong>Nac.:</strong> ${nacMostrar}<br>
+                                            <strong>Madre:</strong> ${madMostrar}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3 d-flex gap-2 justify-content-end flex-wrap border-top pt-2 btn-action-mobile-group">
+                                <button class="btn btn-sm btn-outline-success fw-bold flex-grow-1 flex-md-grow-0" onclick="abrirModalTraslado('${idInternoReal}', '${a.lote}')">🔄 Trasladar</button>
+                                <button class="btn btn-sm btn-outline-warning fw-bold flex-grow-1 flex-md-grow-0" onclick="abrirModalPeso('${idInternoReal}')">⚖️ Pesar</button>
+                                <button class="btn btn-sm btn-outline-info fw-bold w-100 w-md-auto mt-2 mt-md-0" onclick="abrirGraficoIndividual('${idInternoReal}', '${idMostrar}', '${nomMostrar}', 'peso')">📈 Historial Peso</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        });
+        if (filtrados.length > limiteAnimalesMostrados) btnCargarMas.classList.remove('hidden'); else btnCargarMas.classList.add('hidden');
+        if(filtrados.length === 0) lista.innerHTML = `<div class="col-12 text-center text-muted mt-4"><h4>No se encontraron animales.</h4></div>`;
+    }
+
+    function abrirGraficoIndividual(id_interno, id_mostrar, nom_mostrar, tipo = 'leche') {
+        const vaca = animales.find(a => a.id_interno === id_interno || a.id === id_interno);
+        if(!vaca) return;
+
+        const titulo = tipo === 'leche' ? `Producción de Leche` : `Evolución de Peso (Kg)`;
+        const color = tipo === 'leche' ? '#0dcaf0' : '#ffc107'; 
+        
+        document.getElementById('tituloModalGrafico').innerText = `${titulo}: #${id_mostrar} - ${nom_mostrar}`;
+        document.getElementById('headerModalGrafico').className = tipo === 'leche' ? 'modal-header bg-info text-dark' : 'modal-header bg-warning text-dark';
+        
+        const ctx = document.getElementById('canvas-grafico-unico');
+        if (chartModalUnico) chartModalUnico.destroy(); 
+
+        const dataArray = tipo === 'leche' ? (vaca.historialLeche || []) : (vaca.historialPeso || []);
+        const ultimas = dataArray.slice(-10); 
+        const mapData = tipo === 'leche' ? ultimas.map(h => h.litros) : ultimas.map(h => h.peso);
+        
+        chartModalUnico = new Chart(ctx, {
+            type: 'line',
+            data: { labels: ultimas.map(h => h.fecha.substring(5)), datasets: [{ label: tipo==='leche'?'Litros':'Kilos', data: mapData, borderColor: color, backgroundColor: tipo === 'leche' ? 'rgba(13, 202, 240, 0.2)' : 'rgba(255, 193, 7, 0.2)', tension: 0.3, fill: true, pointBackgroundColor: color, pointRadius: 5 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: tipo === 'leche' } } }
+        });
+        new bootstrap.Modal(document.getElementById('modalGraficoHistorial')).show();
+    }
+
+    function reiniciarYRenderOrdeno() { limiteOrdenoMostrados = 50; renderOrdeno(); }
+    function cargarMasOrdeno() { limiteOrdenoMostrados += 50; renderOrdeno(); }
+
+    function renderOrdeno() { 
+        const tabla = document.getElementById('tabla-ordeno');
+        const btnCargarMas = document.getElementById('btn-cargar-mas-ordeno');
+        tabla.innerHTML = '';
+        
+        const vacasOrdeno = animales.filter(a => a.lote === 'Ordeño');
+        const arrayPaginado = vacasOrdeno.slice(0, limiteOrdenoMostrados);
+
+        arrayPaginado.forEach(vaca => {
+            const hist = vaca.historialLeche || [];
+            const ultimo = hist.length > 0 ? hist[hist.length-1] : null;
+            let lecheHtml = '<span class="text-muted">Sin registros</span>';
+            if(ultimo) lecheHtml = `<span class="badge bg-primary fs-6 mb-1">${ultimo.litros} Lts</span><br><small class="text-muted">🧑‍🌾 ${ultimo.personal || 'N/A'}</small>`;
+            const idMostrar = vaca.id_animal || vaca.id || '';
+            const nomMostrar = vaca.nombre && vaca.nombre !== 'undefined' ? vaca.nombre : '';
+            const idInternoReal = vaca.id_interno || vaca.id;
+
+            tabla.innerHTML += `
+                <tr>
+                    <td><strong>#${idMostrar}</strong><br><small class="text-muted">${nomMostrar}</small></td>
+                    <td>${ultimo ? ultimo.fecha.substring(5) : 'N/A'}</td>
+                    <td>${lecheHtml}</td>
+                    <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary fw-bold" onclick="abrirModalLeche('${idInternoReal}')">➕</button>
+                            <button class="btn btn-outline-info fw-bold" onclick="abrirGraficoIndividual('${idInternoReal}', '${idMostrar}', '${nomMostrar}', 'leche')">📊</button>
+                        </div>
+                    </td>
+                </tr>`;
+        });
+        if (vacasOrdeno.length > limiteOrdenoMostrados) btnCargarMas.classList.remove('hidden'); else btnCargarMas.classList.add('hidden');
+    }
+
+    function abrirModalLeche(id_interno) {
+        document.getElementById('leche-id-interno').value = id_interno;
+        document.getElementById('leche-fecha').valueAsDate = new Date();
+        document.getElementById('leche-litros').value = '';
+        document.getElementById('leche-personal').value = ''; 
+        new bootstrap.Modal(document.getElementById('modalLeche')).show();
+    }
+
+    function guardarLeche(e) {
+        e.preventDefault();
+        const id = document.getElementById('leche-id-interno').value;
+        const vaca = animales.find(a => a.id_interno === id || a.id === id);
+        if(vaca) {
+            vaca.historialLeche = vaca.historialLeche || [];
+            vaca.historialLeche.push({ fecha: document.getElementById('leche-fecha').value, litros: parseFloat(document.getElementById('leche-litros').value), personal: document.getElementById('leche-personal').value.trim() });
+            vaca.historialLeche.sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+            guardarDatos();
+        }
+        bootstrap.Modal.getInstance(document.getElementById('modalLeche')).hide();
+        reiniciarYRenderOrdeno();
+    }
+
+    function ejecutarBorradoLote(e) {
+        e.preventDefault();
+        const lote = document.getElementById('borrar-lote-select').value;
+        const confirmacion = document.getElementById('borrar-lote-confirmacion').value;
+        if (confirmacion !== 'ELIMINAR') { alert('Debes escribir ELIMINAR en mayúsculas.'); return; }
+        animales = animales.filter(a => a.lote !== lote);
+        guardarDatos(); bootstrap.Modal.getInstance(document.getElementById('modalBorrarLote')).hide(); document.getElementById('form-borrar-lote').reset();
+        reiniciarYRenderAnimales(); renderDashboard();
+    }
+
+    function aplicarVacuna(e) { 
+        e.preventDefault();
+        vacunas.push({ lote: document.getElementById('vacuna-lote').value, tipo: document.getElementById('vacuna-tipo').value.trim(), personal: document.getElementById('vacuna-personal').value.trim(), fecha: document.getElementById('vacuna-fecha').value });
+        guardarDatos(); e.target.reset(); renderVacunas(); alert('Vacuna registrada con éxito.');
+    }
+
+    function renderVacunas() { 
+        const lista = document.getElementById('lista-vacunas'); lista.innerHTML = '';
+        const ultimasVacunas = vacunas.slice().reverse().slice(0, 50);
+        ultimasVacunas.forEach(v => {
+            lista.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-start border-0 border-bottom mb-1">
+                <div><h6 class="mb-1 fw-bold text-dark">${v.tipo}</h6><small class="text-muted">🐄 Lote aplicado: ${v.lote}</small><br><small class="text-primary">🧑‍⚕️ Por: ${v.personal || 'No registrado'}</small></div>
+                <span class="badge bg-secondary rounded-pill mt-2">${v.fecha}</span></li>`;
+        });
+    }
+
+    function renderDashboard() { 
+        document.getElementById('stat-total').innerText = animales.length;
+        
+        let lecheTotal = 0;
+        const vacasOrdeno = animales.filter(a => a.lote === 'Ordeño');
+        vacasOrdeno.forEach(v => { if(v.historialLeche && v.historialLeche.length > 0) lecheTotal += v.historialLeche[v.historialLeche.length - 1].litros; });
+        document.getElementById('stat-leche').innerText = lecheTotal.toFixed(1);
+        document.getElementById('stat-queso').innerText = (lecheTotal / 8.5).toFixed(1);
+
+        const containerLotes = document.getElementById('dashboard-lotes-container');
+        containerLotes.innerHTML = '';
+        const colores = ['success', 'secondary', 'warning', 'info', 'primary', 'danger', 'dark'];
+        
+        lotes.forEach((loteNombre, index) => {
+            const cantidad = animales.filter(a => a.lote === loteNombre).length;
+            const claseColor = colores[index % colores.length];
+            containerLotes.innerHTML += `
+                <div class="col-6 col-md-3 mb-2">
+                    <div class="card card-lote p-3 text-center bg-white border-bottom border-${claseColor} border-4 h-100">
+                        <h6 class="text-muted text-uppercase fw-bold" style="font-size: 0.8rem;">${loteNombre}</h6>
+                        <h3 class="text-${claseColor} m-0">${cantidad}</h3>
+                    </div>
+                </div>`;
+        });
+
+        const alertasBox = document.getElementById('alertas-destete');
+        alertasBox.innerHTML = '';
+        let destetesPendientes = 0;
+        const becerros = animales.filter(a => a.lote === 'Becerros');
+        becerros.forEach(b => {
+            if(b.nacimiento && b.nacimiento !== 'undefined') {
+                const dias = Math.floor((new Date() - new Date(b.nacimiento)) / (1000 * 60 * 60 * 24));
+                if(dias >= 210) {
+                    destetesPendientes++;
+                    const idMostrar = b.id_animal || b.id || '';
+                    const nomMostrar = b.nombre && b.nombre !== 'undefined' ? b.nombre : '';
+                    alertasBox.innerHTML += `<li class="list-group-item list-group-item-warning d-flex justify-content-between border-0 border-bottom flex-wrap"><span><strong>#${idMostrar} - ${nomMostrar}</strong></span><span>Tiene ${Math.floor(dias/30)} meses. ¡Mover!</span></li>`;
+                }
+            }
+        });
+        if(destetesPendientes === 0) alertasBox.innerHTML = '<li class="list-group-item text-muted border-0">No hay becerros en edad de destete.</li>';
+    }
+
+    function exportarExcel() { 
+        const wb = XLSX.utils.book_new();
+        // Animales
+        const animalesData = animales.map(a => ({ "ID Por Animal": a.id_animal || a.id || '', "Nombre": a.nombre !== 'undefined' ? a.nombre : '', "PROVENIENTE": a.proveniente !== 'undefined' ? a.proveniente : '', "Sexo": a.sexo || '', "Lote": a.lote, "Nacimiento": a.nacimiento !== 'undefined' ? a.nacimiento : '', "Madre": a.madre !== 'undefined' ? a.madre : '', "Foto": a.foto }));
+        const wsAnimales = XLSX.utils.json_to_sheet(animalesData, {header: ["ID Por Animal", "Nombre", "PROVENIENTE", "Sexo", "Lote", "Nacimiento", "Madre", "Foto"]});
+        XLSX.utils.book_append_sheet(wb, wsAnimales, "Animales");
+        // Leche
+        const lecheData = [];
+        animales.forEach(a => { if(a.historialLeche) a.historialLeche.forEach(h => { lecheData.push({ "ID Por Animal": a.id_animal || a.id || '', "Fecha": h.fecha, "Litros": h.litros, "Ordenador": h.personal || '' }); }); });
+        const wsLeche = XLSX.utils.json_to_sheet(lecheData, {header: ["ID Por Animal", "Fecha", "Litros", "Ordenador"]});
+        XLSX.utils.book_append_sheet(wb, wsLeche, "Ordeño");
+        // Pesos
+        const pesoData = [];
+        animales.forEach(a => { if(a.historialPeso) a.historialPeso.forEach(h => { pesoData.push({ "ID Por Animal": a.id_animal || a.id || '', "Fecha": h.fecha, "Peso(Kg)": h.peso }); }); });
+        const wsPesos = XLSX.utils.json_to_sheet(pesoData, {header: ["ID Por Animal", "Fecha", "Peso(Kg)"]});
+        XLSX.utils.book_append_sheet(wb, wsPesos, "Pesos");
+        // Vacunas
+        const vacunasData = vacunas.map(v => ({ "Lote": v.lote, "Tipo_Vacuna": v.tipo, "Personal": v.personal, "Fecha": v.fecha }));
+        const wsVacunas = XLSX.utils.json_to_sheet(vacunasData, {header: ["Lote", "Tipo_Vacuna", "Personal", "Fecha"]});
+        XLSX.utils.book_append_sheet(wb, wsVacunas, "Vacunas");
+        // Tienda (NUEVO)
+        const prodData = productos.map(p => ({ "ID": p.id, "Nombre": p.nombre, "Categoría": p.categoria, "Precio": p.precio, "Stock": p.stock, "Descripción": p.descripcion, "Foto": p.foto }));
+        const wsProductos = XLSX.utils.json_to_sheet(prodData, {header: ["ID", "Nombre", "Categoría", "Precio", "Stock", "Descripción", "Foto"]});
+        XLSX.utils.book_append_sheet(wb, wsProductos, "Productos");
+
+        XLSX.writeFile(wb, "Finca_Pajarito_BaseDatos.xlsx");
+    }
+
+    function procesarFechaExcel(valor) { 
+        if (!valor) return ''; 
+        if (valor instanceof Date) { const offset = valor.getTimezoneOffset() * 60000; return new Date(valor.getTime() - offset).toISOString().split('T')[0]; }
+        if (!isNaN(valor) && typeof valor === 'number') { return new Date(Math.round((valor - 25569) * 86400 * 1000)).toISOString().split('T')[0]; }
+        let str = String(valor).trim();
+        if (str.includes('/')) { let partes = str.split('/'); if(partes[2] && partes[2].length === 4) { return `${partes[2]}-${partes[1].padStart(2, '0')}-${partes[0].padStart(2, '0')}`; } }
+        return str;
+    }
+
+    function importarExcel() { 
+        const fileInput = document.getElementById('input-importar');
+        const file = fileInput.files[0];
+        if(!file) { alert("Por favor, selecciona un archivo Excel."); return; }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const wb = XLSX.read(data, {type: 'array', cellDates: true});
+                
+                const animalesSheet = XLSX.utils.sheet_to_json(wb.Sheets["Animales"] || wb.Sheets[wb.SheetNames[0]] || []);
+                const lecheSheet = XLSX.utils.sheet_to_json(wb.Sheets["Ordeño"] || []);
+                const pesosSheet = XLSX.utils.sheet_to_json(wb.Sheets["Pesos"] || []);
+                const vacunasSheet = XLSX.utils.sheet_to_json(wb.Sheets["Vacunas"] || []);
+                const productosSheet = XLSX.utils.sheet_to_json(wb.Sheets["Productos"] || []); // Tienda
+
+                let nuevosAnimales = [];
+                animalesSheet.forEach(row => {
+                    if(row["ID Por Animal"] === undefined || row["ID Por Animal"] === null || String(row["ID Por Animal"]).trim() === '') return;
+                    let loteLeido = String(row.Lote || 'Becerros').trim();
+                    loteLeido = loteLeido.charAt(0).toUpperCase() + loteLeido.slice(1).toLowerCase();
+                    if(!lotes.includes(loteLeido)) lotes.push(loteLeido);
+                    let fotoExcel = row.Foto ? String(row.Foto).trim() : '';
+                    if(!fotoExcel || fotoExcel.includes('placeholder.com')) fotoExcel = 'https://placehold.co/400x400/2e7d32/ffffff?text=Vaca+Sin+Foto';
+
+                    nuevosAnimales.push({
+                        id_interno: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                        id_animal: String(row["ID Por Animal"]).trim(), nombre: row.Nombre ? String(row.Nombre).trim() : '',
+                        proveniente: row.PROVENIENTE ? String(row.PROVENIENTE).trim() : 'Desconocido', sexo: row.Sexo ? String(row.Sexo).trim() : 'Hembra',
+                        lote: loteLeido, nacimiento: procesarFechaExcel(row.Nacimiento), madre: row.Madre ? String(row.Madre).trim() : 'No registrada',
+                        foto: fotoExcel, historialLeche: [], historialPeso: [], vacunas: []
+                    });
+                });
+
+                lecheSheet.forEach(row => {
+                    const idBuscado = row["ID Por Animal"] ? String(row["ID Por Animal"]).trim() : '';
+                    const vaca = nuevosAnimales.find(a => a.id_animal === idBuscado);
+                    if (vaca && row.Litros !== undefined) {
+                        let litrosNum = parseFloat(String(row.Litros).replace(',', '.'));
+                        if(!isNaN(litrosNum)) vaca.historialLeche.push({ fecha: procesarFechaExcel(row.Fecha) || new Date().toISOString().split('T')[0], litros: litrosNum, personal: row.Ordenador ? String(row.Ordenador).trim() : 'No registrado' });
+                    }
+                });
+
+                pesosSheet.forEach(row => {
+                    const idBuscado = row["ID Por Animal"] ? String(row["ID Por Animal"]).trim() : '';
+                    const vaca = nuevosAnimales.find(a => a.id_animal === idBuscado);
+                    if (vaca && row["Peso(Kg)"] !== undefined) {
+                        let pesoNum = parseFloat(String(row["Peso(Kg)"]).replace(',', '.'));
+                        if(!isNaN(pesoNum)) vaca.historialPeso.push({ fecha: procesarFechaExcel(row.Fecha) || new Date().toISOString().split('T')[0], peso: pesoNum });
+                    }
+                });
+
+                const nuevasVacunas = [];
+                vacunasSheet.forEach(row => {
+                    if(row.Tipo_Vacuna || row.Tipo) nuevasVacunas.push({ lote: row.Lote ? String(row.Lote).trim() : 'Todos', tipo: row.Tipo_Vacuna ? String(row.Tipo_Vacuna).trim() : String(row.Tipo).trim(), personal: row.Personal ? String(row.Personal).trim() : 'Desconocido', fecha: procesarFechaExcel(row.Fecha) || new Date().toISOString().split('T')[0] });
+                });
+
+                // Importar Productos de la Tienda
+                let nuevosProductos = [];
+                productosSheet.forEach(row => {
+                    if(row.Nombre) {
+                        nuevosProductos.push({
+                            id: row.ID ? String(row.ID) : Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                            nombre: String(row.Nombre).trim(),
+                            categoria: row["Categoría"] ? String(row["Categoría"]).trim() : 'Otros',
+                            precio: parseFloat(row.Precio) || 0,
+                            stock: parseInt(row.Stock) || 0,
+                            descripcion: row["Descripción"] ? String(row["Descripción"]).trim() : '',
+                            foto: row.Foto ? String(row.Foto).trim() : 'https://placehold.co/400x400/2e7d32/ffffff?text=Producto'
+                        });
+                    }
+                });
+
+                animales = nuevosAnimales; vacunas = nuevasVacunas; productos = nuevosProductos;
+                localStorage.setItem('pajarito_lotes', JSON.stringify(lotes));
+                guardarDatos(); actualizarSelectsLotes();
+                alert(`¡Éxito! Base de datos restaurada correctamente.`);
+                fileInput.value = ''; showView('dashboard'); 
+            } catch (error) { console.error(error); alert("Hubo un error interpretando el archivo."); }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function guardarDatos() {
+        localStorage.setItem('pajarito_animales', JSON.stringify(animales));
+        localStorage.setItem('pajarito_vacunas', JSON.stringify(vacunas));
+        localStorage.setItem('pajarito_productos', JSON.stringify(productos)); // Guarda la tienda
+    }
+
+    document.addEventListener('DOMContentLoaded', inicializarApp);
+</script>
+</body>
+</html>
