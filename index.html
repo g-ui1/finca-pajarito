@@ -56,6 +56,7 @@
         .card-producto-img { height: 200px; object-fit: contain; background-color: white; padding: 10px; border-bottom: 1px solid #f0f0f0; }
         
         #badge-rol { font-size: 0.7rem; margin-top: 5px; display: inline-block; padding: 3px 8px; border-radius: 10px; background: rgba(255,255,255,0.2); }
+        #auth-error { min-height: 20px; }
     </style>
 </head>
 <body>
@@ -68,7 +69,10 @@
         <h2 class="fw-bold text-success mb-0">🌿 AgroSistema</h2>
         <p class="text-muted mb-4">Gestión Multi-Especie Cloud</p>
         
-        <!-- LOGIN VIEW (SIN FORMULARIO) -->
+        <!-- MENSAJE DE ERROR GLOBAL -->
+        <p id="auth-error" class="text-danger fw-bold small"></p>
+
+        <!-- LOGIN VIEW -->
         <div id="auth-login-view">
             <input type="email" id="auth-email" class="form-control mb-3 form-control-lg" placeholder="Correo Electrónico">
             <input type="password" id="auth-pass" class="form-control mb-3 form-control-lg" placeholder="Contraseña">
@@ -76,7 +80,7 @@
             <button class="btn btn-outline-secondary w-100" onclick="showAuthView('register')">Crear una cuenta nueva</button>
         </div>
 
-        <!-- REGISTER VIEW (SIN FORMULARIO) -->
+        <!-- REGISTER VIEW -->
         <div id="auth-register-view" class="hidden">
             <h5 class="fw-bold mb-3">Crear Cuenta</h5>
             <input type="email" id="reg-email" class="form-control mb-3 form-control-lg" placeholder="Tu Correo">
@@ -85,7 +89,7 @@
             <button class="btn btn-link text-muted w-100" onclick="showAuthView('login')">Volver al inicio</button>
         </div>
 
-        <!-- SETUP FINCA VIEW (SIN FORMULARIO) -->
+        <!-- SETUP FINCA VIEW -->
         <div id="auth-setup-finca-view" class="hidden">
             <h5 class="fw-bold text-success mb-3">¡Bienvenido!</h5>
             <p class="text-muted small">Crea tu finca (Dueño) o únete a una existente con código (Empleado).</p>
@@ -98,7 +102,6 @@
             <input type="text" id="unirme-codigo" class="form-control mb-2" placeholder="Código (Ej: ABCD12)">
             <button id="btn-unirme-finca" class="btn btn-warning text-dark w-100 fw-bold" onclick="unirmeAFinca()">Unirme a Finca</button>
         </div>
-        
     </div>
 </div>
 
@@ -258,16 +261,13 @@
 <!-- ============================================== -->
 <!-- MODALES -->
 <!-- ============================================== -->
-<!-- Modal Producto -->
+<div class="modal fade" id="modalConfigWA" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">📞 WhatsApp</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-config-wa" onsubmit="guardarWhatsApp(event)"><label class="fw-bold text-muted mb-2">Ingresa número (Ej: +584141234567):</label><input type="text" id="input-wa-numero" class="form-control form-control-lg" required></form></div><div class="modal-footer border-0"><button type="submit" form="form-config-wa" class="btn btn-success btn-lg w-100 fw-bold">Guardar</button></div></div></div></div>
 <div class="modal fade" id="modalProducto" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold" id="modalProductoTitle">Registrar Producto</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-producto" onsubmit="guardarProducto(event)"><input type="hidden" id="prod-id-edit"> <div class="row g-2"><div class="col-12 mb-2"><label class="fw-bold">Nombre</label><input type="text" id="prod-nombre" class="form-control" required></div><div class="col-12 mb-2"><label class="fw-bold">Categoría</label><select id="prod-categoria" class="form-select" required><option value="Medicamentos">Medicamentos</option><option value="Accesorios">Accesorios</option><option value="Utensilios">Utensilios</option><option value="Otros">Otros</option></select></div><div class="col-6 mb-2"><label class="fw-bold">Precio ($)</label><input type="number" step="0.01" id="prod-precio" class="form-control" required></div><div class="col-6 mb-2"><label class="fw-bold">Stock</label><input type="number" id="prod-stock" class="form-control" required></div><div class="col-12 mb-2"><label class="fw-bold">Descripción</label><textarea id="prod-descripcion" class="form-control" rows="2"></textarea></div><div class="col-12 mb-2"><label class="fw-bold">Foto</label><input type="file" id="prod-foto-file" class="form-control" accept="image/*" capture="environment"><input type="hidden" id="prod-foto-base64"><div class="text-center mt-2"><img id="prod-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-producto" class="btn btn-success btn-lg w-100 fw-bold">Guardar</button></div></div></div></div>
 
-<!-- Modal Animal (Multi-Especie y Potrero) -->
 <div class="modal fade" id="modalAnimal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold" id="modalAnimalTitle">Registrar Animal</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-animal" onsubmit="guardarAnimal(event)"><input type="hidden" id="ani-id-interno-edit"> <div class="row g-2"><div class="col-6 mb-2"><label class="fw-bold">Chapa / ID</label><input type="text" id="ani-id-animal" class="form-control" required></div><div class="col-6 mb-2"><label class="fw-bold">Nombre</label><input type="text" id="ani-nombre" class="form-control"></div>
 <div class="col-6 mb-2"><label class="fw-bold">Especie</label><select id="ani-especie" class="form-select" required><option value="Bovino">Bovino (Vacas/Toros)</option><option value="Porcino">Porcino (Cerdos)</option><option value="Caprino">Caprino (Cabras)</option><option value="Ovino">Ovino (Ovejas)</option><option value="Equino">Equino (Caballos)</option><option value="Avícola">Avícola (Gallinas)</option><option value="Otro">Otro</option></select></div>
 <div class="col-6 mb-2"><label class="fw-bold">Sexo</label><select id="ani-sexo" class="form-select" required><option value="Hembra">Hembra</option><option value="Macho">Macho</option></select></div><div class="col-6 mb-2"><label class="fw-bold">Lote / Grupo</label><select id="ani-lote" class="form-select" required></select></div><div class="col-6 mb-2"><label class="fw-bold">Potrero / Galpón</label><input type="text" id="ani-potrero" class="form-control" placeholder="Ej. Potrero 1"></div><div class="col-6 mb-2"><label class="fw-bold">Origen</label><input type="text" id="ani-proveniente" class="form-control"></div><div class="col-6 mb-2"><label class="fw-bold">Nacimiento</label><input type="date" id="ani-fecha" class="form-control" required></div><div class="col-12 mb-2"><label class="fw-bold">Madre</label><input type="text" id="ani-madre" class="form-control"><div class="form-check mt-1"><input class="form-check-input" type="checkbox" id="ani-madre-desc" onchange="toggleMadre()"><label class="form-check-label text-muted">Madre desconocida</label></div></div><div class="col-12 mb-2"><label class="fw-bold">Foto (Cámara)</label><input type="file" id="ani-foto-file" class="form-control" accept="image/*" capture="environment"><input type="hidden" id="ani-foto-base64"><div class="text-center mt-2"><img id="ani-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-animal" class="btn btn-success btn-lg w-100 fw-bold">Guardar Perfil</button></div></div></div></div>
 
-<!-- Resto Modales Base -->
-<div class="modal fade" id="modalConfigWA" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">📞 WhatsApp</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-config-wa" onsubmit="guardarWhatsApp(event)"><label class="fw-bold text-muted mb-2">Ingresa número:</label><input type="text" id="input-wa-numero" class="form-control form-control-lg" required></form></div><div class="modal-footer border-0"><button type="submit" form="form-config-wa" class="btn btn-success btn-lg w-100 fw-bold">Guardar</button></div></div></div></div>
 <div class="modal fade" id="modalTrasladoLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">🔄 Trasladar</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-traslado" onsubmit="ejecutarTraslado(event)"><input type="hidden" id="traslado-id-interno"><label class="fw-bold mb-2">Nuevo Lote:</label><select id="traslado-nuevo-lote" class="form-select form-select-lg" required></select></form></div><div class="modal-footer border-0"><button type="submit" form="form-traslado" class="btn btn-success btn-lg w-100">Confirmar</button></div></div></div></div>
 <div class="modal fade" id="modalRegistroPeso" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-warning text-dark"><h5 class="modal-title fw-bold">⚖️ Registrar Peso</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-peso" onsubmit="guardarPeso(event)"><input type="hidden" id="peso-id-interno"><div class="mb-3"><label class="fw-bold">Fecha</label><input type="date" id="peso-fecha" class="form-control form-control-lg" required></div><div class="mb-3"><label class="fw-bold">Peso (Kg)</label><input type="number" step="0.1" id="peso-kilos" class="form-control form-control-lg" required></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-peso" class="btn btn-warning btn-lg w-100 fw-bold">Guardar</button></div></div></div></div>
 <div class="modal fade" id="modalGraficoHistorial" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-info text-dark" id="headerModalGrafico"><h5 class="modal-title fw-bold" id="tituloModalGrafico">Historial</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-1 p-md-3"><div class="chart-container-modal"><canvas id="canvas-grafico-unico"></canvas></div></div></div></div></div>
@@ -279,6 +279,15 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // ==========================================
+    // SISTEMA DE DIAGNÓSTICO DE ERRORES VISIBLES
+    // ==========================================
+    window.onerror = function(msg, url, line) {
+        const errorBox = document.getElementById('auth-error');
+        if(errorBox) errorBox.innerHTML = "❌ Falla técnica interna. Recarga la página.<br><small>" + msg + "</small>";
+        return false;
+    };
+
+    // ==========================================
     // ☁️ CONFIGURACIÓN NUBE Y SEGURIDAD
     // ==========================================
     const SUPABASE_URL = 'https://pznaumhcnpotlarvrcjl.supabase.co';
@@ -288,7 +297,7 @@
     try {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     } catch(e) {
-        alert("No se pudo cargar la base de datos en la nube. Revisa tu conexión.");
+        document.getElementById('auth-error').innerText = "❌ No se pudo conectar a la base de datos. Verifica tu conexión.";
     }
 
     let session = null;
@@ -299,35 +308,49 @@
     let limiteAnimalesMostrados = 50; let limiteOrdenoMostrados = 50; let temporizadorBusqueda; let chartModalUnico = null; let categoriaTiendaActual = 'Todos';
 
     // ==========================================
-    // 1. SISTEMA DE INICIO DE SESIÓN Y REGISTRO (SIN FORMULARIOS)
+    // 1. SISTEMA DE INICIO DE SESIÓN
     // ==========================================
     document.addEventListener('DOMContentLoaded', async () => {
         if(!supabase) return;
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
-        session = currentSession;
-        if (session) { await verificarFincaUsuario(); } 
-        else { document.getElementById('auth-screen').style.display = 'flex'; }
+        try {
+            const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+            if(error) throw error;
+            
+            session = currentSession;
+            if (session) { 
+                await verificarFincaUsuario(); 
+            } else { 
+                document.getElementById('auth-screen').style.display = 'flex'; 
+            }
+        } catch (e) {
+            document.getElementById('auth-error').innerText = "❌ Error iniciando el sistema.";
+            document.getElementById('auth-screen').style.display = 'flex';
+        }
     });
 
     function showAuthView(view) {
-        document.getElementById('auth-login-view').classList.add('hidden');
-        document.getElementById('auth-register-view').classList.add('hidden');
-        document.getElementById('auth-setup-finca-view').classList.add('hidden');
-        document.getElementById(`auth-${view}-view`).classList.remove('hidden');
+        try {
+            document.getElementById('auth-login-view').classList.add('hidden');
+            document.getElementById('auth-register-view').classList.add('hidden');
+            document.getElementById('auth-setup-finca-view').classList.add('hidden');
+            document.getElementById('auth-error').innerHTML = '';
+            document.getElementById(`auth-${view}-view`).classList.remove('hidden');
+        } catch (e) {
+            console.error("Error cambiando pantalla", e);
+        }
     }
 
     async function login() {
         const email = document.getElementById('auth-email').value.trim();
         const pass = document.getElementById('auth-pass').value.trim();
+        const errorBox = document.getElementById('auth-error');
         
         if(!email || !pass) {
-            alert("⚠️ Por favor ingresa tu correo y contraseña.");
+            errorBox.innerText = "⚠️ Por favor ingresa tu correo y contraseña.";
             return;
         }
         
-        const btn = event.target;
-        btn.innerText = "Conectando...";
-        btn.disabled = true;
+        errorBox.innerText = "Conectando...";
         
         try {
             const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
@@ -335,35 +358,32 @@
             session = data.session;
             await verificarFincaUsuario();
         } catch (error) {
-            alert("❌ Correo o clave incorrectos.");
-            btn.innerText = "Iniciar Sesión";
-            btn.disabled = false;
+            errorBox.innerText = "❌ Correo o clave incorrectos.";
         }
     }
 
     async function registrarUsuario() {
         const email = document.getElementById('reg-email').value.trim();
         const pass = document.getElementById('reg-pass').value.trim();
+        const errorBox = document.getElementById('auth-error');
         
         if(!email || !pass) {
-            alert("⚠️ Debes llenar todos los campos.");
+            errorBox.innerText = "⚠️ Debes llenar todos los campos.";
             return;
         }
         if(pass.length < 6) {
-            alert("⚠️ Tu contraseña debe tener al menos 6 caracteres.");
+            errorBox.innerText = "⚠️ Tu contraseña debe tener al menos 6 caracteres.";
             return;
         }
         
-        const btn = document.getElementById('btn-registrar');
-        btn.innerText = "Creando cuenta...";
-        btn.disabled = true;
+        errorBox.innerText = "Creando cuenta en la nube...";
         
         try {
             const { data, error } = await supabase.auth.signUp({ email, password: pass });
             if (error) throw error;
             
-            // Intento de auto-login por si Supabase no lo hace directo
             if (!data.session) {
+                // Auto-login de respaldo
                 const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({ email, password: pass });
                 if(loginError) throw new Error("Cuenta creada exitosamente. Por favor vuelve al Inicio de Sesión e ingresa tus datos.");
                 session = loginData.session;
@@ -372,9 +392,7 @@
             }
             showAuthView('setup-finca');
         } catch(e) {
-            alert("❌ Ocurrió un error: " + e.message);
-            btn.innerText = "Registrarme";
-            btn.disabled = false;
+            errorBox.innerText = "❌ Ocurrió un error: " + e.message;
         }
     }
 
@@ -388,6 +406,7 @@
     // ==========================================
     async function verificarFincaUsuario() {
         document.getElementById('auth-screen').style.display = 'flex';
+        document.getElementById('auth-error').innerText = 'Cargando perfil...';
 
         try {
             const { data: miembroData, error } = await supabase.from('miembros').select('finca_id, rol').eq('user_id', session.user.id).single();
@@ -407,12 +426,12 @@
 
     async function crearNuevaFinca() {
         const nombre = document.getElementById('nueva-finca-nombre').value.trim();
-        if(!nombre) return alert('⚠️ Escribe el nombre de tu Finca para continuar.');
+        if(!nombre) {
+            document.getElementById('auth-error').innerText = '⚠️ Escribe el nombre de tu Finca para continuar.';
+            return;
+        }
         
-        const btn = document.getElementById('btn-crear-finca');
-        btn.innerText = "Procesando...";
-        btn.disabled = true;
-
+        document.getElementById('auth-error').innerText = 'Procesando...';
         const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
 
         try {
@@ -426,19 +445,18 @@
             await supabase.from('finca_data').insert([ { finca_id: nuevaFinca.id, data: {} } ]);
             await verificarFincaUsuario();
         } catch(e) {
-            alert("❌ No se pudo crear la finca. Error: " + e.message);
-            btn.innerText = "Crear Finca (Admin)";
-            btn.disabled = false;
+            document.getElementById('auth-error').innerText = "❌ No se pudo crear la finca. Error: " + e.message;
         }
     }
 
     async function unirmeAFinca() {
         const codigo = document.getElementById('unirme-codigo').value.trim().toUpperCase();
-        if(!codigo) return alert('⚠️ Escribe el código exacto que te dio el Administrador.');
+        if(!codigo) {
+            document.getElementById('auth-error').innerText = '⚠️ Escribe el código exacto que te dio el Administrador.';
+            return;
+        }
         
-        const btn = document.getElementById('btn-unirme-finca');
-        btn.innerText = "Buscando...";
-        btn.disabled = true;
+        document.getElementById('auth-error').innerText = 'Buscando finca...';
 
         try {
             const { data: finca, error: errFinca } = await supabase.from('fincas').select('id').eq('codigo_invitacion', codigo).single();
@@ -447,9 +465,7 @@
             await supabase.from('miembros').insert([ { finca_id: finca.id, user_id: session.user.id, correo: session.user.email, rol: 'empleado' } ]);
             await verificarFincaUsuario();
         } catch(e) {
-            alert("❌ No pudimos encontrarte. Revisa el código.\n" + e.message);
-            btn.innerText = "Unirme a Finca";
-            btn.disabled = false;
+            document.getElementById('auth-error').innerText = "❌ Código incorrecto.";
         }
     }
 
@@ -654,6 +670,7 @@
         if(destetesPendientes === 0) alertasBox.innerHTML = '<li class="list-group-item text-muted border-0">Sin alertas.</li>';
     }
 
+    // EXCEL MULTI-ESPECIE
     function exportarExcel() { 
         const wb = XLSX.utils.book_new();
         const animalesData = animales.map(a => ({ "ID Por Animal": a.id_animal || a.id || '', "Nombre": a.nombre !== 'undefined' ? a.nombre : '', "Especie": a.especie || 'Bovino', "PROVENIENTE": a.proveniente !== 'undefined' ? a.proveniente : '', "Sexo": a.sexo || '', "Lote": a.lote, "Potrero": a.potrero || 'No asignado', "Nacimiento": a.nacimiento !== 'undefined' ? a.nacimiento : '', "Madre": a.madre !== 'undefined' ? a.madre : '', "Foto": a.foto })); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(animalesData, {header: ["ID Por Animal", "Nombre", "Especie", "PROVENIENTE", "Sexo", "Lote", "Potrero", "Nacimiento", "Madre", "Foto"]}), "Animales");
