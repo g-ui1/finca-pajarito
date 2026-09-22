@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#2e7d32">
-    <title>Finca Pajarito - AgroSistema</title>
+    <title>Finca Pajarito - AgroSistema V4</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -18,7 +18,7 @@
         
         /* PANTALLA DE LOGIN */
         #auth-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--primary); z-index: 10000; display: flex; align-items: center; justify-content: center; overflow-y: auto; }
-        .auth-box { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 90%; max-width: 400px; text-align: center; }
+        .auth-box { background: white; padding: 2.5rem 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 90%; max-width: 400px; text-align: center; }
         
         /* APP PRINCIPAL */
         #app-screen { display: none; }
@@ -56,7 +56,6 @@
         .card-producto-img { height: 200px; object-fit: contain; background-color: white; padding: 10px; border-bottom: 1px solid #f0f0f0; }
         
         #badge-rol { font-size: 0.7rem; margin-top: 5px; display: inline-block; padding: 3px 8px; border-radius: 10px; background: rgba(255,255,255,0.2); }
-        #auth-error { min-height: 20px; }
     </style>
 </head>
 <body>
@@ -66,27 +65,36 @@
 <!-- ============================================== -->
 <div id="auth-screen">
     <div class="auth-box">
-        <h2 class="fw-bold text-success mb-0">🌿 AgroSistema</h2>
+        <h2 class="fw-bold text-success mb-0">🌿 AgroSistema <span class="badge bg-danger fs-6 align-middle">V4</span></h2>
         <p class="text-muted mb-4">Gestión Multi-Especie Cloud</p>
         
-        <!-- MENSAJE DE ERROR GLOBAL -->
-        <p id="auth-error" class="text-danger fw-bold small"></p>
+        <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
 
         <!-- LOGIN VIEW -->
         <div id="auth-login-view">
             <input type="email" id="auth-email" class="form-control mb-3 form-control-lg" placeholder="Correo Electrónico">
             <input type="password" id="auth-pass" class="form-control mb-3 form-control-lg" placeholder="Contraseña">
-            <button class="btn btn-success btn-lg w-100 fw-bold mb-3 shadow-sm" onclick="login()">Iniciar Sesión</button>
-            <button class="btn btn-outline-secondary w-100" onclick="showAuthView('register')">Crear una cuenta nueva</button>
+            
+            <button type="button" class="btn btn-success btn-lg w-100 fw-bold mb-3 shadow-sm" onclick="login()">
+                Iniciar Sesión
+            </button>
+            <button type="button" class="btn btn-dark w-100 fw-bold" onclick="showAuthView('register')">
+                Crear una cuenta nueva
+            </button>
         </div>
 
         <!-- REGISTER VIEW -->
         <div id="auth-register-view" class="hidden">
             <h5 class="fw-bold mb-3">Crear Cuenta</h5>
             <input type="email" id="reg-email" class="form-control mb-3 form-control-lg" placeholder="Tu Correo">
-            <input type="password" id="reg-pass" class="form-control mb-3 form-control-lg" placeholder="Crea una contraseña (Min. 6 letras)">
-            <button id="btn-registrar" class="btn btn-success btn-lg w-100 fw-bold mb-3" onclick="registrarUsuario()">Registrarme</button>
-            <button class="btn btn-link text-muted w-100" onclick="showAuthView('login')">Volver al inicio</button>
+            <input type="password" id="reg-pass" class="form-control mb-3 form-control-lg" placeholder="Contraseña (Min. 6 letras)">
+            
+            <button type="button" id="btn-registrar" class="btn btn-primary btn-lg w-100 fw-bold mb-3" onclick="registrarUsuario()">
+                Registrarme
+            </button>
+            <button type="button" class="btn btn-link text-muted w-100" onclick="showAuthView('login')">
+                Volver al inicio
+            </button>
         </div>
 
         <!-- SETUP FINCA VIEW -->
@@ -96,11 +104,11 @@
             <hr>
             <h6 class="fw-bold text-start">Soy Dueño:</h6>
             <input type="text" id="nueva-finca-nombre" class="form-control mb-2" placeholder="Nombre (Ej: Los Pinos)">
-            <button id="btn-crear-finca" class="btn btn-primary w-100 fw-bold mb-4" onclick="crearNuevaFinca()">Crear Finca (Admin)</button>
+            <button type="button" id="btn-crear-finca" class="btn btn-primary w-100 fw-bold mb-4" onclick="crearNuevaFinca()">Crear Finca (Admin)</button>
             
             <h6 class="fw-bold text-start">Soy Empleado:</h6>
             <input type="text" id="unirme-codigo" class="form-control mb-2" placeholder="Código (Ej: ABCD12)">
-            <button id="btn-unirme-finca" class="btn btn-warning text-dark w-100 fw-bold" onclick="unirmeAFinca()">Unirme a Finca</button>
+            <button type="button" id="btn-unirme-finca" class="btn btn-warning text-dark w-100 fw-bold" onclick="unirmeAFinca()">Unirme a Finca</button>
         </div>
     </div>
 </div>
@@ -277,16 +285,8 @@
 <div class="modal fade" id="modalImagenGrande" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content bg-transparent border-0"><div class="modal-body text-center position-relative p-0"><button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 shadow" data-bs-dismiss="modal" style="background-color: rgba(255,255,255,0.8); padding: 12px; border-radius: 50%; z-index: 1055;"></button><img id="img-zoom" src="" class="img-fluid rounded shadow-lg w-100" style="max-height: 85vh; border: 4px solid white; object-fit: contain;" alt="Foto Grande"></div></div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // ==========================================
-    // SISTEMA DE DIAGNÓSTICO DE ERRORES VISIBLES
-    // ==========================================
-    window.onerror = function(msg, url, line) {
-        const errorBox = document.getElementById('auth-error');
-        if(errorBox) errorBox.innerHTML = "❌ Falla técnica interna. Recarga la página.<br><small>" + msg + "</small>";
-        return false;
-    };
 
+<script>
     // ==========================================
     // ☁️ CONFIGURACIÓN NUBE Y SEGURIDAD
     // ==========================================
@@ -297,7 +297,8 @@
     try {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     } catch(e) {
-        document.getElementById('auth-error').innerText = "❌ No se pudo conectar a la base de datos. Verifica tu conexión.";
+        console.error("Supabase Error:", e);
+        document.getElementById('auth-error').innerText = "❌ No se pudo conectar a la base de datos. Verifica tu internet o si tu navegador bloquea scripts.";
     }
 
     let session = null;
@@ -308,7 +309,7 @@
     let limiteAnimalesMostrados = 50; let limiteOrdenoMostrados = 50; let temporizadorBusqueda; let chartModalUnico = null; let categoriaTiendaActual = 'Todos';
 
     // ==========================================
-    // 1. SISTEMA DE INICIO DE SESIÓN
+    // 1. INICIO DE SESIÓN DIRECTO
     // ==========================================
     document.addEventListener('DOMContentLoaded', async () => {
         if(!supabase) return;
@@ -323,21 +324,20 @@
                 document.getElementById('auth-screen').style.display = 'flex'; 
             }
         } catch (e) {
+            console.error("Session Error:", e);
             document.getElementById('auth-error').innerText = "❌ Error iniciando el sistema.";
             document.getElementById('auth-screen').style.display = 'flex';
         }
     });
 
+    // Función para cambiar ventanas de Auth sin recargar la página
     function showAuthView(view) {
-        try {
-            document.getElementById('auth-login-view').classList.add('hidden');
-            document.getElementById('auth-register-view').classList.add('hidden');
-            document.getElementById('auth-setup-finca-view').classList.add('hidden');
-            document.getElementById('auth-error').innerHTML = '';
-            document.getElementById(`auth-${view}-view`).classList.remove('hidden');
-        } catch (e) {
-            console.error("Error cambiando pantalla", e);
-        }
+        document.getElementById('auth-login-view').classList.add('hidden');
+        document.getElementById('auth-register-view').classList.add('hidden');
+        document.getElementById('auth-setup-finca-view').classList.add('hidden');
+        document.getElementById('auth-error').innerText = '';
+        
+        document.getElementById(`auth-${view}-view`).classList.remove('hidden');
     }
 
     async function login() {
@@ -366,6 +366,7 @@
         const email = document.getElementById('reg-email').value.trim();
         const pass = document.getElementById('reg-pass').value.trim();
         const errorBox = document.getElementById('auth-error');
+        const btn = document.getElementById('btn-registrar');
         
         if(!email || !pass) {
             errorBox.innerText = "⚠️ Debes llenar todos los campos.";
@@ -376,14 +377,15 @@
             return;
         }
         
-        errorBox.innerText = "Creando cuenta en la nube...";
+        btn.innerText = "Creando cuenta...";
+        btn.disabled = true;
         
         try {
             const { data, error } = await supabase.auth.signUp({ email, password: pass });
             if (error) throw error;
             
             if (!data.session) {
-                // Auto-login de respaldo
+                // Auto-login fallback
                 const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({ email, password: pass });
                 if(loginError) throw new Error("Cuenta creada exitosamente. Por favor vuelve al Inicio de Sesión e ingresa tus datos.");
                 session = loginData.session;
@@ -393,6 +395,8 @@
             showAuthView('setup-finca');
         } catch(e) {
             errorBox.innerText = "❌ Ocurrió un error: " + e.message;
+            btn.innerText = "Registrarme";
+            btn.disabled = false;
         }
     }
 
@@ -406,7 +410,7 @@
     // ==========================================
     async function verificarFincaUsuario() {
         document.getElementById('auth-screen').style.display = 'flex';
-        document.getElementById('auth-error').innerText = 'Cargando perfil...';
+        document.getElementById('auth-error').innerText = 'Cargando tu perfil...';
 
         try {
             const { data: miembroData, error } = await supabase.from('miembros').select('finca_id, rol').eq('user_id', session.user.id).single();
@@ -419,19 +423,23 @@
                 showAuthView('setup-finca');
             }
         } catch (e) {
-            console.error(e);
+            console.error("Finca verification error:", e);
             showAuthView('setup-finca');
         }
     }
 
     async function crearNuevaFinca() {
         const nombre = document.getElementById('nueva-finca-nombre').value.trim();
+        const errorBox = document.getElementById('auth-error');
+        const btn = document.getElementById('btn-crear-finca');
+        
         if(!nombre) {
-            document.getElementById('auth-error').innerText = '⚠️ Escribe el nombre de tu Finca para continuar.';
+            errorBox.innerText = '⚠️ Escribe el nombre de tu Finca para continuar.';
             return;
         }
         
-        document.getElementById('auth-error').innerText = 'Procesando...';
+        btn.innerText = "Procesando...";
+        btn.disabled = true;
         const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
 
         try {
@@ -445,18 +453,24 @@
             await supabase.from('finca_data').insert([ { finca_id: nuevaFinca.id, data: {} } ]);
             await verificarFincaUsuario();
         } catch(e) {
-            document.getElementById('auth-error').innerText = "❌ No se pudo crear la finca. Error: " + e.message;
+            errorBox.innerText = "❌ No se pudo crear la finca. Error: " + e.message;
+            btn.innerText = "Crear Finca (Admin)";
+            btn.disabled = false;
         }
     }
 
     async function unirmeAFinca() {
         const codigo = document.getElementById('unirme-codigo').value.trim().toUpperCase();
+        const errorBox = document.getElementById('auth-error');
+        const btn = document.getElementById('btn-unirme-finca');
+        
         if(!codigo) {
-            document.getElementById('auth-error').innerText = '⚠️ Escribe el código exacto que te dio el Administrador.';
+            errorBox.innerText = '⚠️ Escribe el código exacto que te dio el Administrador.';
             return;
         }
         
-        document.getElementById('auth-error').innerText = 'Buscando finca...';
+        btn.innerText = "Buscando...";
+        btn.disabled = true;
 
         try {
             const { data: finca, error: errFinca } = await supabase.from('fincas').select('id').eq('codigo_invitacion', codigo).single();
@@ -465,7 +479,9 @@
             await supabase.from('miembros').insert([ { finca_id: finca.id, user_id: session.user.id, correo: session.user.email, rol: 'empleado' } ]);
             await verificarFincaUsuario();
         } catch(e) {
-            document.getElementById('auth-error').innerText = "❌ Código incorrecto.";
+            errorBox.innerText = "❌ Código incorrecto o no encontrado.";
+            btn.innerText = "Unirme a Finca";
+            btn.disabled = false;
         }
     }
 
