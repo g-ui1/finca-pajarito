@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#2e7d32">
-    <title>Finca Pajarito - App Multi-Usuario</title>
+    <title>Finca Pajarito - AgroSistema</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -66,21 +66,25 @@
 <div id="auth-screen">
     <div class="auth-box">
         <h2 class="fw-bold text-success mb-0">🌿 AgroSistema</h2>
-        <p class="text-muted mb-4">Gestión Ganadera Cloud</p>
+        <p class="text-muted mb-4">Gestión Multi-Especie Cloud</p>
         
         <div id="auth-login-view">
-            <input type="email" id="auth-email" class="form-control mb-3 form-control-lg" placeholder="Correo Electrónico" required>
-            <input type="password" id="auth-pass" class="form-control mb-3 form-control-lg" placeholder="Contraseña" required>
-            <button class="btn btn-success btn-lg w-100 fw-bold mb-3 shadow-sm" onclick="login()">Iniciar Sesión</button>
-            <button class="btn btn-outline-secondary w-100" onclick="showAuthView('register')">Crear una cuenta nueva</button>
+            <form onsubmit="login(event)">
+                <input type="email" id="auth-email" class="form-control mb-3 form-control-lg" placeholder="Correo Electrónico" required>
+                <input type="password" id="auth-pass" class="form-control mb-3 form-control-lg" placeholder="Contraseña" required>
+                <button type="submit" class="btn btn-success btn-lg w-100 fw-bold mb-3 shadow-sm">Iniciar Sesión</button>
+                <button type="button" class="btn btn-outline-secondary w-100" onclick="showAuthView('register')">Crear una cuenta nueva</button>
+            </form>
         </div>
 
         <div id="auth-register-view" class="hidden">
-            <h5 class="fw-bold mb-3">Crear Cuenta</h5>
-            <input type="email" id="reg-email" class="form-control mb-3 form-control-lg" placeholder="Tu Correo" required>
-            <input type="password" id="reg-pass" class="form-control mb-3 form-control-lg" placeholder="Crea una contraseña" required>
-            <button class="btn btn-success btn-lg w-100 fw-bold mb-3" onclick="registrarUsuario()">Registrarme</button>
-            <button class="btn btn-link text-muted w-100" onclick="showAuthView('login')">Volver al inicio</button>
+            <form onsubmit="registrarUsuario(event)">
+                <h5 class="fw-bold mb-3">Crear Cuenta</h5>
+                <input type="email" id="reg-email" class="form-control mb-3 form-control-lg" placeholder="Tu Correo" required>
+                <input type="password" id="reg-pass" class="form-control mb-3 form-control-lg" placeholder="Crea una contraseña" required>
+                <button type="submit" class="btn btn-success btn-lg w-100 fw-bold mb-3">Registrarme</button>
+                <button type="button" class="btn btn-link text-muted w-100" onclick="showAuthView('login')">Volver al inicio</button>
+            </form>
         </div>
 
         <div id="auth-setup-finca-view" class="hidden">
@@ -101,7 +105,7 @@
 </div>
 
 <!-- ============================================== -->
-<!-- APP PRINCIPAL (Oculta hasta iniciar sesión)    -->
+<!-- APP PRINCIPAL                                  -->
 <!-- ============================================== -->
 <div id="app-screen">
     
@@ -118,8 +122,8 @@
         </div>
         <div class="sidebar-menu px-3 w-100">
             <a href="#" onclick="showView('dashboard')" class="nav-btn-dashboard active">📊 Dashboard</a>
-            <a href="#" onclick="showView('animales')" class="nav-btn-animales">🐄 Perfiles y Lotes</a>
-            <a href="#" onclick="showView('ordeño')" class="nav-btn-ordeño">🥛 Control Lechero</a>
+            <a href="#" onclick="showView('animales')" class="nav-btn-animales">🐾 Perfiles y Lotes</a>
+            <a href="#" onclick="showView('ordeño')" class="nav-btn-ordeño">🥛 Producción</a>
             <a href="#" onclick="showView('sanidad')" class="nav-btn-sanidad">💉 Sanidad</a>
             <a href="#" onclick="showView('tienda')" class="nav-btn-tienda">🛒 Tienda</a>
             <hr class="border-light opacity-50 w-100 my-3">
@@ -135,8 +139,8 @@
         </div>
         <div class="offcanvas-body sidebar-menu flex-column p-3">
             <a href="#" onclick="showView('dashboard')" class="nav-btn-dashboard active">📊 Dashboard</a>
-            <a href="#" onclick="showView('animales')" class="nav-btn-animales">🐄 Perfiles y Lotes</a>
-            <a href="#" onclick="showView('ordeño')" class="nav-btn-ordeño">🥛 Control Lechero</a>
+            <a href="#" onclick="showView('animales')" class="nav-btn-animales">🐾 Perfiles y Lotes</a>
+            <a href="#" onclick="showView('ordeño')" class="nav-btn-ordeño">🥛 Producción</a>
             <a href="#" onclick="showView('sanidad')" class="nav-btn-sanidad">💉 Sanidad</a>
             <a href="#" onclick="showView('tienda')" class="nav-btn-tienda">🛒 Tienda</a>
             <hr class="border-light opacity-50 w-100 my-3">
@@ -151,16 +155,16 @@
         <div id="view-dashboard" class="view-section">
             <h2 class="mb-4 fw-bold text-dark">Resumen en Tiempo Real <span class="badge bg-primary ms-2" style="font-size:0.5em;">NUBE</span></h2>
             <div class="row mb-3 g-3">
-                <div class="col-md-4 col-12"><div class="card card-stat p-3 h-100"><h6 class="text-muted">Total Inventario</h6><h2 id="stat-total" class="fw-bold m-0">0</h2></div></div>
-                <div class="col-md-4 col-12"><div class="card card-stat p-3 h-100 border-primary"><h6 class="text-muted">Prod. Semanal (Lts)</h6><h2 id="stat-leche" class="text-primary fw-bold m-0">0.0</h2></div></div>
+                <div class="col-md-4 col-12"><div class="card card-stat p-3 h-100"><h6 class="text-muted">Total Inventario (Cabezas)</h6><h2 id="stat-total" class="fw-bold m-0">0</h2></div></div>
+                <div class="col-md-4 col-12"><div class="card card-stat p-3 h-100 border-primary"><h6 class="text-muted">Prod. Leche Semanal (Lts)</h6><h2 id="stat-leche" class="text-primary fw-bold m-0">0.0</h2></div></div>
                 <div class="col-md-4 col-12"><div class="card card-stat p-3 h-100 border-success"><h6 class="text-muted">Queso Est. (Kg)</h6><h2 id="stat-queso" class="text-success fw-bold m-0">0.0</h2></div></div>
             </div>
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mt-4 mb-3">
-                <h4 class="m-0 mb-2 mb-md-0 fw-bold">Lotes</h4>
+                <h4 class="m-0 mb-2 mb-md-0 fw-bold">Lotes / Galpones</h4>
                 <button class="btn btn-sm btn-outline-success fw-bold admin-only" data-bs-toggle="modal" data-bs-target="#modalNuevoLote">➕ Crear Lote</button>
             </div>
             <div class="row mb-4 g-2" id="dashboard-lotes-container"></div>
-            <h4 class="text-danger mt-4 fw-bold">⚠️ Alertas</h4>
+            <h4 class="text-danger mt-4 fw-bold">⚠️ Alertas de Destete</h4>
             <ul class="list-group shadow-sm border-0" id="alertas-destete"></ul>
         </div>
 
@@ -205,10 +209,10 @@
 
         <!-- ORDEÑO -->
         <div id="view-ordeño" class="view-section hidden">
-            <h2 class="fw-bold mb-3">Control Lechero</h2>
+            <h2 class="fw-bold mb-3">Control de Producción</h2>
             <div class="table-responsive bg-white rounded shadow-sm p-2">
                 <table class="table table-hover align-middle">
-                    <thead class="table-success"><tr><th>Vaca</th><th>Último Registro</th><th>Leche</th><th>Acciones</th></tr></thead>
+                    <thead class="table-success"><tr><th>Animal</th><th>Último Registro</th><th>Producción</th><th>Acciones</th></tr></thead>
                     <tbody id="tabla-ordeno"></tbody>
                 </table>
             </div>
@@ -218,13 +222,13 @@
         <div id="view-sanidad" class="view-section hidden">
             <h2 class="fw-bold mb-3">Control Sanitario</h2>
             <div class="card p-3 mb-4 shadow-sm border-0 admin-only">
-                <h4 class="mb-3">Aplicar Vacuna</h4>
+                <h4 class="mb-3">Aplicar Vacuna a Lote</h4>
                 <form id="form-vacuna" onsubmit="aplicarVacuna(event)">
                     <div class="row g-2">
                         <div class="col-12 col-md-3"><select id="vacuna-lote" class="form-select form-select-lg" required></select></div>
-                        <div class="col-12 col-md-4"><input type="text" id="vacuna-tipo" class="form-control form-control-lg" placeholder="Vacuna..." required></div>
+                        <div class="col-12 col-md-4"><input type="text" id="vacuna-tipo" class="form-control form-control-lg" placeholder="Vacuna o Tratamiento..." required></div>
                         <div class="col-6 col-md-3"><input type="date" id="vacuna-fecha" class="form-control form-control-lg" required></div>
-                        <div class="col-6 col-md-2"><button type="submit" class="btn btn-primary btn-lg w-100">Vacunar</button></div>
+                        <div class="col-6 col-md-2"><button type="submit" class="btn btn-primary btn-lg w-100">Aplicar</button></div>
                     </div>
                 </form>
             </div>
@@ -256,29 +260,37 @@
 <!-- ============================================== -->
 <!-- MODALES -->
 <!-- ============================================== -->
-<div class="modal fade" id="modalConfigWA" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">📞 WhatsApp</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-config-wa" onsubmit="guardarWhatsApp(event)"><label class="fw-bold text-muted mb-2">Ingresa número (Ej: +584141234567):</label><input type="text" id="input-wa-numero" class="form-control form-control-lg" required></form></div><div class="modal-footer border-0"><button type="submit" form="form-config-wa" class="btn btn-success btn-lg w-100 fw-bold">Guardar</button></div></div></div></div>
-<div class="modal fade" id="modalProducto" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold" id="modalProductoTitle">Registrar Producto</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-producto" onsubmit="guardarProducto(event)"><input type="hidden" id="prod-id-edit"> <div class="row g-2"><div class="col-12 mb-2"><label class="fw-bold">Nombre</label><input type="text" id="prod-nombre" class="form-control" required></div><div class="col-12 mb-2"><label class="fw-bold">Categoría</label><select id="prod-categoria" class="form-select" required><option value="Medicamentos">Medicamentos</option><option value="Accesorios">Accesorios</option><option value="Utensilios">Utensilios</option><option value="Otros">Otros</option></select></div><div class="col-6 mb-2"><label class="fw-bold">Precio ($)</label><input type="number" step="0.01" id="prod-precio" class="form-control" required></div><div class="col-6 mb-2"><label class="fw-bold">Stock</label><input type="number" id="prod-stock" class="form-control" required></div><div class="col-12 mb-2"><label class="fw-bold">Descripción</label><textarea id="prod-descripcion" class="form-control" rows="2"></textarea></div><div class="col-12 mb-2"><label class="fw-bold">Foto</label><input type="file" id="prod-foto-file" class="form-control" accept="image/*" capture="environment"><input type="hidden" id="prod-foto-base64"><div class="text-center mt-2"><img id="prod-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-producto" class="btn btn-success btn-lg w-100 fw-bold">Guardar Producto</button></div></div></div></div>
-<div class="modal fade" id="modalAnimal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold" id="modalAnimalTitle">Registrar Animal</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-animal" onsubmit="guardarAnimal(event)"><input type="hidden" id="ani-id-interno-edit"> <div class="row g-2"><div class="col-6 mb-2"><label class="fw-bold">Chapa</label><input type="text" id="ani-id-animal" class="form-control" required></div><div class="col-6 mb-2"><label class="fw-bold">Nombre</label><input type="text" id="ani-nombre" class="form-control"></div><div class="col-6 mb-2"><label class="fw-bold">Sexo</label><select id="ani-sexo" class="form-select" required><option value="Hembra">Hembra</option><option value="Macho">Macho</option></select></div><div class="col-6 mb-2"><label class="fw-bold">Origen</label><input type="text" id="ani-proveniente" class="form-control"></div><div class="col-12 mb-2"><label class="fw-bold">Lote</label><select id="ani-lote" class="form-select" required></select></div><div class="col-12 mb-2"><label class="fw-bold">Nacimiento</label><input type="date" id="ani-fecha" class="form-control" required></div><div class="col-12 mb-2"><label class="fw-bold">Madre</label><input type="text" id="ani-madre" class="form-control"><div class="form-check mt-1"><input class="form-check-input" type="checkbox" id="ani-madre-desc" onchange="toggleMadre()"><label class="form-check-label text-muted">Madre desconocida</label></div></div><div class="col-12 mb-2"><label class="fw-bold">Foto</label><input type="file" id="ani-foto-file" class="form-control" accept="image/*" capture="environment"><input type="hidden" id="ani-foto-base64"><div class="text-center mt-2"><img id="ani-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-animal" class="btn btn-success btn-lg w-100 fw-bold">Guardar Perfil</button></div></div></div></div>
+<!-- Modal Producto -->
+<div class="modal fade" id="modalProducto" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold" id="modalProductoTitle">Registrar Producto</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-producto" onsubmit="guardarProducto(event)"><input type="hidden" id="prod-id-edit"> <div class="row g-2"><div class="col-12 mb-2"><label class="fw-bold">Nombre</label><input type="text" id="prod-nombre" class="form-control" required></div><div class="col-12 mb-2"><label class="fw-bold">Categoría</label><select id="prod-categoria" class="form-select" required><option value="Medicamentos">Medicamentos</option><option value="Accesorios">Accesorios</option><option value="Utensilios">Utensilios</option><option value="Otros">Otros</option></select></div><div class="col-6 mb-2"><label class="fw-bold">Precio ($)</label><input type="number" step="0.01" id="prod-precio" class="form-control" required></div><div class="col-6 mb-2"><label class="fw-bold">Stock</label><input type="number" id="prod-stock" class="form-control" required></div><div class="col-12 mb-2"><label class="fw-bold">Descripción</label><textarea id="prod-descripcion" class="form-control" rows="2"></textarea></div><div class="col-12 mb-2"><label class="fw-bold">Foto</label><input type="file" id="prod-foto-file" class="form-control" accept="image/*" capture="environment"><input type="hidden" id="prod-foto-base64"><div class="text-center mt-2"><img id="prod-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-producto" class="btn btn-success btn-lg w-100 fw-bold">Guardar</button></div></div></div></div>
+
+<!-- Modal Animal (AHORA MULTI-ESPECIE Y CON POTRERO) -->
+<div class="modal fade" id="modalAnimal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold" id="modalAnimalTitle">Registrar Animal</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-animal" onsubmit="guardarAnimal(event)"><input type="hidden" id="ani-id-interno-edit"> <div class="row g-2"><div class="col-6 mb-2"><label class="fw-bold">Chapa / ID</label><input type="text" id="ani-id-animal" class="form-control" required></div><div class="col-6 mb-2"><label class="fw-bold">Nombre</label><input type="text" id="ani-nombre" class="form-control"></div>
+<div class="col-6 mb-2"><label class="fw-bold">Especie</label><select id="ani-especie" class="form-select" required><option value="Bovino">Bovino (Vacas/Toros)</option><option value="Porcino">Porcino (Cerdos)</option><option value="Caprino">Caprino (Cabras)</option><option value="Ovino">Ovino (Ovejas)</option><option value="Equino">Equino (Caballos)</option><option value="Avícola">Avícola (Gallinas)</option><option value="Otro">Otro</option></select></div>
+<div class="col-6 mb-2"><label class="fw-bold">Sexo</label><select id="ani-sexo" class="form-select" required><option value="Hembra">Hembra</option><option value="Macho">Macho</option></select></div><div class="col-6 mb-2"><label class="fw-bold">Lote / Grupo</label><select id="ani-lote" class="form-select" required></select></div><div class="col-6 mb-2"><label class="fw-bold">Potrero / Galpón</label><input type="text" id="ani-potrero" class="form-control" placeholder="Ej. Potrero 1"></div><div class="col-6 mb-2"><label class="fw-bold">Origen</label><input type="text" id="ani-proveniente" class="form-control"></div><div class="col-6 mb-2"><label class="fw-bold">Nacimiento</label><input type="date" id="ani-fecha" class="form-control" required></div><div class="col-12 mb-2"><label class="fw-bold">Madre</label><input type="text" id="ani-madre" class="form-control"><div class="form-check mt-1"><input class="form-check-input" type="checkbox" id="ani-madre-desc" onchange="toggleMadre()"><label class="form-check-label text-muted">Madre desconocida</label></div></div><div class="col-12 mb-2"><label class="fw-bold">Foto (Cámara)</label><input type="file" id="ani-foto-file" class="form-control" accept="image/*" capture="environment"><input type="hidden" id="ani-foto-base64"><div class="text-center mt-2"><img id="ani-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-animal" class="btn btn-success btn-lg w-100 fw-bold">Guardar Perfil</button></div></div></div></div>
+
+<!-- Resto Modales -->
+<div class="modal fade" id="modalConfigWA" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">📞 WhatsApp</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-config-wa" onsubmit="guardarWhatsApp(event)"><label class="fw-bold text-muted mb-2">Ingresa número:</label><input type="text" id="input-wa-numero" class="form-control form-control-lg" required></form></div><div class="modal-footer border-0"><button type="submit" form="form-config-wa" class="btn btn-success btn-lg w-100 fw-bold">Guardar</button></div></div></div></div>
 <div class="modal fade" id="modalTrasladoLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">🔄 Trasladar</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-traslado" onsubmit="ejecutarTraslado(event)"><input type="hidden" id="traslado-id-interno"><label class="fw-bold mb-2">Nuevo Lote:</label><select id="traslado-nuevo-lote" class="form-select form-select-lg" required></select></form></div><div class="modal-footer border-0"><button type="submit" form="form-traslado" class="btn btn-success btn-lg w-100">Confirmar</button></div></div></div></div>
 <div class="modal fade" id="modalRegistroPeso" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-warning text-dark"><h5 class="modal-title fw-bold">⚖️ Registrar Peso</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-peso" onsubmit="guardarPeso(event)"><input type="hidden" id="peso-id-interno"><div class="mb-3"><label class="fw-bold">Fecha</label><input type="date" id="peso-fecha" class="form-control form-control-lg" required></div><div class="mb-3"><label class="fw-bold">Peso (Kg)</label><input type="number" step="0.1" id="peso-kilos" class="form-control form-control-lg" required></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-peso" class="btn btn-warning btn-lg w-100 fw-bold">Guardar</button></div></div></div></div>
 <div class="modal fade" id="modalGraficoHistorial" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-info text-dark" id="headerModalGrafico"><h5 class="modal-title fw-bold" id="tituloModalGrafico">Historial</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-1 p-md-3"><div class="chart-container-modal"><canvas id="canvas-grafico-unico"></canvas></div></div></div></div></div>
-<div class="modal fade" id="modalNuevoLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">Nuevo Lote</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-lote-manual" onsubmit="guardarNuevoLote(event)"><label class="fw-bold">Nombre del Lote:</label><input type="text" id="nuevo-lote-nombre" class="form-control form-control-lg mt-2" required></form></div><div class="modal-footer border-0"><button type="submit" form="form-lote-manual" class="btn btn-success btn-lg w-100">Crear Lote</button></div></div></div></div>
-<div class="modal fade" id="modalLeche" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">Leche</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-leche" onsubmit="guardarLeche(event)"><input type="hidden" id="leche-id-interno"><div class="mb-3"><label class="fw-bold">Fecha</label><input type="date" id="leche-fecha" class="form-control form-control-lg" required></div><div class="mb-3"><label class="fw-bold">Litros</label><input type="number" step="0.1" id="leche-litros" class="form-control form-control-lg" required></div><div class="mb-3"><label class="fw-bold">Ordeñador</label><input type="text" id="leche-personal" class="form-control" required></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-leche" class="btn btn-primary btn-lg w-100 fw-bold">Registrar</button></div></div></div></div>
+<div class="modal fade" id="modalNuevoLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">Nuevo Lote</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-lote-manual" onsubmit="guardarNuevoLote(event)"><label class="fw-bold">Nombre del Lote:</label><input type="text" id="nuevo-lote-nombre" class="form-control form-control-lg mt-2" required></form></div><div class="modal-footer border-0"><button type="submit" form="form-lote-manual" class="btn btn-success btn-lg w-100">Crear</button></div></div></div></div>
+<div class="modal fade" id="modalLeche" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">Producción</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-leche" onsubmit="guardarLeche(event)"><input type="hidden" id="leche-id-interno"><div class="mb-3"><label class="fw-bold">Fecha</label><input type="date" id="leche-fecha" class="form-control form-control-lg" required></div><div class="mb-3"><label class="fw-bold">Cantidad Producida</label><input type="number" step="0.1" id="leche-litros" class="form-control form-control-lg" required></div><div class="mb-3"><label class="fw-bold">Encargado</label><input type="text" id="leche-personal" class="form-control" required></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-leche" class="btn btn-primary btn-lg w-100 fw-bold">Registrar</button></div></div></div></div>
 <div class="modal fade" id="modalBorrarLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-danger shadow-lg"><div class="modal-header bg-danger text-white"><h5 class="modal-title fw-bold">⚠️ PELIGRO</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-borrar-lote" onsubmit="ejecutarBorradoLote(event)"><p>Se eliminarán todos los animales de un lote.</p><select id="borrar-lote-select" class="form-select form-select-lg mb-3" required></select><input type="text" id="borrar-lote-confirmacion" class="form-control border-danger form-control-lg" placeholder="Escribe ELIMINAR" required></form></div><div class="modal-footer border-0"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" form="form-borrar-lote" class="btn btn-danger fw-bold">Destruir</button></div></div></div></div>
 <div class="modal fade" id="modalImagenGrande" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content bg-transparent border-0"><div class="modal-body text-center position-relative p-0"><button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 shadow" data-bs-dismiss="modal" style="background-color: rgba(255,255,255,0.8); padding: 12px; border-radius: 50%; z-index: 1055;"></button><img id="img-zoom" src="" class="img-fluid rounded shadow-lg w-100" style="max-height: 85vh; border: 4px solid white; object-fit: contain;" alt="Foto"></div></div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // ==========================================
-    // ☁️ CONFIGURACIÓN DE SUPABASE
+    // ☁️ CONFIGURACIÓN NUBE Y SEGURIDAD
     // ==========================================
     const SUPABASE_URL = 'https://pznaumhcnpotlarvrcjl.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_3Upyqun-W_H5F7KdOQpMpQ_HuHHtJXp'; 
+    const SUPABASE_KEY = 'PEGAR_AQUI_TU_CLAVE_PUBLISHABLE_COPIADA'; // <-- ¡Tu clave va aquí!
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let session = null;
     let miFincaInfo = null; 
 
+    // VARIABLES DE DATOS
     let animales = []; let vacunas = []; let productos = []; let lotes = []; let telefono_tienda = '';
     let limiteAnimalesMostrados = 50; let limiteOrdenoMostrados = 50; let temporizadorBusqueda; let chartModalUnico = null; let categoriaTiendaActual = 'Todos';
 
@@ -296,11 +308,12 @@
         document.getElementById('auth-login-view').classList.add('hidden');
         document.getElementById('auth-register-view').classList.add('hidden');
         document.getElementById('auth-setup-finca-view').classList.add('hidden');
-        document.getElementById('auth-error').innerText = '';
+        document.getElementById('auth-error').innerHTML = '';
         document.getElementById(`auth-${view}-view`).classList.remove('hidden');
     }
 
-    async function login() {
+    async function login(e) {
+        e.preventDefault();
         const email = document.getElementById('auth-email').value;
         const pass = document.getElementById('auth-pass').value;
         document.getElementById('auth-error').innerText = 'Conectando...';
@@ -310,14 +323,20 @@
         await verificarFincaUsuario();
     }
 
-    async function registrarUsuario() {
+    async function registrarUsuario(e) {
+        e.preventDefault();
         const email = document.getElementById('reg-email').value;
         const pass = document.getElementById('reg-pass').value;
         document.getElementById('auth-error').innerText = 'Registrando...';
         const { data, error } = await supabase.auth.signUp({ email, password: pass });
         if (error) { document.getElementById('auth-error').innerText = "Error: " + error.message; return; }
-        session = data.session;
-        showAuthView('setup-finca');
+        
+        if (!data.session) {
+            document.getElementById('auth-error').innerHTML = "<span class='text-primary fw-bold'>Registro exitoso. Para poder entrar directo, recuerda APAGAR 'Confirm email' en las opciones de Supabase.</span>";
+        } else {
+            session = data.session;
+            showAuthView('setup-finca');
+        }
     }
 
     async function cerrarSesion() {
@@ -326,7 +345,7 @@
     }
 
     // ==========================================
-    // 2. SISTEMA DE FINCAS AISLADAS (MULTI-TENANT)
+    // 2. SISTEMA DE FINCAS AISLADAS
     // ==========================================
     async function verificarFincaUsuario() {
         document.getElementById('auth-screen').style.display = 'flex';
@@ -356,9 +375,7 @@
 
         if (errFinca) { document.getElementById('auth-error').innerText = "Error al crear la finca."; return; }
 
-        await supabase.from('miembros').insert([
-            { finca_id: nuevaFinca.id, user_id: session.user.id, correo: session.user.email, rol: 'admin' }
-        ]);
+        await supabase.from('miembros').insert([ { finca_id: nuevaFinca.id, user_id: session.user.id, correo: session.user.email, rol: 'admin' } ]);
         await supabase.from('finca_data').insert([ { finca_id: nuevaFinca.id, data: {} } ]);
         await verificarFincaUsuario();
     }
@@ -371,14 +388,12 @@
         const { data: finca, error: errFinca } = await supabase.from('fincas').select('id').eq('codigo_invitacion', codigo).single();
         if (errFinca || !finca) { document.getElementById('auth-error').innerText = "Código no válido o finca no encontrada."; return; }
 
-        await supabase.from('miembros').insert([
-            { finca_id: finca.id, user_id: session.user.id, correo: session.user.email, rol: 'empleado' }
-        ]);
+        await supabase.from('miembros').insert([ { finca_id: finca.id, user_id: session.user.id, correo: session.user.email, rol: 'empleado' } ]);
         await verificarFincaUsuario();
     }
 
     // ==========================================
-    // 3. CARGAR DATOS Y TIEMPO REAL
+    // 3. CARGAR DATOS DE LA FINCA CORRESPONDIENTE
     // ==========================================
     async function arrancarAplicacion() {
         document.getElementById('auth-screen').style.display = 'none';
@@ -405,7 +420,9 @@
         document.getElementById('display-wa-num').innerText = telefono_tienda || 'No configurado';
         document.getElementById('input-wa-numero').value = telefono_tienda;
         
-        actualizarSelectsLotes(); showView('dashboard'); iniciarSincronizacionEnTiempoReal();
+        actualizarSelectsLotes();
+        showView('dashboard');
+        iniciarSincronizacionEnTiempoReal();
     }
 
     async function guardarDatos() {
@@ -418,8 +435,13 @@
         supabase.channel('custom-all-channel')
             .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'finca_data', filter: `finca_id=eq.${miFincaInfo.id}` }, (payload) => {
                 const rawData = payload.new.data;
-                animales = rawData.animales || []; vacunas = rawData.vacunas || []; productos = rawData.productos || []; lotes = rawData.lotes || ['Ordeño', 'Horro', 'Mautes', 'Becerros']; telefono_tienda = rawData.telefono_tienda || '';
-                actualizarSelectsLotes(); renderDashboard();
+                animales = rawData.animales || [];
+                vacunas = rawData.vacunas || [];
+                productos = rawData.productos || [];
+                lotes = rawData.lotes || ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
+                telefono_tienda = rawData.telefono_tienda || '';
+                actualizarSelectsLotes();
+                renderDashboard();
                 if(!document.getElementById('view-animales').classList.contains('hidden')) renderAnimales();
                 if(!document.getElementById('view-ordeño').classList.contains('hidden')) renderOrdeno();
                 if(!document.getElementById('view-tienda').classList.contains('hidden')) renderTienda();
@@ -457,11 +479,72 @@
     function guardarProducto(e) { e.preventDefault(); const editId = document.getElementById('prod-id-edit').value; const fotoGuardada = document.getElementById('prod-foto-base64').value || 'https://placehold.co/400x400/2e7d32/ffffff?text=Producto'; if (editId) { const indice = productos.findIndex(p => p.id === editId); if(indice !== -1) { productos[indice].nombre = document.getElementById('prod-nombre').value.trim(); productos[indice].categoria = document.getElementById('prod-categoria').value; productos[indice].precio = parseFloat(document.getElementById('prod-precio').value); productos[indice].stock = parseInt(document.getElementById('prod-stock').value); productos[indice].descripcion = document.getElementById('prod-descripcion').value.trim(); productos[indice].foto = fotoGuardada; } } else { productos.push({ id: Date.now().toString() + Math.random().toString(36).substr(2, 5), nombre: document.getElementById('prod-nombre').value.trim(), categoria: document.getElementById('prod-categoria').value, precio: parseFloat(document.getElementById('prod-precio').value), stock: parseInt(document.getElementById('prod-stock').value), descripcion: document.getElementById('prod-descripcion').value.trim(), foto: fotoGuardada }); } guardarDatos(); bootstrap.Modal.getInstance(document.getElementById('modalProducto')).hide(); setCategoriaTienda(document.getElementById('prod-categoria').value); }
     function renderTienda() { const busqueda = document.getElementById('busqueda-producto').value.toLowerCase(); const lista = document.getElementById('lista-productos'); lista.innerHTML = ''; let filtrados = productos; if(categoriaTiendaActual !== 'Todos') filtrados = filtrados.filter(p => p.categoria === categoriaTiendaActual); if(busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda) || p.descripcion.toLowerCase().includes(busqueda)); filtrados.forEach(p => { const telLimpio = telefono_tienda.replace(/\D/g,''); const mensajeWa = encodeURIComponent(`Hola! 🌿 Me interesa comprar: *${p.nombre}*. Precio: $${p.precio.toFixed(2)}`); const urlWhatsapp = `https://api.whatsapp.com/send?phone=${telLimpio}&text=${mensajeWa}`; const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<div class="d-flex gap-2 justify-content-between border-top pt-2 mt-2"><button class="btn btn-sm btn-outline-primary w-50 fw-bold" onclick="abrirModalEditarProducto('${p.id}')">✏️ Editar</button><button class="btn btn-sm btn-outline-danger w-50 fw-bold" onclick="eliminarProducto('${p.id}')">🗑️</button></div>` : ''; lista.innerHTML += `<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3"><div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;"><img src="${p.foto}" onclick="verImagen('${p.foto}')" class="card-img-top card-producto-img" alt="Producto"><div class="card-body d-flex flex-column p-3 bg-white"><span class="badge bg-secondary mb-2 align-self-start">${p.categoria}</span><h5 class="card-title fw-bold text-dark mb-1" style="font-size: 1.15rem;">${p.nombre}</h5><p class="precio-tag mb-2">$${p.precio.toFixed(2)}</p><p class="text-muted small mb-2" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.5em;">${p.descripcion}</p><p class="mb-3 text-dark small fw-bold">Stock: ${p.stock} und.</p><div class="mt-auto"><a href="${urlWhatsapp}" target="_blank" class="btn btn-whatsapp w-100 fw-bold mb-2 shadow-sm d-flex align-items-center justify-content-center">💬 WhatsApp</a>${botonesAdmin}</div></div></div></div>`; }); if(filtrados.length === 0) lista.innerHTML = `<div class="col-12 text-center text-muted mt-5"><h4>No hay productos.</h4></div>`; }
 
-    // Animales
+    // Animales (Con Especies y Potrero)
     function toggleMadre() { const check = document.getElementById('ani-madre-desc').checked; const input = document.getElementById('ani-madre'); input.disabled = check; if(check) input.value = 'Desconocida'; else input.value = ''; }
-    function prepararModalNuevoAnimal() { document.getElementById('form-animal').reset(); document.getElementById('ani-id-interno-edit').value = ''; document.getElementById('ani-foto-base64').value = ''; document.getElementById('ani-foto-preview').style.display = 'none'; document.getElementById('ani-madre').disabled = false; document.getElementById('modalAnimalTitle').innerText = 'Registrar Animal'; }
-    function abrirModalEditar(id_interno) { const vaca = animales.find(a => a.id_interno === id_interno || a.id === id_interno); if(!vaca) return; document.getElementById('modalAnimalTitle').innerText = '✏️ Editar Animal'; document.getElementById('ani-id-interno-edit').value = vaca.id_interno || vaca.id; document.getElementById('ani-id-animal').value = vaca.id_animal || vaca.id || ''; document.getElementById('ani-nombre').value = vaca.nombre && vaca.nombre !== 'undefined' ? vaca.nombre : ''; document.getElementById('ani-sexo').value = vaca.sexo || 'Hembra'; document.getElementById('ani-proveniente').value = vaca.proveniente && vaca.proveniente !== 'undefined' ? vaca.proveniente : ''; document.getElementById('ani-lote').value = vaca.lote || lotes[0]; document.getElementById('ani-fecha').value = vaca.nacimiento && vaca.nacimiento !== 'undefined' ? vaca.nacimiento : ''; document.getElementById('ani-madre').value = vaca.madre && vaca.madre !== 'undefined' ? vaca.madre : ''; if (vaca.foto && !vaca.foto.includes('placehold')) { document.getElementById('ani-foto-base64').value = vaca.foto; document.getElementById('ani-foto-preview').src = vaca.foto; document.getElementById('ani-foto-preview').style.display = 'block'; } else { document.getElementById('ani-foto-base64').value = ''; document.getElementById('ani-foto-preview').style.display = 'none'; } new bootstrap.Modal(document.getElementById('modalAnimal')).show(); }
-    function guardarAnimal(e) { e.preventDefault(); const editId = document.getElementById('ani-id-interno-edit').value; const fotoGuardada = document.getElementById('ani-foto-base64').value || 'https://placehold.co/400x400/2e7d32/ffffff?text=Sin+Foto'; if (editId) { const indice = animales.findIndex(a => a.id_interno === editId || a.id === editId); if(indice !== -1) { animales[indice].id_animal = document.getElementById('ani-id-animal').value.trim(); animales[indice].nombre = document.getElementById('ani-nombre').value.trim(); animales[indice].sexo = document.getElementById('ani-sexo').value; animales[indice].proveniente = document.getElementById('ani-proveniente').value.trim(); animales[indice].lote = document.getElementById('ani-lote').value; animales[indice].nacimiento = document.getElementById('ani-fecha').value; animales[indice].madre = document.getElementById('ani-madre').value.trim() || 'No registrada'; animales[indice].foto = fotoGuardada; } } else { animales.push({ id_interno: Date.now().toString() + Math.random().toString(36).substr(2, 5), id_animal: document.getElementById('ani-id-animal').value.trim(), nombre: document.getElementById('ani-nombre').value.trim(), sexo: document.getElementById('ani-sexo').value, proveniente: document.getElementById('ani-proveniente').value.trim(), lote: document.getElementById('ani-lote').value, nacimiento: document.getElementById('ani-fecha').value, madre: document.getElementById('ani-madre').value.trim() || 'No registrada', foto: fotoGuardada, historialLeche: [], historialPeso: [], vacunas: [] }); } guardarDatos(); bootstrap.Modal.getInstance(document.getElementById('modalAnimal')).hide(); reiniciarYRenderAnimales(); renderDashboard(); }
+    
+    function prepararModalNuevoAnimal() { 
+        document.getElementById('form-animal').reset(); 
+        document.getElementById('ani-id-interno-edit').value = ''; 
+        document.getElementById('ani-foto-base64').value = ''; 
+        document.getElementById('ani-foto-preview').style.display = 'none'; 
+        document.getElementById('ani-madre').disabled = false; 
+        document.getElementById('modalAnimalTitle').innerText = 'Registrar Animal'; 
+    }
+    
+    function abrirModalEditar(id_interno) { 
+        const vaca = animales.find(a => a.id_interno === id_interno || a.id === id_interno); 
+        if(!vaca) return; 
+        document.getElementById('modalAnimalTitle').innerText = '✏️ Editar Animal'; 
+        document.getElementById('ani-id-interno-edit').value = vaca.id_interno || vaca.id; 
+        document.getElementById('ani-id-animal').value = vaca.id_animal || vaca.id || ''; 
+        document.getElementById('ani-nombre').value = vaca.nombre && vaca.nombre !== 'undefined' ? vaca.nombre : ''; 
+        document.getElementById('ani-especie').value = vaca.especie || 'Bovino'; 
+        document.getElementById('ani-potrero').value = vaca.potrero || ''; 
+        document.getElementById('ani-sexo').value = vaca.sexo || 'Hembra'; 
+        document.getElementById('ani-proveniente').value = vaca.proveniente && vaca.proveniente !== 'undefined' ? vaca.proveniente : ''; 
+        document.getElementById('ani-lote').value = vaca.lote || lotes[0]; 
+        document.getElementById('ani-fecha').value = vaca.nacimiento && vaca.nacimiento !== 'undefined' ? vaca.nacimiento : ''; 
+        document.getElementById('ani-madre').value = vaca.madre && vaca.madre !== 'undefined' ? vaca.madre : ''; 
+        if (vaca.foto && !vaca.foto.includes('placehold')) { document.getElementById('ani-foto-base64').value = vaca.foto; document.getElementById('ani-foto-preview').src = vaca.foto; document.getElementById('ani-foto-preview').style.display = 'block'; } else { document.getElementById('ani-foto-base64').value = ''; document.getElementById('ani-foto-preview').style.display = 'none'; } 
+        new bootstrap.Modal(document.getElementById('modalAnimal')).show(); 
+    }
+    
+    function guardarAnimal(e) { 
+        e.preventDefault(); 
+        const editId = document.getElementById('ani-id-interno-edit').value; 
+        const fotoGuardada = document.getElementById('ani-foto-base64').value || 'https://placehold.co/400x400/2e7d32/ffffff?text=Sin+Foto'; 
+        if (editId) { 
+            const indice = animales.findIndex(a => a.id_interno === editId || a.id === editId); 
+            if(indice !== -1) { 
+                animales[indice].id_animal = document.getElementById('ani-id-animal').value.trim(); 
+                animales[indice].nombre = document.getElementById('ani-nombre').value.trim(); 
+                animales[indice].especie = document.getElementById('ani-especie').value; 
+                animales[indice].potrero = document.getElementById('ani-potrero').value.trim() || 'No asignado'; 
+                animales[indice].sexo = document.getElementById('ani-sexo').value; 
+                animales[indice].proveniente = document.getElementById('ani-proveniente').value.trim(); 
+                animales[indice].lote = document.getElementById('ani-lote').value; 
+                animales[indice].nacimiento = document.getElementById('ani-fecha').value; 
+                animales[indice].madre = document.getElementById('ani-madre').value.trim() || 'No registrada'; 
+                animales[indice].foto = fotoGuardada; 
+            } 
+        } else { 
+            animales.push({ 
+                id_interno: Date.now().toString() + Math.random().toString(36).substr(2, 5), 
+                id_animal: document.getElementById('ani-id-animal').value.trim(), 
+                nombre: document.getElementById('ani-nombre').value.trim(), 
+                especie: document.getElementById('ani-especie').value, 
+                potrero: document.getElementById('ani-potrero').value.trim() || 'No asignado', 
+                sexo: document.getElementById('ani-sexo').value, 
+                proveniente: document.getElementById('ani-proveniente').value.trim(), 
+                lote: document.getElementById('ani-lote').value, 
+                nacimiento: document.getElementById('ani-fecha').value, 
+                madre: document.getElementById('ani-madre').value.trim() || 'No registrada', 
+                foto: fotoGuardada, historialLeche: [], historialPeso: [], vacunas: [] 
+            }); 
+        } 
+        guardarDatos(); bootstrap.Modal.getInstance(document.getElementById('modalAnimal')).hide(); reiniciarYRenderAnimales(); renderDashboard(); 
+    }
+    
     function eliminarAnimal(id_interno) { if(confirm("⚠️ ¿Eliminar este animal?")) { animales = animales.filter(a => a.id_interno !== id_interno && a.id !== id_interno); guardarDatos(); reiniciarYRenderAnimales(); renderDashboard(); } }
     function abrirModalTraslado(id_interno, lote_actual) { document.getElementById('traslado-id-interno').value = id_interno; document.getElementById('traslado-nuevo-lote').value = lote_actual; new bootstrap.Modal(document.getElementById('modalTrasladoLote')).show(); }
     function ejecutarTraslado(e) { e.preventDefault(); const id = document.getElementById('traslado-id-interno').value; const vaca = animales.find(a => a.id_interno === id || a.id === id); if(vaca) { vaca.lote = document.getElementById('traslado-nuevo-lote').value; guardarDatos(); } bootstrap.Modal.getInstance(document.getElementById('modalTrasladoLote')).hide(); reiniciarYRenderAnimales(); renderDashboard(); }
@@ -470,17 +553,44 @@
     function busquedaInteligenteAnimales() { clearTimeout(temporizadorBusqueda); temporizadorBusqueda = setTimeout(() => { reiniciarYRenderAnimales(); }, 400); }
     function reiniciarYRenderAnimales() { limiteAnimalesMostrados = 50; renderAnimales(); }
     function cargarMasAnimales() { limiteAnimalesMostrados += 50; renderAnimales(); }
-    function renderAnimales() { const filtroLote = document.getElementById('filtro-lote').value; const busqueda = document.getElementById('busqueda-animal').value.toLowerCase(); const lista = document.getElementById('lista-animales'); const btnCargarMas = document.getElementById('btn-cargar-mas-animales'); lista.innerHTML = ''; let filtrados = animales; if(filtroLote !== 'Todos') filtrados = filtrados.filter(a => a.lote === filtroLote); if(busqueda) filtrados = filtrados.filter(a => { const idStr = (a.id_animal || a.id || '').toLowerCase(); const nomStr = (a.nombre && a.nombre !== 'undefined' ? a.nombre : '').toLowerCase(); return idStr.includes(busqueda) || nomStr.includes(busqueda); }); const arrayPaginado = filtrados.slice(0, limiteAnimalesMostrados); arrayPaginado.forEach(a => { const idMostrar = a.id_animal || a.id || 'Sin ID'; const nomMostrar = (a.nombre && a.nombre !== 'undefined') ? a.nombre : ''; const tituloVaca = nomMostrar ? `#${idMostrar} - ${nomMostrar}` : `#${idMostrar}`; const sexMostrar = a.sexo || 'N/A'; const iconSexo = sexMostrar === 'Macho' ? '🐂' : '🐄'; const provMostrar = (a.proveniente && a.proveniente !== 'undefined') ? a.proveniente : 'N/A'; const idInternoReal = a.id_interno || a.id; const pesos = a.historialPeso || []; const ultimoPeso = pesos.length > 0 ? pesos[pesos.length-1].peso + ' Kg' : 'Sin registro'; let imgSrc = a.foto; if(imgSrc.includes('placeholder.com')) imgSrc = 'https://placehold.co/400x400/2e7d32/ffffff?text=Sin+Foto'; const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<button class="btn btn-sm btn-outline-danger btn-card-action" onclick="eliminarAnimal('${idInternoReal}')">🗑️</button>` : ''; lista.innerHTML += `<div class="col-md-6 mb-3"><div class="card h-100 shadow-sm border-0"><div class="card-body bg-white d-flex flex-column justify-content-between p-3"><div class="d-flex flex-md-row flex-column align-items-center align-items-md-start animal-card-body"><img src="${imgSrc}" onclick="verImagen('${imgSrc}')" class="img-thumbnail-animal me-md-3 mb-2 mb-md-0" alt="Foto"><div class="flex-grow-1 w-100"><div class="d-flex justify-content-between align-items-start border-bottom pb-2 mb-2"><h5 class="fw-bold text-dark mb-0">${tituloVaca}</h5><div class="d-flex"><button class="btn btn-sm btn-outline-primary btn-card-action" onclick="abrirModalEditar('${idInternoReal}')">✏️</button>${botonesAdmin}</div></div><div class="row text-start animal-info-col" style="font-size: 0.85rem;"><div class="col-6"><strong>Lote:</strong> <span class="badge bg-success">${a.lote}</span><br><strong>Sexo:</strong> ${iconSexo} ${sexMostrar}<br><strong>Origen:</strong> ${provMostrar}</div><div class="col-6 border-start"><strong>Peso:</strong> <span class="text-primary fw-bold">${ultimoPeso}</span><br><strong>Nac.:</strong> ${a.nacimiento}<br><strong>Madre:</strong> ${a.madre}</div></div></div></div><div class="mt-3 d-flex gap-2 justify-content-end flex-wrap border-top pt-2 btn-action-mobile-group"><button class="btn btn-sm btn-outline-success fw-bold flex-grow-1 flex-md-grow-0" onclick="abrirModalTraslado('${idInternoReal}', '${a.lote}')">🔄 Trasladar</button><button class="btn btn-sm btn-outline-warning fw-bold flex-grow-1 flex-md-grow-0" onclick="abrirModalPeso('${idInternoReal}')">⚖️ Pesar</button><button class="btn btn-sm btn-outline-info fw-bold w-100 w-md-auto mt-2 mt-md-0" onclick="abrirGraficoIndividual('${idInternoReal}', '${idMostrar}', '${nomMostrar}', 'peso')">📈 Historial Peso</button></div></div></div></div>`; }); if (filtrados.length > limiteAnimalesMostrados) btnCargarMas.classList.remove('hidden'); else btnCargarMas.classList.add('hidden'); }
-    function abrirGraficoIndividual(id_interno, id_mostrar, nom_mostrar, tipo = 'leche') { const vaca = animales.find(a => a.id_interno === id_interno || a.id === id_interno); if(!vaca) return; const titulo = tipo === 'leche' ? `Producción de Leche` : `Evolución de Peso (Kg)`; const color = tipo === 'leche' ? '#0dcaf0' : '#ffc107'; document.getElementById('tituloModalGrafico').innerText = `${titulo}: #${id_mostrar} - ${nom_mostrar}`; document.getElementById('headerModalGrafico').className = tipo === 'leche' ? 'modal-header bg-info text-dark' : 'modal-header bg-warning text-dark'; const ctx = document.getElementById('canvas-grafico-unico'); if (chartModalUnico) chartModalUnico.destroy(); const dataArray = tipo === 'leche' ? (vaca.historialLeche || []) : (vaca.historialPeso || []); const ultimas = dataArray.slice(-10); const mapData = tipo === 'leche' ? ultimas.map(h => h.litros) : ultimas.map(h => h.peso); chartModalUnico = new Chart(ctx, { type: 'line', data: { labels: ultimas.map(h => h.fecha.substring(5)), datasets: [{ label: tipo==='leche'?'Litros':'Kilos', data: mapData, borderColor: color, backgroundColor: tipo === 'leche' ? 'rgba(13, 202, 240, 0.2)' : 'rgba(255, 193, 7, 0.2)', tension: 0.3, fill: true, pointBackgroundColor: color, pointRadius: 5 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: tipo === 'leche' } } } }); new bootstrap.Modal(document.getElementById('modalGraficoHistorial')).show(); }
     
+    function renderAnimales() { 
+        const filtroLote = document.getElementById('filtro-lote').value; const busqueda = document.getElementById('busqueda-animal').value.toLowerCase(); const lista = document.getElementById('lista-animales'); const btnCargarMas = document.getElementById('btn-cargar-mas-animales'); lista.innerHTML = ''; 
+        let filtrados = animales; 
+        if(filtroLote !== 'Todos') filtrados = filtrados.filter(a => a.lote === filtroLote); 
+        if(busqueda) filtrados = filtrados.filter(a => { const idStr = (a.id_animal || a.id || '').toLowerCase(); const nomStr = (a.nombre && a.nombre !== 'undefined' ? a.nombre : '').toLowerCase(); return idStr.includes(busqueda) || nomStr.includes(busqueda); }); 
+        const arrayPaginado = filtrados.slice(0, limiteAnimalesMostrados); 
+        
+        arrayPaginado.forEach(a => { 
+            const idMostrar = a.id_animal || a.id || 'Sin ID'; const nomMostrar = (a.nombre && a.nombre !== 'undefined') ? a.nombre : ''; const tituloVaca = nomMostrar ? `#${idMostrar} - ${nomMostrar}` : `#${idMostrar}`; 
+            const sexMostrar = a.sexo || 'N/A'; const iconSexo = sexMostrar === 'Macho' ? '♂️' : '♀️'; const provMostrar = (a.proveniente && a.proveniente !== 'undefined') ? a.proveniente : 'N/A'; 
+            const idInternoReal = a.id_interno || a.id; const pesos = a.historialPeso || []; const ultimoPeso = pesos.length > 0 ? pesos[pesos.length-1].peso + ' Kg' : 'Sin registro'; 
+            let imgSrc = a.foto; if(imgSrc.includes('placeholder.com')) imgSrc = 'https://placehold.co/400x400/2e7d32/ffffff?text=Sin+Foto'; 
+            
+            // Lógica de Especies
+            let iconEspecie = '🐄';
+            if(a.especie === 'Porcino') iconEspecie = '🐖';
+            else if(a.especie === 'Caprino') iconEspecie = '🐐';
+            else if(a.especie === 'Ovino') iconEspecie = '🐑';
+            else if(a.especie === 'Equino') iconEspecie = '🐎';
+            else if(a.especie === 'Avícola') iconEspecie = '🐔';
+
+            const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<button class="btn btn-sm btn-outline-danger btn-card-action" onclick="eliminarAnimal('${idInternoReal}')">🗑️</button>` : ''; 
+            
+            lista.innerHTML += `<div class="col-md-6 col-lg-4 mb-3"><div class="card h-100 shadow-sm border-0"><div class="card-body bg-white d-flex flex-column justify-content-between p-3"><div class="d-flex flex-md-row flex-column align-items-center align-items-md-start animal-card-body"><img src="${imgSrc}" onclick="verImagen('${imgSrc}')" class="img-thumbnail-animal me-md-3 mb-2 mb-md-0" alt="Foto"><div class="flex-grow-1 w-100"><div class="d-flex justify-content-between align-items-start border-bottom pb-2 mb-2"><h5 class="fw-bold text-dark mb-0">${tituloVaca}</h5><div class="d-flex"><button class="btn btn-sm btn-outline-primary btn-card-action" onclick="abrirModalEditar('${idInternoReal}')">✏️</button>${botonesAdmin}</div></div><div class="row text-start animal-info-col" style="font-size: 0.85rem;"><div class="col-6"><strong>Lote:</strong> <span class="badge bg-success">${a.lote}</span><br><strong>Ubicación:</strong> ${a.potrero || 'N/A'}<br><strong>Sexo:</strong> ${iconSexo} ${sexMostrar}<br><strong>Origen:</strong> ${provMostrar}</div><div class="col-6 border-start"><strong>Tipo:</strong> ${iconEspecie} ${a.especie || 'Bovino'}<br><strong>Peso:</strong> <span class="text-primary fw-bold">${ultimoPeso}</span><br><strong>Nac.:</strong> ${a.nacimiento}<br><strong>Madre:</strong> ${a.madre}</div></div></div></div><div class="mt-3 d-flex gap-2 justify-content-end flex-wrap border-top pt-2 btn-action-mobile-group"><button class="btn btn-sm btn-outline-success fw-bold flex-grow-1 flex-md-grow-0" onclick="abrirModalTraslado('${idInternoReal}', '${a.lote}')">🔄 Trasladar</button><button class="btn btn-sm btn-outline-warning fw-bold flex-grow-1 flex-md-grow-0" onclick="abrirModalPeso('${idInternoReal}')">⚖️ Pesar</button><button class="btn btn-sm btn-outline-info fw-bold w-100 w-md-auto mt-2 mt-md-0" onclick="abrirGraficoIndividual('${idInternoReal}', '${idMostrar}', '${nomMostrar}', 'peso')">📈 Historial</button></div></div></div></div>`; 
+        }); 
+        if (filtrados.length > limiteAnimalesMostrados) btnCargarMas.classList.remove('hidden'); else btnCargarMas.classList.add('hidden'); 
+    }
+
+    function abrirGraficoIndividual(id_interno, id_mostrar, nom_mostrar, tipo = 'leche') { const vaca = animales.find(a => a.id_interno === id_interno || a.id === id_interno); if(!vaca) return; const titulo = tipo === 'leche' ? `Producción` : `Evolución de Peso (Kg)`; const color = tipo === 'leche' ? '#0dcaf0' : '#ffc107'; document.getElementById('tituloModalGrafico').innerText = `${titulo}: #${id_mostrar} - ${nom_mostrar}`; document.getElementById('headerModalGrafico').className = tipo === 'leche' ? 'modal-header bg-info text-dark' : 'modal-header bg-warning text-dark'; const ctx = document.getElementById('canvas-grafico-unico'); if (chartModalUnico) chartModalUnico.destroy(); const dataArray = tipo === 'leche' ? (vaca.historialLeche || []) : (vaca.historialPeso || []); const ultimas = dataArray.slice(-10); const mapData = tipo === 'leche' ? ultimas.map(h => h.litros) : ultimas.map(h => h.peso); chartModalUnico = new Chart(ctx, { type: 'line', data: { labels: ultimas.map(h => h.fecha.substring(5)), datasets: [{ label: tipo==='leche'?'Litros':'Kilos', data: mapData, borderColor: color, backgroundColor: tipo === 'leche' ? 'rgba(13, 202, 240, 0.2)' : 'rgba(255, 193, 7, 0.2)', tension: 0.3, fill: true, pointBackgroundColor: color, pointRadius: 5 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: tipo === 'leche' } } } }); new bootstrap.Modal(document.getElementById('modalGraficoHistorial')).show(); }
     function reiniciarYRenderOrdeno() { limiteOrdenoMostrados = 50; renderOrdeno(); }
     function cargarMasOrdeno() { limiteOrdenoMostrados += 50; renderOrdeno(); }
-    function renderOrdeno() { const tabla = document.getElementById('tabla-ordeno'); const btnCargarMas = document.getElementById('btn-cargar-mas-ordeno'); tabla.innerHTML = ''; const vacasOrdeno = animales.filter(a => a.lote === 'Ordeño'); const arrayPaginado = vacasOrdeno.slice(0, limiteOrdenoMostrados); arrayPaginado.forEach(vaca => { const hist = vaca.historialLeche || []; const ultimo = hist.length > 0 ? hist[hist.length-1] : null; let lecheHtml = '<span class="text-muted">Sin registros</span>'; if(ultimo) lecheHtml = `<span class="badge bg-primary fs-6 mb-1">${ultimo.litros} Lts</span><br><small class="text-muted">🧑‍🌾 ${ultimo.personal || 'N/A'}</small>`; const idMostrar = vaca.id_animal || vaca.id || ''; const nomMostrar = vaca.nombre && vaca.nombre !== 'undefined' ? vaca.nombre : ''; const idInternoReal = vaca.id_interno || vaca.id; tabla.innerHTML += `<tr><td><strong>#${idMostrar}</strong><br><small class="text-muted">${nomMostrar}</small></td><td>${ultimo ? ultimo.fecha.substring(5) : 'N/A'}</td><td>${lecheHtml}</td><td class="text-end"><div class="btn-group btn-group-sm"><button class="btn btn-outline-primary fw-bold" onclick="abrirModalLeche('${idInternoReal}')">➕</button><button class="btn btn-outline-info fw-bold" onclick="abrirGraficoIndividual('${idInternoReal}', '${idMostrar}', '${nomMostrar}', 'leche')">📊</button></div></td></tr>`; }); if (vacasOrdeno.length > limiteOrdenoMostrados) btnCargarMas.classList.remove('hidden'); else btnCargarMas.classList.add('hidden'); }
+    function renderOrdeno() { const tabla = document.getElementById('tabla-ordeno'); const btnCargarMas = document.getElementById('btn-cargar-mas-ordeno'); tabla.innerHTML = ''; const vacasOrdeno = animales.filter(a => a.lote === 'Ordeño' || a.especie === 'Bovino' || a.especie === 'Caprino'); const arrayPaginado = vacasOrdeno.slice(0, limiteOrdenoMostrados); arrayPaginado.forEach(vaca => { const hist = vaca.historialLeche || []; const ultimo = hist.length > 0 ? hist[hist.length-1] : null; let lecheHtml = '<span class="text-muted">Sin registros</span>'; if(ultimo) lecheHtml = `<span class="badge bg-primary fs-6 mb-1">${ultimo.litros} Lts</span><br><small class="text-muted">🧑‍🌾 ${ultimo.personal || 'N/A'}</small>`; const idMostrar = vaca.id_animal || vaca.id || ''; const nomMostrar = vaca.nombre && vaca.nombre !== 'undefined' ? vaca.nombre : ''; const idInternoReal = vaca.id_interno || vaca.id; tabla.innerHTML += `<tr><td><strong>#${idMostrar}</strong><br><small class="text-muted">${nomMostrar}</small></td><td>${ultimo ? ultimo.fecha.substring(5) : 'N/A'}</td><td>${lecheHtml}</td><td class="text-end"><div class="btn-group btn-group-sm"><button class="btn btn-outline-primary fw-bold" onclick="abrirModalLeche('${idInternoReal}')">➕</button><button class="btn btn-outline-info fw-bold" onclick="abrirGraficoIndividual('${idInternoReal}', '${idMostrar}', '${nomMostrar}', 'leche')">📊</button></div></td></tr>`; }); if (vacasOrdeno.length > limiteOrdenoMostrados) btnCargarMas.classList.remove('hidden'); else btnCargarMas.classList.add('hidden'); }
     function abrirModalLeche(id_interno) { document.getElementById('leche-id-interno').value = id_interno; document.getElementById('leche-fecha').valueAsDate = new Date(); document.getElementById('leche-litros').value = ''; document.getElementById('leche-personal').value = ''; new bootstrap.Modal(document.getElementById('modalLeche')).show(); }
     function guardarLeche(e) { e.preventDefault(); const id = document.getElementById('leche-id-interno').value; const vaca = animales.find(a => a.id_interno === id || a.id === id); if(vaca) { vaca.historialLeche = vaca.historialLeche || []; vaca.historialLeche.push({ fecha: document.getElementById('leche-fecha').value, litros: parseFloat(document.getElementById('leche-litros').value), personal: document.getElementById('leche-personal').value.trim() }); vaca.historialLeche.sort((a,b) => new Date(a.fecha) - new Date(b.fecha)); guardarDatos(); } bootstrap.Modal.getInstance(document.getElementById('modalLeche')).hide(); reiniciarYRenderOrdeno(); }
     function ejecutarBorradoLote(e) { e.preventDefault(); const lote = document.getElementById('borrar-lote-select').value; const confirmacion = document.getElementById('borrar-lote-confirmacion').value; if (confirmacion !== 'ELIMINAR') { alert('Escribe ELIMINAR.'); return; } animales = animales.filter(a => a.lote !== lote); guardarDatos(); bootstrap.Modal.getInstance(document.getElementById('modalBorrarLote')).hide(); document.getElementById('form-borrar-lote').reset(); reiniciarYRenderAnimales(); renderDashboard(); }
     function aplicarVacuna(e) { e.preventDefault(); vacunas.push({ lote: document.getElementById('vacuna-lote').value, tipo: document.getElementById('vacuna-tipo').value.trim(), personal: document.getElementById('vacuna-personal').value.trim(), fecha: document.getElementById('vacuna-fecha').value }); guardarDatos(); e.target.reset(); renderVacunas(); alert('Vacuna registrada con éxito.'); }
-    function renderVacunas() { const lista = document.getElementById('lista-vacunas'); lista.innerHTML = ''; const ultimasVacunas = vacunas.slice().reverse().slice(0, 50); ultimasVacunas.forEach(v => { lista.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-start border-0 border-bottom mb-1"><div><h6 class="mb-1 fw-bold text-dark">${v.tipo}</h6><small class="text-muted">🐄 Lote aplicado: ${v.lote}</small><br><small class="text-primary">🧑‍⚕️ Por: ${v.personal || 'N/A'}</small></div><span class="badge bg-secondary rounded-pill mt-2">${v.fecha}</span></li>`; }); }
+    function renderVacunas() { const lista = document.getElementById('lista-vacunas'); lista.innerHTML = ''; const ultimasVacunas = vacunas.slice().reverse().slice(0, 50); ultimasVacunas.forEach(v => { lista.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-start border-0 border-bottom mb-1"><div><h6 class="mb-1 fw-bold text-dark">${v.tipo}</h6><small class="text-muted">Lote aplicado: ${v.lote}</small><br><small class="text-primary">🧑‍⚕️ Por: ${v.personal || 'N/A'}</small></div><span class="badge bg-secondary rounded-pill mt-2">${v.fecha}</span></li>`; }); }
 
     function renderDashboard() { 
         document.getElementById('stat-total').innerText = animales.length; let lecheTotal = 0; const vacasOrdeno = animales.filter(a => a.lote === 'Ordeño'); vacasOrdeno.forEach(v => { if(v.historialLeche && v.historialLeche.length > 0) lecheTotal += v.historialLeche[v.historialLeche.length - 1].litros; }); document.getElementById('stat-leche').innerText = lecheTotal.toFixed(1); document.getElementById('stat-queso').innerText = (lecheTotal / 8.5).toFixed(1);
@@ -488,12 +598,13 @@
         lotes.forEach((loteNombre, index) => { const cantidad = animales.filter(a => a.lote === loteNombre).length; const claseColor = colores[index % colores.length]; containerLotes.innerHTML += `<div class="col-6 col-md-3 mb-2"><div class="card card-lote p-3 text-center bg-white border-bottom border-${claseColor} border-4 h-100"><h6 class="text-muted text-uppercase fw-bold" style="font-size: 0.8rem;">${loteNombre}</h6><h3 class="text-${claseColor} m-0">${cantidad}</h3></div></div>`; });
         const alertasBox = document.getElementById('alertas-destete'); alertasBox.innerHTML = ''; let destetesPendientes = 0; const becerros = animales.filter(a => a.lote === 'Becerros');
         becerros.forEach(b => { if(b.nacimiento && b.nacimiento !== 'undefined') { const dias = Math.floor((new Date() - new Date(b.nacimiento)) / (1000 * 60 * 60 * 24)); if(dias >= 210) { destetesPendientes++; const idMostrar = b.id_animal || b.id || ''; const nomMostrar = b.nombre && b.nombre !== 'undefined' ? b.nombre : ''; alertasBox.innerHTML += `<li class="list-group-item list-group-item-warning d-flex justify-content-between border-0 border-bottom flex-wrap"><span><strong>#${idMostrar} - ${nomMostrar}</strong></span><span>Tiene ${Math.floor(dias/30)} meses. ¡Mover!</span></li>`; } } });
-        if(destetesPendientes === 0) alertasBox.innerHTML = '<li class="list-group-item text-muted border-0">No hay becerros en edad de destete.</li>';
+        if(destetesPendientes === 0) alertasBox.innerHTML = '<li class="list-group-item text-muted border-0">Sin alertas.</li>';
     }
 
+    // EXCEL MULTI-ESPECIE
     function exportarExcel() { 
         const wb = XLSX.utils.book_new();
-        const animalesData = animales.map(a => ({ "ID Por Animal": a.id_animal || a.id || '', "Nombre": a.nombre !== 'undefined' ? a.nombre : '', "PROVENIENTE": a.proveniente !== 'undefined' ? a.proveniente : '', "Sexo": a.sexo || '', "Lote": a.lote, "Nacimiento": a.nacimiento !== 'undefined' ? a.nacimiento : '', "Madre": a.madre !== 'undefined' ? a.madre : '', "Foto": a.foto })); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(animalesData, {header: ["ID Por Animal", "Nombre", "PROVENIENTE", "Sexo", "Lote", "Nacimiento", "Madre", "Foto"]}), "Animales");
+        const animalesData = animales.map(a => ({ "ID Por Animal": a.id_animal || a.id || '', "Nombre": a.nombre !== 'undefined' ? a.nombre : '', "Especie": a.especie || 'Bovino', "PROVENIENTE": a.proveniente !== 'undefined' ? a.proveniente : '', "Sexo": a.sexo || '', "Lote": a.lote, "Potrero": a.potrero || 'No asignado', "Nacimiento": a.nacimiento !== 'undefined' ? a.nacimiento : '', "Madre": a.madre !== 'undefined' ? a.madre : '', "Foto": a.foto })); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(animalesData, {header: ["ID Por Animal", "Nombre", "Especie", "PROVENIENTE", "Sexo", "Lote", "Potrero", "Nacimiento", "Madre", "Foto"]}), "Animales");
         const lecheData = []; animales.forEach(a => { if(a.historialLeche) a.historialLeche.forEach(h => { lecheData.push({ "ID Por Animal": a.id_animal || a.id || '', "Fecha": h.fecha, "Litros": h.litros, "Ordenador": h.personal || '' }); }); }); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lecheData, {header: ["ID Por Animal", "Fecha", "Litros", "Ordenador"]}), "Ordeño");
         const pesoData = []; animales.forEach(a => { if(a.historialPeso) a.historialPeso.forEach(h => { pesoData.push({ "ID Por Animal": a.id_animal || a.id || '', "Fecha": h.fecha, "Peso(Kg)": h.peso }); }); }); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(pesoData, {header: ["ID Por Animal", "Fecha", "Peso(Kg)"]}), "Pesos");
         const vacunasData = vacunas.map(v => ({ "Lote": v.lote, "Tipo_Vacuna": v.tipo, "Personal": v.personal, "Fecha": v.fecha })); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(vacunasData, {header: ["Lote", "Tipo_Vacuna", "Personal", "Fecha"]}), "Vacunas");
@@ -521,7 +632,7 @@
                     let loteLeido = String(row.Lote || 'Becerros').trim(); loteLeido = loteLeido.charAt(0).toUpperCase() + loteLeido.slice(1).toLowerCase();
                     if(!lotes.includes(loteLeido)) lotes.push(loteLeido);
                     let fotoExcel = row.Foto ? String(row.Foto).trim() : ''; if(!fotoExcel || fotoExcel.includes('placeholder.com')) fotoExcel = 'https://placehold.co/400x400/2e7d32/ffffff?text=Vaca+Sin+Foto';
-                    nuevosAnimales.push({ id_interno: Date.now().toString() + Math.random().toString(36).substr(2, 5), id_animal: String(row["ID Por Animal"]).trim(), nombre: row.Nombre ? String(row.Nombre).trim() : '', proveniente: row.PROVENIENTE ? String(row.PROVENIENTE).trim() : 'Desconocido', sexo: row.Sexo ? String(row.Sexo).trim() : 'Hembra', lote: loteLeido, nacimiento: procesarFechaExcel(row.Nacimiento), madre: row.Madre ? String(row.Madre).trim() : 'No registrada', foto: fotoExcel, historialLeche: [], historialPeso: [], vacunas: [] });
+                    nuevosAnimales.push({ id_interno: Date.now().toString() + Math.random().toString(36).substr(2, 5), id_animal: String(row["ID Por Animal"]).trim(), nombre: row.Nombre ? String(row.Nombre).trim() : '', especie: row.Especie ? String(row.Especie).trim() : 'Bovino', potrero: row.Potrero ? String(row.Potrero).trim() : 'No asignado', proveniente: row.PROVENIENTE ? String(row.PROVENIENTE).trim() : 'Desconocido', sexo: row.Sexo ? String(row.Sexo).trim() : 'Hembra', lote: loteLeido, nacimiento: procesarFechaExcel(row.Nacimiento), madre: row.Madre ? String(row.Madre).trim() : 'No registrada', foto: fotoExcel, historialLeche: [], historialPeso: [], vacunas: [] });
                 });
                 lecheSheet.forEach(row => { const vaca = nuevosAnimales.find(a => a.id_animal === (row["ID Por Animal"]?String(row["ID Por Animal"]).trim():'')); if (vaca && row.Litros !== undefined) { let litrosNum = parseFloat(String(row.Litros).replace(',', '.')); if(!isNaN(litrosNum)) vaca.historialLeche.push({ fecha: procesarFechaExcel(row.Fecha) || new Date().toISOString().split('T')[0], litros: litrosNum, personal: row.Ordenador ? String(row.Ordenador).trim() : 'No registrado' }); } });
                 pesosSheet.forEach(row => { const vaca = nuevosAnimales.find(a => a.id_animal === (row["ID Por Animal"]?String(row["ID Por Animal"]).trim():'')); if (vaca && row["Peso(Kg)"] !== undefined) { let pesoNum = parseFloat(String(row["Peso(Kg)"]).replace(',', '.')); if(!isNaN(pesoNum)) vaca.historialPeso.push({ fecha: procesarFechaExcel(row.Fecha) || new Date().toISOString().split('T')[0], peso: pesoNum }); } });
