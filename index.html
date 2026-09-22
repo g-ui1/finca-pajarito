@@ -68,39 +68,37 @@
         <h2 class="fw-bold text-success mb-0">🌿 AgroSistema</h2>
         <p class="text-muted mb-4">Gestión Multi-Especie Cloud</p>
         
+        <!-- LOGIN VIEW (SIN FORMULARIO) -->
         <div id="auth-login-view">
-            <form onsubmit="login(event)">
-                <input type="email" id="auth-email" class="form-control mb-3 form-control-lg" placeholder="Correo Electrónico" required>
-                <input type="password" id="auth-pass" class="form-control mb-3 form-control-lg" placeholder="Contraseña" required>
-                <button type="submit" class="btn btn-success btn-lg w-100 fw-bold mb-3 shadow-sm">Iniciar Sesión</button>
-                <button type="button" class="btn btn-outline-secondary w-100" onclick="showAuthView('register')">Crear una cuenta nueva</button>
-            </form>
+            <input type="email" id="auth-email" class="form-control mb-3 form-control-lg" placeholder="Correo Electrónico">
+            <input type="password" id="auth-pass" class="form-control mb-3 form-control-lg" placeholder="Contraseña">
+            <button class="btn btn-success btn-lg w-100 fw-bold mb-3 shadow-sm" onclick="login()">Iniciar Sesión</button>
+            <button class="btn btn-outline-secondary w-100" onclick="showAuthView('register')">Crear una cuenta nueva</button>
         </div>
 
+        <!-- REGISTER VIEW (SIN FORMULARIO) -->
         <div id="auth-register-view" class="hidden">
-            <form onsubmit="registrarUsuario(event)">
-                <h5 class="fw-bold mb-3">Crear Cuenta</h5>
-                <input type="email" id="reg-email" class="form-control mb-3 form-control-lg" placeholder="Tu Correo" required>
-                <input type="password" id="reg-pass" class="form-control mb-3 form-control-lg" placeholder="Crea una contraseña" required>
-                <button type="submit" class="btn btn-success btn-lg w-100 fw-bold mb-3">Registrarme</button>
-                <button type="button" class="btn btn-link text-muted w-100" onclick="showAuthView('login')">Volver al inicio</button>
-            </form>
+            <h5 class="fw-bold mb-3">Crear Cuenta</h5>
+            <input type="email" id="reg-email" class="form-control mb-3 form-control-lg" placeholder="Tu Correo">
+            <input type="password" id="reg-pass" class="form-control mb-3 form-control-lg" placeholder="Crea una contraseña (Min. 6 letras)">
+            <button id="btn-registrar" class="btn btn-success btn-lg w-100 fw-bold mb-3" onclick="registrarUsuario()">Registrarme</button>
+            <button class="btn btn-link text-muted w-100" onclick="showAuthView('login')">Volver al inicio</button>
         </div>
 
+        <!-- SETUP FINCA VIEW (SIN FORMULARIO) -->
         <div id="auth-setup-finca-view" class="hidden">
             <h5 class="fw-bold text-success mb-3">¡Bienvenido!</h5>
             <p class="text-muted small">Crea tu finca (Dueño) o únete a una existente con código (Empleado).</p>
             <hr>
             <h6 class="fw-bold text-start">Soy Dueño:</h6>
             <input type="text" id="nueva-finca-nombre" class="form-control mb-2" placeholder="Nombre (Ej: Los Pinos)">
-            <button class="btn btn-primary w-100 fw-bold mb-4" onclick="crearNuevaFinca()">Crear Finca (Admin)</button>
+            <button id="btn-crear-finca" class="btn btn-primary w-100 fw-bold mb-4" onclick="crearNuevaFinca()">Crear Finca (Admin)</button>
             
             <h6 class="fw-bold text-start">Soy Empleado:</h6>
             <input type="text" id="unirme-codigo" class="form-control mb-2" placeholder="Código (Ej: ABCD12)">
-            <button class="btn btn-warning text-dark w-100 fw-bold" onclick="unirmeAFinca()">Unirme a Finca</button>
+            <button id="btn-unirme-finca" class="btn btn-warning text-dark w-100 fw-bold" onclick="unirmeAFinca()">Unirme a Finca</button>
         </div>
         
-        <p id="auth-error" class="text-danger mt-3 fw-bold small"></p>
     </div>
 </div>
 
@@ -284,14 +282,13 @@
     // ☁️ CONFIGURACIÓN NUBE Y SEGURIDAD
     // ==========================================
     const SUPABASE_URL = 'https://pznaumhcnpotlarvrcjl.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_3Upyqun-W_H5F7KdOQpMpQ_HuHHtJXp'; // <- TU CLAVE AQUI
+    const SUPABASE_KEY = 'sb_publishable_3Upyqun-W_H5F7KdOQpMpQ_HuHHtJXp';
     
-    // Validar que Supabase exista antes de inicializar para evitar bloqueos
     let supabase = null;
-    if(window.supabase) {
+    try {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    } else {
-        alert("Error cargando el servidor en la nube. Verifica tu conexión a internet.");
+    } catch(e) {
+        alert("No se pudo cargar la base de datos en la nube. Revisa tu conexión.");
     }
 
     let session = null;
@@ -302,7 +299,7 @@
     let limiteAnimalesMostrados = 50; let limiteOrdenoMostrados = 50; let temporizadorBusqueda; let chartModalUnico = null; let categoriaTiendaActual = 'Todos';
 
     // ==========================================
-    // 1. SISTEMA DE INICIO DE SESIÓN
+    // 1. SISTEMA DE INICIO DE SESIÓN Y REGISTRO (SIN FORMULARIOS)
     // ==========================================
     document.addEventListener('DOMContentLoaded', async () => {
         if(!supabase) return;
@@ -316,48 +313,68 @@
         document.getElementById('auth-login-view').classList.add('hidden');
         document.getElementById('auth-register-view').classList.add('hidden');
         document.getElementById('auth-setup-finca-view').classList.add('hidden');
-        document.getElementById('auth-error').innerHTML = '';
         document.getElementById(`auth-${view}-view`).classList.remove('hidden');
     }
 
-    async function login(e) {
-        e.preventDefault();
-        const email = document.getElementById('auth-email').value;
-        const pass = document.getElementById('auth-pass').value;
-        if(!email || !pass) return document.getElementById('auth-error').innerText = "Llena todos los campos.";
+    async function login() {
+        const email = document.getElementById('auth-email').value.trim();
+        const pass = document.getElementById('auth-pass').value.trim();
         
-        document.getElementById('auth-error').innerText = 'Conectando...';
+        if(!email || !pass) {
+            alert("⚠️ Por favor ingresa tu correo y contraseña.");
+            return;
+        }
+        
+        const btn = event.target;
+        btn.innerText = "Conectando...";
+        btn.disabled = true;
+        
         try {
             const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
             if (error) throw error;
             session = data.session;
             await verificarFincaUsuario();
         } catch (error) {
-            document.getElementById('auth-error').innerText = "Error: Correo o clave incorrectos.";
-            alert("No se pudo iniciar sesión. Revisa tu correo y contraseña.");
+            alert("❌ Correo o clave incorrectos.");
+            btn.innerText = "Iniciar Sesión";
+            btn.disabled = false;
         }
     }
 
-    async function registrarUsuario(e) {
-        e.preventDefault();
-        const email = document.getElementById('reg-email').value;
-        const pass = document.getElementById('reg-pass').value;
-        if(!email || !pass) return document.getElementById('auth-error').innerText = "Llena todos los campos.";
+    async function registrarUsuario() {
+        const email = document.getElementById('reg-email').value.trim();
+        const pass = document.getElementById('reg-pass').value.trim();
         
-        document.getElementById('auth-error').innerText = 'Registrando...';
+        if(!email || !pass) {
+            alert("⚠️ Debes llenar todos los campos.");
+            return;
+        }
+        if(pass.length < 6) {
+            alert("⚠️ Tu contraseña debe tener al menos 6 caracteres.");
+            return;
+        }
+        
+        const btn = document.getElementById('btn-registrar');
+        btn.innerText = "Creando cuenta...";
+        btn.disabled = true;
+        
         try {
             const { data, error } = await supabase.auth.signUp({ email, password: pass });
             if (error) throw error;
             
+            // Intento de auto-login por si Supabase no lo hace directo
             if (!data.session) {
-                document.getElementById('auth-error').innerHTML = "<span class='text-primary fw-bold'>Registro exitoso. Para entrar directo, apaga 'Confirm email' en Supabase como vimos en la foto.</span>";
+                const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({ email, password: pass });
+                if(loginError) throw new Error("Cuenta creada exitosamente. Por favor vuelve al Inicio de Sesión e ingresa tus datos.");
+                session = loginData.session;
             } else {
                 session = data.session;
-                showAuthView('setup-finca');
             }
+            showAuthView('setup-finca');
         } catch(e) {
-            document.getElementById('auth-error').innerText = "Error general: " + e.message;
-            alert("Hubo un error al registrar: " + e.message);
+            alert("❌ Ocurrió un error: " + e.message);
+            btn.innerText = "Registrarme";
+            btn.disabled = false;
         }
     }
 
@@ -371,7 +388,6 @@
     // ==========================================
     async function verificarFincaUsuario() {
         document.getElementById('auth-screen').style.display = 'flex';
-        document.getElementById('auth-error').innerText = 'Cargando perfil...';
 
         try {
             const { data: miembroData, error } = await supabase.from('miembros').select('finca_id, rol').eq('user_id', session.user.id).single();
@@ -391,8 +407,11 @@
 
     async function crearNuevaFinca() {
         const nombre = document.getElementById('nueva-finca-nombre').value.trim();
-        if(!nombre) return alert('Ponle un nombre a tu finca.');
-        document.getElementById('auth-error').innerText = 'Creando finca...';
+        if(!nombre) return alert('⚠️ Escribe el nombre de tu Finca para continuar.');
+        
+        const btn = document.getElementById('btn-crear-finca');
+        btn.innerText = "Procesando...";
+        btn.disabled = true;
 
         const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
 
@@ -407,15 +426,19 @@
             await supabase.from('finca_data').insert([ { finca_id: nuevaFinca.id, data: {} } ]);
             await verificarFincaUsuario();
         } catch(e) {
-            document.getElementById('auth-error').innerText = "Error al crear la finca.";
-            alert("No se pudo crear la finca. " + e.message);
+            alert("❌ No se pudo crear la finca. Error: " + e.message);
+            btn.innerText = "Crear Finca (Admin)";
+            btn.disabled = false;
         }
     }
 
     async function unirmeAFinca() {
         const codigo = document.getElementById('unirme-codigo').value.trim().toUpperCase();
-        if(!codigo) return alert('Escribe el código de invitación.');
-        document.getElementById('auth-error').innerText = 'Buscando finca...';
+        if(!codigo) return alert('⚠️ Escribe el código exacto que te dio el Administrador.');
+        
+        const btn = document.getElementById('btn-unirme-finca');
+        btn.innerText = "Buscando...";
+        btn.disabled = true;
 
         try {
             const { data: finca, error: errFinca } = await supabase.from('fincas').select('id').eq('codigo_invitacion', codigo).single();
@@ -424,8 +447,9 @@
             await supabase.from('miembros').insert([ { finca_id: finca.id, user_id: session.user.id, correo: session.user.email, rol: 'empleado' } ]);
             await verificarFincaUsuario();
         } catch(e) {
-            document.getElementById('auth-error').innerText = "Código incorrecto.";
-            alert(e.message);
+            alert("❌ No pudimos encontrarte. Revisa el código.\n" + e.message);
+            btn.innerText = "Unirme a Finca";
+            btn.disabled = false;
         }
     }
 
@@ -572,7 +596,7 @@
                 foto: fotoGuardada, historialLeche: [], historialPeso: [], vacunas: [] 
             }); 
         } 
-        guardarDatos(); bootstrap.Modal.getInstance(document.getElementById('modalAnimal')).show(); bootstrap.Modal.getInstance(document.getElementById('modalAnimal')).hide(); reiniciarYRenderAnimales(); renderDashboard(); 
+        guardarDatos(); bootstrap.Modal.getInstance(document.getElementById('modalAnimal')).hide(); reiniciarYRenderAnimales(); renderDashboard(); 
     }
     
     function eliminarAnimal(id_interno) { if(confirm("⚠️ ¿Eliminar este animal?")) { animales = animales.filter(a => a.id_interno !== id_interno && a.id !== id_interno); guardarDatos(); reiniciarYRenderAnimales(); renderDashboard(); } }
@@ -630,7 +654,6 @@
         if(destetesPendientes === 0) alertasBox.innerHTML = '<li class="list-group-item text-muted border-0">Sin alertas.</li>';
     }
 
-    // EXCEL MULTI-ESPECIE
     function exportarExcel() { 
         const wb = XLSX.utils.book_new();
         const animalesData = animales.map(a => ({ "ID Por Animal": a.id_animal || a.id || '', "Nombre": a.nombre !== 'undefined' ? a.nombre : '', "Especie": a.especie || 'Bovino', "PROVENIENTE": a.proveniente !== 'undefined' ? a.proveniente : '', "Sexo": a.sexo || '', "Lote": a.lote, "Potrero": a.potrero || 'No asignado', "Nacimiento": a.nacimiento !== 'undefined' ? a.nacimiento : '', "Madre": a.madre !== 'undefined' ? a.madre : '', "Foto": a.foto })); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(animalesData, {header: ["ID Por Animal", "Nombre", "Especie", "PROVENIENTE", "Sexo", "Lote", "Potrero", "Nacimiento", "Madre", "Foto"]}), "Animales");
