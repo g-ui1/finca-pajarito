@@ -126,7 +126,7 @@
         <div class="mb-3 text-center">
             <img id="auth-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='90' fill='%23efebe9' stroke='%23795548' stroke-width='8'/><path d='M50 70 C40 50 30 40 20 40 C40 50 60 55 75 60 C85 85 115 85 125 60 C140 55 160 50 180 40 C170 40 160 50 150 70 C140 90 120 120 100 135 C80 120 60 90 50 70 Z' fill='%23795548'/><path d='M45 80 C25 80 15 90 20 100 C30 100 50 90 60 85 Z' fill='%23a1887f'/><path d='M155 80 C175 80 185 90 180 100 C170 100 150 90 140 85 Z' fill='%23a1887f'/><path d='M100 125 C120 150 130 125 100 170 C70 125 80 150 100 125 Z' fill='%234caf50'/></svg>" style="width: 80px; height: 80px; border-radius:50%; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
             <h3 class="fw-bold text-primary mb-1">AgroSystems</h3>
-            <p class="text-muted mb-0 small fw-bold">Plataforma de Gestión Administrativa <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V28</span></p>
+            <p class="text-muted mb-0 small fw-bold">Plataforma de Gestión Administrativa <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V29</span></p>
         </div>
         
         <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
@@ -864,19 +864,43 @@
 
     function guardarWhatsApp(e) { e.preventDefault(); telefono_tienda = document.getElementById('input-wa-numero').value.trim(); document.getElementById('display-wa-num').innerText = telefono_tienda; document.getElementById('display-finca-info').innerText = `${ubicacion_finca || 'Sede Principal'} | Móvil: ${telefono_tienda || 'No asig.'}`; cerrarModal('modalConfigWA'); guardarLocal(); renderTienda(); }
     
-    function actualizarSelectsLotes() { 
-        const selects = ['filtro-lote', 'ani-lote', 'vacuna-lote', 'borrar-lote-select', 'traslado-nuevo-lote']; 
-        let safeLotes = Array.isArray(lotes) && lotes.length > 0 ? lotes : ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
-        selects.forEach(id => { try { const el = document.getElementById(id); if(el) { if(id === 'filtro-lote') el.innerHTML = '<option value="Todos">Auditoría Total</option>'; else el.innerHTML = ''; safeLotes.forEach(lote => { el.innerHTML += `<option value="${lote}">${lote}</option>`; }); if(id === 'vacuna-lote') el.innerHTML += `<option value="Todos">Base Completa</option>`; } } catch(error) {} }); 
+    function actualizarSelectsLotes() {
+        const nombres = (Array.isArray(lotes) ? lotes : [])
+            .filter(lote => typeof lote === 'string')
+            .map(lote => lote.trim()).filter(Boolean);
+        lotes = [...new Set(nombres)];
+        if (!lotes.length) lotes = ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
+        const ids = ['filtro-lote', 'ani-lote', 'vacuna-lote', 'borrar-lote-select', 'traslado-nuevo-lote'];
+        ids.forEach(id => {
+            const select = document.getElementById(id);
+            if (!select) return;
+            const anterior = select.value;
+            select.replaceChildren();
+            function agregar(valor, texto) {
+                const opcion = document.createElement('option');
+                opcion.value = valor;
+                opcion.textContent = texto;
+                select.appendChild(opcion);
+            }
+            if (id === 'filtro-lote') agregar('Todos', 'Auditoría Total');
+            lotes.forEach(lote => agregar(lote, lote));
+            if (id === 'vacuna-lote') agregar('Todos', 'Base Completa');
+            if (Array.from(select.options).some(opcion => opcion.value === anterior)) {
+                select.value = anterior;
+            } else {
+                select.selectedIndex = 0;
+            }
+        });
     }
-    
+
     function guardarNuevoLote(e) { 
         e.preventDefault(); 
         let nombre = document.getElementById('nuevo-lote-nombre').value.trim(); 
         if(!nombre) return;
         nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase(); 
         
-        if (lotes.includes(nombre)) {
+        actualizarSelectsLotes();
+        if (lotes.some(lote => lote.toLocaleLowerCase('es') === nombre.toLocaleLowerCase('es'))) {
             alert("Este lote ya está registrado en la base operativa.");
         } else { 
             lotes.push(nombre); guardarLocal(); actualizarSelectsLotes(); renderDashboard(); 
@@ -897,8 +921,8 @@
     function renderTienda() { const busqueda = document.getElementById('busqueda-producto').value.toLowerCase(); const lista = document.getElementById('lista-productos'); lista.innerHTML = ''; let filtrados = productos; if(categoriaTiendaActual !== 'Todos') filtrados = filtrados.filter(p => p.categoria === categoriaTiendaActual); if(busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda) || p.descripcion.toLowerCase().includes(busqueda)); filtrados.forEach(p => { const telLimpio = telefono_tienda.replace(/\D/g,''); const mensajeWa = encodeURIComponent(`Operador Comercial. Requiero el suministro: *${p.nombre}*. Base tarifaria: $${p.precio.toFixed(2)}`); const urlWhatsapp = `https://api.whatsapp.com/send?phone=${telLimpio}&text=${mensajeWa}`; const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<div class="d-flex gap-2 justify-content-between border-top pt-2 mt-2"><button class="btn btn-sm btn-outline-primary w-50 fw-bold" onclick="abrirModalEditarProducto('${p.id}')">Gestión</button><button class="btn btn-sm btn-outline-danger w-50 fw-bold" onclick="eliminarProducto('${p.id}')">Descarte</button></div>` : ''; lista.innerHTML += `<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3"><div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;"><img src="${p.foto}" onclick="verImagen('${p.foto}')" class="card-img-top card-producto-img" alt="Producto"><div class="card-body d-flex flex-column p-3 bg-white"><span class="badge bg-secondary text-dark mb-2 align-self-start">${p.categoria}</span><h6 class="fw-bold text-dark mb-1">${p.nombre}</h6><p class="precio-tag mb-2">$${p.precio.toFixed(2)}</p><p class="text-muted small mb-2" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.5em;">${p.descripcion}</p><p class="mb-3 text-dark small fw-bold">Stock verificado: ${p.stock}</p><div class="mt-auto"><a href="${urlWhatsapp}" target="_blank" class="btn btn-whatsapp btn-sm w-100 fw-bold mb-2 shadow-sm d-flex align-items-center justify-content-center">Enlace de Venta</a>${botonesAdmin}</div></div></div></div>`; }); if(filtrados.length === 0) lista.innerHTML = `<div class="col-12 text-center text-muted mt-5 small">Ausencia de registros en esta categoría.</div>`; }
 
     function toggleMadre() { const check = document.getElementById('ani-madre-desc').checked; const input = document.getElementById('ani-madre'); input.disabled = check; if(check) input.value = 'Genética Externa'; else input.value = ''; }
-    function prepararModalNuevoAnimal() { document.getElementById('form-animal').reset(); document.getElementById('ani-id-interno-edit').value = ''; document.getElementById('ani-foto-base64').value = ''; document.getElementById('ani-foto-preview').style.display = 'none'; document.getElementById('ani-madre').disabled = false; document.getElementById('modalAnimalTitle').innerText = 'Registro Analítico Base'; }
-    function abrirModalEditar(id_interno) { const vaca = animales.find(a => a.id_interno === id_interno || a.id === id_interno); if(!vaca) return; document.getElementById('modalAnimalTitle').innerText = 'Mantenimiento de Documento'; document.getElementById('ani-id-interno-edit').value = vaca.id_interno || vaca.id; document.getElementById('ani-id-animal').value = vaca.id_animal || vaca.id || ''; document.getElementById('ani-nombre').value = vaca.nombre && vaca.nombre !== 'undefined' ? vaca.nombre : ''; document.getElementById('ani-especie').value = vaca.especie || 'Bovino'; document.getElementById('ani-raza').value = vaca.raza || ''; document.getElementById('ani-genetica').value = vaca.genetica || 'Puro'; document.getElementById('ani-potrero').value = vaca.potrero || ''; document.getElementById('ani-sexo').value = vaca.sexo || 'Hembra'; document.getElementById('ani-proveniente').value = vaca.proveniente && vaca.proveniente !== 'undefined' ? vaca.proveniente : ''; document.getElementById('ani-lote').value = vaca.lote || lotes[0]; document.getElementById('ani-fecha').value = vaca.nacimiento && vaca.nacimiento !== 'undefined' ? vaca.nacimiento : ''; document.getElementById('ani-madre').value = vaca.madre && vaca.madre !== 'undefined' ? vaca.madre : ''; if (vaca.foto && !vaca.foto.includes('placehold')) { document.getElementById('ani-foto-base64').value = vaca.foto; document.getElementById('ani-foto-preview').src = vaca.foto; document.getElementById('ani-foto-preview').style.display = 'block'; } else { document.getElementById('ani-foto-base64').value = ''; document.getElementById('ani-foto-preview').style.display = 'none'; } new bootstrap.Modal(document.getElementById('modalAnimal')).show(); }
+    function prepararModalNuevoAnimal() { document.getElementById('form-animal').reset(); actualizarSelectsLotes(); document.getElementById('ani-id-interno-edit').value = ''; document.getElementById('ani-foto-base64').value = ''; document.getElementById('ani-foto-preview').style.display = 'none'; document.getElementById('ani-madre').disabled = false; document.getElementById('modalAnimalTitle').innerText = 'Registro Analítico Base'; }
+    function abrirModalEditar(id_interno) { actualizarSelectsLotes(); const vaca = animales.find(a => a.id_interno === id_interno || a.id === id_interno); if(!vaca) return; document.getElementById('modalAnimalTitle').innerText = 'Mantenimiento de Documento'; document.getElementById('ani-id-interno-edit').value = vaca.id_interno || vaca.id; document.getElementById('ani-id-animal').value = vaca.id_animal || vaca.id || ''; document.getElementById('ani-nombre').value = vaca.nombre && vaca.nombre !== 'undefined' ? vaca.nombre : ''; document.getElementById('ani-especie').value = vaca.especie || 'Bovino'; document.getElementById('ani-raza').value = vaca.raza || ''; document.getElementById('ani-genetica').value = vaca.genetica || 'Puro'; document.getElementById('ani-potrero').value = vaca.potrero || ''; document.getElementById('ani-sexo').value = vaca.sexo || 'Hembra'; document.getElementById('ani-proveniente').value = vaca.proveniente && vaca.proveniente !== 'undefined' ? vaca.proveniente : ''; document.getElementById('ani-lote').value = vaca.lote || lotes[0]; document.getElementById('ani-fecha').value = vaca.nacimiento && vaca.nacimiento !== 'undefined' ? vaca.nacimiento : ''; document.getElementById('ani-madre').value = vaca.madre && vaca.madre !== 'undefined' ? vaca.madre : ''; if (vaca.foto && !vaca.foto.includes('placehold')) { document.getElementById('ani-foto-base64').value = vaca.foto; document.getElementById('ani-foto-preview').src = vaca.foto; document.getElementById('ani-foto-preview').style.display = 'block'; } else { document.getElementById('ani-foto-base64').value = ''; document.getElementById('ani-foto-preview').style.display = 'none'; } new bootstrap.Modal(document.getElementById('modalAnimal')).show(); }
     
     function guardarAnimal(e) { 
         e.preventDefault(); const editId = document.getElementById('ani-id-interno-edit').value; const inputIdAnimal = document.getElementById('ani-id-animal').value.trim();
