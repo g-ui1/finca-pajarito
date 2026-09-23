@@ -12,17 +12,15 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* PALETA DE COLORES TIERRA/PASTEL FORMAL */
         :root { 
-            --primary: #795548; /* Marrón principal */
-            --secondary: #efebe9; /* Fondo claro pastel */
-            --dark: #4e342e; /* Marrón oscuro para hover y header */
-            --accent: #a1887f; /* Marrón suave */
+            --primary: #795548; 
+            --secondary: #efebe9; 
+            --dark: #4e342e; 
+            --accent: #a1887f; 
         }
         body { background-color: var(--secondary); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; color: #333; }
         input, select, textarea { font-size: 15px !important; }
 
-        /* UTILIDADES Y BOTONES */
         .btn-primary, .bg-primary { background-color: var(--primary) !important; border-color: var(--primary) !important; color: white !important;}
         .btn-success, .bg-success { background-color: #6d4c41 !important; border-color: #6d4c41 !important; color: white !important;}
         .btn-outline-primary { border-color: var(--primary) !important; color: var(--primary) !important; }
@@ -74,6 +72,8 @@
         .logo-text-finca { font-size: 1.3rem; font-weight: 600; color: white; letter-spacing: 0.5px; margin-bottom: 5px; text-align: center;}
         .user-info-text { font-size: 0.85rem; color: #bcaaa4; text-align: center; margin-bottom: 20px; border-bottom: 1px solid #5d4037; padding-bottom: 15px; }
         .badge-nube { font-size: 0.7rem; font-weight: 500; vertical-align: middle; padding: 4px 8px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        
+        #dashboard-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: none; }
     </style>
 </head>
 <body>
@@ -85,7 +85,7 @@
 
 <div id="auth-screen">
     <div class="auth-box">
-        <h3 class="fw-bold text-primary mb-1">AgroSystems</h3>
+        <h3 class="fw-bold text-primary mb-1">AgroSystems <span class="badge" style="background-color: #3e2723; font-size: 0.6rem; vertical-align: middle;">V19</span></h3>
         <p class="text-muted mb-4 small">Gestión Administrativa</p>
         
         <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
@@ -178,7 +178,10 @@
         
         <div id="view-dashboard" class="view-section">
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                <h3 class="fw-bold text-dark m-0" id="display-finca-nombre">Panel Principal</h3>
+                <div class="d-flex align-items-center gap-3">
+                    <img id="dashboard-logo" src="" alt="Logo">
+                    <h3 class="fw-bold text-dark m-0" id="display-finca-nombre">Panel Principal</h3>
+                </div>
                 <span id="nube-status" class="badge bg-secondary badge-nube">Almacenamiento Local</span>
             </div>
             <p class="text-muted mb-4 small" id="display-finca-info">Ubicación | Teléfono</p>
@@ -228,8 +231,7 @@
             </div>
             <div class="row mb-3 g-2">
                 <div class="col-12 col-md-4"><select id="filtro-lote" class="form-select form-select-sm" onchange="reiniciarYRenderAnimales()"></select></div>
-                <div class="col-12 col-md-5"><input type="text" id="busqueda-animal" class="form-control form-control-sm" placeholder="Buscar por ID o Nombre..." onkeyup="busquedaInteligenteAnimales()"></div>
-                <div class="col-12 col-md-3 text-end"><button class="btn btn-outline-danger btn-sm w-100 admin-only fw-bold" data-bs-toggle="modal" data-bs-target="#modalBorrarLote">Vaciar Lote</button></div>
+                <div class="col-12 col-md-8"><input type="text" id="busqueda-animal" class="form-control form-control-sm" placeholder="Buscar por ID o Nombre..." onkeyup="busquedaInteligenteAnimales()"></div>
             </div>
             <div class="row g-3" id="lista-animales"></div>
             <div id="btn-cargar-mas-animales" class="text-center mt-4 hidden"><button class="btn btn-secondary btn-sm px-4 rounded shadow-sm" onclick="cargarMasAnimales()">Mostrar Más</button></div>
@@ -261,7 +263,7 @@
             <ul class="list-group shadow-sm border" id="lista-vacunas"></ul>
         </div>
         
-        <!-- VISTA DE PERFIL Y AJUSTES (FORMAL) -->
+        <!-- VISTA DE PERFIL Y AJUSTES -->
         <div id="view-perfil" class="view-section hidden">
             <h3 class="fw-bold mb-3">Perfil y Ajustes</h3>
             <div class="row g-3">
@@ -279,13 +281,19 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="card p-3 shadow-sm border h-100 bg-white">
+                    <div class="card p-3 shadow-sm border bg-white mb-3">
                         <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Sincronización de Datos</h6>
                         <p class="small text-muted mb-4">El sistema guarda la información automáticamente en este dispositivo. Para compartir la información con otros dispositivos o respaldarla de forma segura, utilice las opciones de sincronización.</p>
                         <div class="d-flex flex-column gap-2 mt-auto">
                             <button class="btn btn-primary btn-sm fw-bold shadow-sm" onclick="forzarSubidaNube()">Respaldar en la Nube</button>
                             <button class="btn btn-outline-dark btn-sm fw-bold" onclick="forzarDescargaNube()">Recuperar datos de la Nube</button>
                         </div>
+                    </div>
+                    
+                    <div class="card p-3 shadow-sm border bg-white admin-only">
+                        <h6 class="fw-bold text-danger mb-3 border-bottom pb-2">Gestión de Lotes (Peligro)</h6>
+                        <p class="small text-muted mb-3">Elimine todos los animales asociados a un lote específico de forma masiva. Esta acción no se puede deshacer.</p>
+                        <button class="btn btn-outline-danger btn-sm fw-bold w-100" data-bs-toggle="modal" data-bs-target="#modalBorrarLote">⚠️ Vaciar Lote Completo</button>
                     </div>
                 </div>
             </div>
@@ -311,7 +319,7 @@
                 <div class="col-12 col-md-6">
                     <div class="card p-4 text-center h-100 shadow-sm border border-success bg-white">
                         <h6 class="text-success mb-2 fw-bold">Exportar Base de Datos</h6>
-                        <p class="small text-muted mb-3">Descarga un archivo Excel con todo el inventario.</p>
+                        <p class="small text-muted mb-3">Descarga un archivo Excel con todo el inventario activo y de bajas.</p>
                         <button class="btn btn-success btn-sm mt-auto shadow-sm fw-bold" onclick="exportarExcel()">Descargar Excel</button>
                     </div>
                 </div>
@@ -343,6 +351,9 @@
 <div class="col-6 mb-1"><label class="fw-bold text-primary small">Genética</label><select id="ani-genetica" class="form-select form-select-sm" required><option value="Puro">Puro</option><option value="Mestizo">Mestizo / Criollo</option><option value="F1">F1</option><option value="F2">F2</option><option value="F3">F3</option></select></div>
 <div class="col-6 mb-1"><label class="fw-bold text-muted small">Ubicación (Lote)</label><select id="ani-lote" class="form-select form-select-sm" required></select></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Potrero Específico</label><input type="text" id="ani-potrero" class="form-control form-control-sm"></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Origen</label><input type="text" id="ani-proveniente" class="form-control form-control-sm"></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Fecha Nacimiento</label><input type="date" id="ani-fecha" class="form-control form-control-sm"></div><div class="col-12 mb-1"><label class="fw-bold text-muted small">ID de la Madre</label><input type="text" id="ani-madre" class="form-control form-control-sm"><div class="form-check mt-1"><input class="form-check-input" type="checkbox" id="ani-madre-desc" onchange="toggleMadre()"><label class="form-check-label text-muted small">Desconocida</label></div></div><div class="col-12 mb-1"><label class="fw-bold text-muted small">Fotografía</label><input type="file" id="ani-foto-file" class="form-control form-control-sm" accept="image/*" capture="environment"><input type="hidden" id="ani-foto-base64"><div class="text-center mt-2"><img id="ani-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-animal" class="btn btn-primary btn-sm w-100 fw-bold">Guardar Información</button></div></div></div></div>
 
+<!-- MODAL BAJA ANIMAL -->
+<div class="modal fade" id="modalBaja" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-danger text-white"><h6 class="modal-title fw-bold m-0">Dar de Baja al Animal</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-baja" onsubmit="ejecutarBaja(event)"><input type="hidden" id="baja-id-interno"><div class="mb-3"><label class="fw-bold text-muted small">Motivo de Baja</label><select id="baja-motivo" class="form-select form-select-sm" required onchange="cambiarCamposBaja()"><option value="">Seleccione un motivo...</option><option value="Venta">Venta</option><option value="Muerte">Muerte</option><option value="Matadero">Enviado al Matadero</option></select></div><div class="mb-2 hidden" id="baja-peso-container"><label class="fw-bold text-muted small">Peso (Kg)</label><input type="number" step="0.1" id="baja-peso" class="form-control form-control-sm"></div><div class="mb-2 hidden" id="baja-precio-container"><label class="fw-bold text-muted small">Precio de Venta ($)</label><input type="number" step="0.01" id="baja-precio" class="form-control form-control-sm"></div><div class="mb-2 hidden" id="baja-causa-container"><label class="fw-bold text-muted small">Causa de Muerte</label><input type="text" id="baja-causa" class="form-control form-control-sm" placeholder="Ej: Enfermedad, Picadura..."></div><div class="mb-2"><label class="fw-bold text-muted small">Observación (Opcional)</label><textarea id="baja-obs" class="form-control form-control-sm" rows="2"></textarea></div></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-baja" class="btn btn-danger btn-sm w-100 fw-bold">Confirmar Baja</button></div></div></div></div>
+
 <div class="modal fade" id="modalTrasladoLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h6 class="modal-title fw-bold m-0">Reubicación</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-traslado" onsubmit="ejecutarTraslado(event)"><input type="hidden" id="traslado-id-interno"><label class="fw-bold text-muted mb-2 small">Seleccionar destino:</label><select id="traslado-nuevo-lote" class="form-select form-select-sm" required></select></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-traslado" class="btn btn-primary btn-sm w-100 fw-bold">Confirmar Traslado</button></div></div></div></div>
 <div class="modal fade" id="modalRegistroPeso" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-secondary text-dark border-bottom"><h6 class="modal-title fw-bold m-0">Control de Peso</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-peso" onsubmit="guardarPeso(event)"><input type="hidden" id="peso-id-interno"><div class="mb-2"><label class="fw-bold text-muted small">Fecha de Medición</label><input type="date" id="peso-fecha" class="form-control form-control-sm" required></div><div class="mb-2"><label class="fw-bold text-muted small">Resultado (Kg)</label><input type="number" step="0.1" id="peso-kilos" class="form-control form-control-sm" required></div></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-peso" class="btn btn-dark btn-sm w-100 fw-bold">Registrar Peso</button></div></div></div></div>
 <div class="modal fade" id="modalGraficoHistorial" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-light text-dark border-bottom" id="headerModalGrafico"><h6 class="modal-title fw-bold m-0" id="tituloModalGrafico">Reporte Histórico</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-1 p-md-3"><div class="chart-container-modal"><canvas id="canvas-grafico-unico"></canvas></div></div></div></div></div>
@@ -354,7 +365,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // MANEJADOR GLOBAL DE ERRORES 
     window.onerror = function(msg, url, line) { console.error("Error Interno:", msg, line); return false; };
 
     const SUPABASE_URL = 'https://pznaumhcnpotlarvrcjl.supabase.co';
@@ -363,7 +373,7 @@
     let session = null;
     let miFincaInfo = null; 
 
-    let animales = []; let vacunas = []; let productos = []; let lotes = []; let telefono_tienda = ''; let ubicacion_finca = ''; let logo_finca = '';
+    let animales = []; let vacunas = []; let productos = []; let lotes = []; let bajas = []; let telefono_tienda = ''; let ubicacion_finca = ''; let logo_finca = '';
     let limiteAnimalesMostrados = 50; let limiteOrdenoMostrados = 50; let temporizadorBusqueda; let chartModalUnico = null; let categoriaTiendaActual = 'Todos';
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -465,7 +475,7 @@
             if (errFinca) throw errFinca;
             await supabaseClient.from('miembros').insert([ { finca_id: nuevaFinca.id, user_id: session.user.id, correo: session.user.email, rol: 'admin' } ]);
             
-            const datosVacios = { animales: [], vacunas: [], productos: [], lotes: ['Ordeño', 'Horro', 'Mautes', 'Becerros'], fincaExtra: { ubicacion: ubicacion, telefono: telefono, logo: '' } };
+            const datosVacios = { animales: [], vacunas: [], productos: [], bajas: [], lotes: ['Ordeño', 'Horro', 'Mautes', 'Becerros'], fincaExtra: { ubicacion: ubicacion, telefono: telefono, logo: '' } };
             await supabaseClient.from('finca_data').insert([ { finca_id: nuevaFinca.id, data: datosVacios } ]);
             
             await verificarFincaUsuario();
@@ -485,14 +495,10 @@
         } catch(e) { errorBox.innerText = "Error: " + e.message; }
     }
 
-    // ==========================================
-    // SISTEMA LOCAL-FIRST PROTEGIDO
-    // ==========================================
-    
     function guardarLocal() {
         if(!miFincaInfo) return;
         if (!lotes || lotes.length === 0) lotes = ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
-        const estadoCompleto = { animales, vacunas, productos, lotes, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } };
+        const estadoCompleto = { animales, vacunas, productos, lotes, bajas, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } };
         
         try {
             localStorage.setItem('agro_data_' + miFincaInfo.id, JSON.stringify(estadoCompleto));
@@ -502,9 +508,7 @@
                 statusBadge.innerText = 'Almacenamiento Local';
             }
         } catch (e) {
-            if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
-                alert("LÍMITE DE MEMORIA ALCANZADO: El navegador no puede almacenar más información. Por favor respalde en la nube inmediatamente y purgue datos antiguos.");
-            }
+            alert("LÍMITE DE MEMORIA ALCANZADO: Por favor respalde en la nube inmediatamente.");
         }
     }
 
@@ -541,11 +545,12 @@
             } catch(e) {}
         }
         
-        if(!dataFinal) dataFinal = { animales: [], vacunas: [], productos: [], lotes: ['Ordeño', 'Horro', 'Mautes', 'Becerros'], fincaExtra: {} };
+        if(!dataFinal) dataFinal = { animales: [], vacunas: [], productos: [], bajas: [], lotes: ['Ordeño', 'Horro', 'Mautes', 'Becerros'], fincaExtra: {} };
 
         animales = Array.isArray(dataFinal.animales) ? dataFinal.animales : [];
         vacunas = Array.isArray(dataFinal.vacunas) ? dataFinal.vacunas : [];
         productos = Array.isArray(dataFinal.productos) ? dataFinal.productos : [];
+        bajas = Array.isArray(dataFinal.bajas) ? dataFinal.bajas : [];
         lotes = Array.isArray(dataFinal.lotes) && dataFinal.lotes.length > 0 ? dataFinal.lotes : ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
         
         const extraInfo = dataFinal.fincaExtra || {};
@@ -558,9 +563,13 @@
         document.getElementById('input-wa-numero').value = telefono_tienda;
         
         if(logo_finca) {
-            const elLogo = document.getElementById('sidebar-logo');
-            elLogo.src = logo_finca;
-            elLogo.style.display = 'block';
+            const elLogoSidebar = document.getElementById('sidebar-logo');
+            elLogoSidebar.src = logo_finca;
+            elLogoSidebar.style.display = 'block';
+            
+            const elLogoDashboard = document.getElementById('dashboard-logo');
+            elLogoDashboard.src = logo_finca;
+            elLogoDashboard.style.display = 'block';
         }
         
         guardarLocal();
@@ -568,16 +577,13 @@
         showView('dashboard'); 
     }
 
-    // ==========================================
-    // SINCRONIZACIÓN MANUAL
-    // ==========================================
     async function forzarSubidaNube(silencioso = false) {
         if(!miFincaInfo) return;
         const statusBadge = document.getElementById('nube-status');
         if(statusBadge && !silencioso) { statusBadge.className = 'badge bg-primary text-white badge-nube'; statusBadge.innerText = 'Procesando Envío...'; }
         
         try {
-            const estadoCompleto = { animales, vacunas, productos, lotes, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } };
+            const estadoCompleto = { animales, vacunas, productos, lotes, bajas, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } };
             const { data: cajones } = await supabaseClient.from('finca_data').select('id').eq('finca_id', miFincaInfo.id);
             
             if (cajones && cajones.length > 0) {
@@ -620,13 +626,17 @@
                 animales = Array.isArray(dataFinal.animales) ? dataFinal.animales : [];
                 vacunas = Array.isArray(dataFinal.vacunas) ? dataFinal.vacunas : [];
                 productos = Array.isArray(dataFinal.productos) ? dataFinal.productos : [];
+                bajas = Array.isArray(dataFinal.bajas) ? dataFinal.bajas : [];
                 lotes = Array.isArray(dataFinal.lotes) && dataFinal.lotes.length > 0 ? dataFinal.lotes : ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
                 
                 const extraInfo = dataFinal.fincaExtra || {};
                 telefono_tienda = extraInfo.telefono || ''; ubicacion_finca = extraInfo.ubicacion || ''; logo_finca = extraInfo.logo || '';
                 
                 document.getElementById('display-finca-info').innerText = `${ubicacion_finca || 'Sede Principal'} | Cel: ${telefono_tienda || 'No asig.'}`;
-                if(logo_finca) { const elLogo = document.getElementById('sidebar-logo'); elLogo.src = logo_finca; elLogo.style.display = 'block'; }
+                if(logo_finca) { 
+                    document.getElementById('sidebar-logo').src = logo_finca; document.getElementById('sidebar-logo').style.display = 'block'; 
+                    document.getElementById('dashboard-logo').src = logo_finca; document.getElementById('dashboard-logo').style.display = 'block'; 
+                }
                 
                 guardarLocal(); actualizarSelectsLotes(); showView('dashboard');
                 
@@ -660,9 +670,10 @@
                 ctx.drawImage(img, 0, 0, width, height);
                 logo_finca = canvas.toDataURL('image/jpeg', 0.8);
                 
-                const elLogo = document.getElementById('sidebar-logo');
-                elLogo.src = logo_finca;
-                elLogo.style.display = 'block';
+                document.getElementById('sidebar-logo').src = logo_finca;
+                document.getElementById('sidebar-logo').style.display = 'block';
+                document.getElementById('dashboard-logo').src = logo_finca;
+                document.getElementById('dashboard-logo').style.display = 'block';
                 
                 guardarLocal();
                 alert("Emblema actualizado en el sistema.");
@@ -685,6 +696,7 @@
 
     async function renderEquipo() {
         if(miFincaInfo.rol !== 'admin') return;
+        document.getElementById('display-codigo-equipo').innerText = miFincaInfo.codigo;
         const tabla = document.getElementById('tabla-equipo'); tabla.innerHTML = '<tr><td colspan="3" class="text-center small">Analizando registros...</td></tr>';
         try {
             const { data: miembros } = await supabaseClient.from('miembros').select('*').eq('finca_id', miFincaInfo.id);
@@ -731,7 +743,7 @@
     function abrirModalEditarProducto(id) { const prod = productos.find(p => p.id === id); if(!prod) return; document.getElementById('modalProductoTitle').innerText = 'Revisión de Ficha'; document.getElementById('prod-id-edit').value = prod.id; document.getElementById('prod-nombre').value = prod.nombre; document.getElementById('prod-categoria').value = prod.categoria; document.getElementById('prod-precio').value = prod.precio; document.getElementById('prod-stock').value = prod.stock; document.getElementById('prod-descripcion').value = prod.descripcion; if (prod.foto && !prod.foto.includes('placehold')) { document.getElementById('prod-foto-base64').value = prod.foto; document.getElementById('prod-foto-preview').src = prod.foto; document.getElementById('prod-foto-preview').style.display = 'block'; } else { document.getElementById('prod-foto-base64').value = ''; document.getElementById('prod-foto-preview').style.display = 'none'; } new bootstrap.Modal(document.getElementById('modalProducto')).show(); }
     function eliminarProducto(id) { if(confirm("Se eliminará este ítem del inventario. Proceder?")) { productos = productos.filter(p => p.id !== id); guardarLocal(); renderTienda(); } }
     function guardarProducto(e) { e.preventDefault(); const editId = document.getElementById('prod-id-edit').value; const fotoGuardada = document.getElementById('prod-foto-base64').value || 'https://placehold.co/400x400/795548/ffffff?text=Producto'; if (editId) { const indice = productos.findIndex(p => p.id === editId); if(indice !== -1) { productos[indice].nombre = document.getElementById('prod-nombre').value.trim(); productos[indice].categoria = document.getElementById('prod-categoria').value; productos[indice].precio = parseFloat(document.getElementById('prod-precio').value); productos[indice].stock = parseInt(document.getElementById('prod-stock').value); productos[indice].descripcion = document.getElementById('prod-descripcion').value.trim(); productos[indice].foto = fotoGuardada; } } else { productos.push({ id: Date.now().toString() + Math.random().toString(36).substr(2, 5), nombre: document.getElementById('prod-nombre').value.trim(), categoria: document.getElementById('prod-categoria').value, precio: parseFloat(document.getElementById('prod-precio').value), stock: parseInt(document.getElementById('prod-stock').value), descripcion: document.getElementById('prod-descripcion').value.trim(), foto: fotoGuardada }); } guardarLocal(); bootstrap.Modal.getInstance(document.getElementById('modalProducto')).hide(); setCategoriaTienda(document.getElementById('prod-categoria').value); }
-    function renderTienda() { const busqueda = document.getElementById('busqueda-producto').value.toLowerCase(); const lista = document.getElementById('lista-productos'); lista.innerHTML = ''; let filtrados = productos; if(categoriaTiendaActual !== 'Todos') filtrados = filtrados.filter(p => p.categoria === categoriaTiendaActual); if(busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda) || p.descripcion.toLowerCase().includes(busqueda)); filtrados.forEach(p => { const telLimpio = telefono_tienda.replace(/\D/g,''); const mensajeWa = encodeURIComponent(`Saludos. Me interesa el producto: *${p.nombre}*. Valor referencial: $${p.precio.toFixed(2)}`); const urlWhatsapp = `https://api.whatsapp.com/send?phone=${telLimpio}&text=${mensajeWa}`; const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<div class="d-flex gap-2 justify-content-between border-top pt-2 mt-2"><button class="btn btn-sm btn-outline-primary w-50 fw-bold" onclick="abrirModalEditarProducto('${p.id}')">Gestión</button><button class="btn btn-sm btn-outline-danger w-50 fw-bold" onclick="eliminarProducto('${p.id}')">Baja</button></div>` : ''; lista.innerHTML += `<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3"><div class="card h-100 shadow-sm border-0" style="border-radius: 8px; overflow: hidden;"><img src="${p.foto}" onclick="verImagen('${p.foto}')" class="card-img-top card-producto-img" alt="Producto"><div class="card-body d-flex flex-column p-3 bg-white"><span class="badge bg-secondary text-dark mb-2 align-self-start">${p.categoria}</span><h6 class="fw-bold text-dark mb-1">${p.nombre}</h6><p class="precio-tag mb-2">$${p.precio.toFixed(2)}</p><p class="text-muted small mb-2" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.5em;">${p.descripcion}</p><p class="mb-3 text-dark small fw-bold">Stock actual: ${p.stock}</p><div class="mt-auto"><a href="${urlWhatsapp}" target="_blank" class="btn btn-whatsapp btn-sm w-100 fw-bold mb-2">WhatsApp</a>${botonesAdmin}</div></div></div></div>`; }); if(filtrados.length === 0) lista.innerHTML = `<div class="col-12 text-center text-muted mt-5 small">Ausencia de registros en esta categoría.</div>`; }
+    function renderTienda() { const busqueda = document.getElementById('busqueda-producto').value.toLowerCase(); const lista = document.getElementById('lista-productos'); lista.innerHTML = ''; let filtrados = productos; if(categoriaTiendaActual !== 'Todos') filtrados = filtrados.filter(p => p.categoria === categoriaTiendaActual); if(busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda) || p.descripcion.toLowerCase().includes(busqueda)); filtrados.forEach(p => { const telLimpio = telefono_tienda.replace(/\D/g,''); const mensajeWa = encodeURIComponent(`Saludos. Me interesa el producto: *${p.nombre}*. Valor referencial: $${p.precio.toFixed(2)}`); const urlWhatsapp = `https://api.whatsapp.com/send?phone=${telLimpio}&text=${mensajeWa}`; const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<div class="d-flex gap-2 justify-content-between border-top pt-2 mt-2"><button class="btn btn-sm btn-outline-primary w-50 fw-bold" onclick="abrirModalEditarProducto('${p.id}')">Gestión</button><button class="btn btn-sm btn-outline-danger w-50 fw-bold" onclick="eliminarProducto('${p.id}')">Baja</button></div>` : ''; lista.innerHTML += `<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3"><div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;"><img src="${p.foto}" onclick="verImagen('${p.foto}')" class="card-img-top card-producto-img" alt="Producto"><div class="card-body d-flex flex-column p-3 bg-white"><span class="badge bg-secondary text-dark mb-2 align-self-start">${p.categoria}</span><h6 class="fw-bold text-dark mb-1">${p.nombre}</h6><p class="precio-tag mb-2">$${p.precio.toFixed(2)}</p><p class="text-muted small mb-2" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.5em;">${p.descripcion}</p><p class="mb-3 text-dark small fw-bold">Stock actual: ${p.stock}</p><div class="mt-auto"><a href="${urlWhatsapp}" target="_blank" class="btn btn-whatsapp btn-sm w-100 fw-bold mb-2 shadow-sm d-flex align-items-center justify-content-center">💬 WhatsApp</a>${botonesAdmin}</div></div></div></div>`; }); if(filtrados.length === 0) lista.innerHTML = `<div class="col-12 text-center text-muted mt-5 small">Ausencia de registros en esta categoría.</div>`; }
 
     function toggleMadre() { const check = document.getElementById('ani-madre-desc').checked; const input = document.getElementById('ani-madre'); input.disabled = check; if(check) input.value = 'No Aplica'; else input.value = ''; }
     
@@ -824,7 +836,70 @@
         renderDashboard(); 
     }
     
-    function eliminarAnimal(id_interno) { if(confirm("Registro será suprimido. Confirmar acción?")) { animales = animales.filter(a => a.id_interno !== id_interno && a.id !== id_interno); guardarLocal(); reiniciarYRenderAnimales(); renderDashboard(); } }
+    // ==========================================
+    // SISTEMA DE BAJAS
+    // ==========================================
+    function cambiarCamposBaja() {
+        const motivo = document.getElementById('baja-motivo').value;
+        document.getElementById('baja-peso-container').classList.add('hidden');
+        document.getElementById('baja-precio-container').classList.add('hidden');
+        document.getElementById('baja-causa-container').classList.add('hidden');
+        
+        document.getElementById('baja-peso').required = false;
+        document.getElementById('baja-precio').required = false;
+        document.getElementById('baja-causa').required = false;
+
+        if(motivo === 'Venta') {
+            document.getElementById('baja-peso-container').classList.remove('hidden');
+            document.getElementById('baja-precio-container').classList.remove('hidden');
+            document.getElementById('baja-peso').required = true;
+            document.getElementById('baja-precio').required = true;
+        } else if(motivo === 'Muerte') {
+            document.getElementById('baja-causa-container').classList.remove('hidden');
+            document.getElementById('baja-causa').required = true;
+        } else if(motivo === 'Matadero') {
+            document.getElementById('baja-peso-container').classList.remove('hidden');
+            document.getElementById('baja-peso').required = true;
+        }
+    }
+
+    function prepararBaja(id_interno) {
+        document.getElementById('form-baja').reset();
+        document.getElementById('baja-id-interno').value = id_interno;
+        cambiarCamposBaja();
+        new bootstrap.Modal(document.getElementById('modalBaja')).show();
+    }
+
+    function ejecutarBaja(e) {
+        e.preventDefault();
+        const id = document.getElementById('baja-id-interno').value;
+        const motivo = document.getElementById('baja-motivo').value;
+        const peso = document.getElementById('baja-peso').value;
+        const precio = document.getElementById('baja-precio').value;
+        const causa = document.getElementById('baja-causa').value;
+        const obs = document.getElementById('baja-obs').value;
+
+        const vacaIndex = animales.findIndex(a => a.id_interno === id);
+        if(vacaIndex !== -1) {
+            const vaca = animales[vacaIndex];
+            vaca.baja_motivo = motivo;
+            vaca.baja_peso = peso;
+            vaca.baja_precio = precio;
+            vaca.baja_causa = causa;
+            vaca.baja_obs = obs;
+            vaca.baja_fecha = new Date().toISOString().split('T')[0];
+
+            if(typeof bajas === 'undefined') window.bajas = [];
+            bajas.push(vaca);
+            animales.splice(vacaIndex, 1);
+            
+            guardarLocal();
+            bootstrap.Modal.getInstance(document.getElementById('modalBaja')).hide();
+            reiniciarYRenderAnimales();
+            renderDashboard();
+        }
+    }
+
     function abrirModalTraslado(id_interno, lote_actual) { document.getElementById('traslado-id-interno').value = id_interno; document.getElementById('traslado-nuevo-lote').value = lote_actual; new bootstrap.Modal(document.getElementById('modalTrasladoLote')).show(); }
     function ejecutarTraslado(e) { e.preventDefault(); const id = document.getElementById('traslado-id-interno').value; const vaca = animales.find(a => a.id_interno === id || a.id === id); if(vaca) { vaca.lote = document.getElementById('traslado-nuevo-lote').value; guardarLocal(); } bootstrap.Modal.getInstance(document.getElementById('modalTrasladoLote')).hide(); reiniciarYRenderAnimales(); renderDashboard(); }
     function abrirModalPeso(id_interno) { document.getElementById('peso-id-interno').value = id_interno; document.getElementById('peso-fecha').valueAsDate = new Date(); document.getElementById('peso-kilos').value = ''; new bootstrap.Modal(document.getElementById('modalRegistroPeso')).show(); }
@@ -846,7 +921,7 @@
             const idInternoReal = a.id_interno || a.id; const pesos = a.historialPeso || []; const ultimoPeso = pesos.length > 0 ? pesos[pesos.length-1].peso + ' Kg' : 'S/R'; 
             let imgSrc = a.foto; if(imgSrc.includes('placehold')) imgSrc = 'https://placehold.co/400x400/795548/ffffff?text=Sin+Foto'; 
 
-            const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<button class="btn btn-sm btn-outline-danger btn-card-action" onclick="eliminarAnimal('${idInternoReal}')">Baja</button>` : ''; 
+            const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<button class="btn btn-sm btn-outline-danger btn-card-action" onclick="prepararBaja('${idInternoReal}')">Dar de Baja</button>` : ''; 
             
             lista.innerHTML += `<div class="col-md-6 col-lg-4 mb-3"><div class="card h-100 shadow-sm border"><div class="card-body bg-white d-flex flex-column justify-content-between p-3"><div class="d-flex flex-md-row flex-column align-items-center align-items-md-start animal-card-body"><img src="${imgSrc}" onclick="verImagen('${imgSrc}')" class="img-thumbnail-animal me-md-3 mb-2 mb-md-0" alt="Foto"><div class="flex-grow-1 w-100"><div class="d-flex justify-content-between align-items-start border-bottom pb-2 mb-2"><h6 class="fw-bold text-dark mb-0">${tituloVaca}</h6><div class="d-flex"><button class="btn btn-sm btn-outline-primary btn-card-action" onclick="abrirModalEditar('${idInternoReal}')">Ver</button>${botonesAdmin}</div></div><div class="row text-start animal-info-col" style="font-size: 0.8rem;"><div class="col-6"><span class="text-muted">Lote:</span> <span class="fw-bold">${a.lote}</span><br><span class="text-muted">Ubic:</span> ${a.potrero || 'N/A'}<br><span class="text-muted">Sexo:</span> ${sexMostrar}<br><span class="text-muted">Origen:</span> ${provMostrar}</div><div class="col-6 border-start"><span class="text-muted">G.:</span> ${a.raza || ''} (${a.genetica || 'Puro'})<br><span class="text-muted">Peso:</span> <span class="text-primary fw-bold">${ultimoPeso}</span><br><span class="text-muted">Nac.:</span> ${a.nacimiento}<br><span class="text-muted">Madre:</span> ${a.madre}</div></div></div></div><div class="mt-3 d-flex gap-2 justify-content-end flex-wrap border-top pt-2 btn-action-mobile-group"><button class="btn btn-sm btn-outline-dark fw-bold flex-grow-1 flex-md-grow-0" onclick="abrirModalTraslado('${idInternoReal}', '${a.lote}')">Mover</button><button class="btn btn-sm btn-outline-primary fw-bold flex-grow-1 flex-md-grow-0" onclick="abrirModalPeso('${idInternoReal}')">Pesar</button><button class="btn btn-sm btn-outline-success fw-bold w-100 w-md-auto mt-2 mt-md-0" onclick="abrirGraficoIndividual('${idInternoReal}', '${idMostrar}', '${nomMostrar}', 'peso')">Reportes</button></div></div></div></div>`; 
         }); 
@@ -872,13 +947,22 @@
         if(destetesPendientes === 0) alertasBox.innerHTML = '<li class="list-group-item text-muted border-0 small">Operatividad normal. Ningún caso detectado.</li>';
     }
 
+    // EXPORTAR CON PESTAÑA DE BAJAS
     function exportarExcel() { 
         const wb = XLSX.utils.book_new();
-        const animalesData = animales.map(a => ({ "ID Por Animal": a.id_animal || a.id || '', "Nombre": a.nombre !== 'undefined' ? a.nombre : '', "Especie": a.especie || 'Bovino', "Raza": a.raza || 'S/D', "Genética": a.genetica || 'Puro', "PROVENIENTE": a.proveniente !== 'undefined' ? a.proveniente : '', "Sexo": a.sexo || '', "Lote": a.lote, "Potrero": a.potrero || 'S/A', "Nacimiento": a.nacimiento !== 'undefined' ? a.nacimiento : '', "Madre": a.madre !== 'undefined' ? a.madre : '' })); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(animalesData, {header: ["ID Por Animal", "Nombre", "Especie", "Raza", "Genética", "PROVENIENTE", "Sexo", "Lote", "Potrero", "Nacimiento", "Madre"]}), "Animales");
+        const animalesData = animales.map(a => ({ "ID Por Animal": a.id_animal || a.id || '', "Nombre": a.nombre !== 'undefined' ? a.nombre : '', "Especie": a.especie || 'Bovino', "Raza": a.raza || 'S/D', "Genética": a.genetica || 'Puro', "PROVENIENTE": a.proveniente !== 'undefined' ? a.proveniente : '', "Sexo": a.sexo || '', "Lote": a.lote, "Potrero": a.potrero || 'S/A', "Nacimiento": a.nacimiento !== 'undefined' ? a.nacimiento : '', "Madre": a.madre !== 'undefined' ? a.madre : '' })); 
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(animalesData, {header: ["ID Por Animal", "Nombre", "Especie", "Raza", "Genética", "PROVENIENTE", "Sexo", "Lote", "Potrero", "Nacimiento", "Madre"]}), "Animales Activos");
+        
+        if (typeof bajas !== 'undefined' && bajas.length > 0) {
+            const bajasData = bajas.map(b => ({ "ID Por Animal": b.id_animal, "Nombre": b.nombre, "Fecha Baja": b.baja_fecha || 'S/D', "Motivo": b.baja_motivo || 'N/A', "Peso Baja (Kg)": b.baja_peso || 'N/A', "Precio ($)": b.baja_precio || 'N/A', "Causa Muerte": b.baja_causa || 'N/A', "Observación": b.baja_obs || '' }));
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(bajasData), "Bajas Históricas");
+        }
+
         const lecheData = []; animales.forEach(a => { if(a.historialLeche) a.historialLeche.forEach(h => { lecheData.push({ "ID Por Animal": a.id_animal || a.id || '', "Fecha": h.fecha, "Litros": h.litros, "Ordenador": h.personal || '' }); }); }); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lecheData, {header: ["ID Por Animal", "Fecha", "Litros", "Ordenador"]}), "Ordeño");
         const pesoData = []; animales.forEach(a => { if(a.historialPeso) a.historialPeso.forEach(h => { pesoData.push({ "ID Por Animal": a.id_animal || a.id || '', "Fecha": h.fecha, "Peso(Kg)": h.peso }); }); }); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(pesoData, {header: ["ID Por Animal", "Fecha", "Peso(Kg)"]}), "Pesos");
         const vacunasData = vacunas.map(v => ({ "Lote": v.lote, "Tipo_Vacuna": v.tipo, "Personal": v.personal, "Fecha": v.fecha })); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(vacunasData, {header: ["Lote", "Tipo_Vacuna", "Personal", "Fecha"]}), "Vacunas");
         const prodData = productos.map(p => ({ "ID": p.id, "Nombre": p.nombre, "Categoría": p.categoria, "Precio": p.precio, "Stock": p.stock, "Descripción": p.descripcion })); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(prodData, {header: ["ID", "Nombre", "Categoría", "Precio", "Stock", "Descripción"]}), "Productos");
+        
         XLSX.writeFile(wb, "AgroSystems_BaseDatos.xlsx");
     }
 
@@ -890,7 +974,7 @@
         reader.onload = function(e) {
             try {
                 const wb = XLSX.read(new Uint8Array(e.target.result), {type: 'array', cellDates: true});
-                const animalesSheet = XLSX.utils.sheet_to_json(wb.Sheets["Animales"] || wb.Sheets[wb.SheetNames[0]] || []);
+                const animalesSheet = XLSX.utils.sheet_to_json(wb.Sheets["Animales Activos"] || wb.Sheets["Animales"] || wb.Sheets[wb.SheetNames[0]] || []);
                 const lecheSheet = XLSX.utils.sheet_to_json(wb.Sheets["Ordeño"] || []);
                 const pesosSheet = XLSX.utils.sheet_to_json(wb.Sheets["Pesos"] || []);
                 const vacunasSheet = XLSX.utils.sheet_to_json(wb.Sheets["Vacunas"] || []);
@@ -900,20 +984,12 @@
                 animalesSheet.forEach(row => {
                     let idLeido = row["ID Por Animal"] || row["ID"] || row["Chapa"] || row["Animal"] || row["Nombre"];
                     if(!idLeido || String(idLeido).trim() === '') return;
-                    
                     let loteLeido = String(row.Lote || 'Becerros').trim(); loteLeido = loteLeido.charAt(0).toUpperCase() + loteLeido.slice(1).toLowerCase();
                     if(!lotes.includes(loteLeido)) lotes.push(loteLeido);
-                    
-                    // FILTRO DE BASURA: Imposibilita la subida de fotos pesadas que traban el sistema.
-                    let fotoExcel = 'https://placehold.co/400x400/795548/ffffff?text=Sin+Registro';
-                    
-                    nuevosAnimales.push({ id_interno: Date.now().toString() + Math.random().toString(36).substr(2, 5), id_animal: String(idLeido).trim(), nombre: row.Nombre ? String(row.Nombre).trim() : '', especie: row.Especie ? String(row.Especie).trim() : 'Bovino', raza: row.Raza ? String(row.Raza).trim() : 'S/D', genetica: row.Genética || row.Genetica ? String(row.Genética || row.Genetica).trim() : 'Puro', potrero: row.Potrero ? String(row.Potrero).trim() : 'N/A', proveniente: row.PROVENIENTE || row.Proveniente ? String(row.PROVENIENTE || row.Proveniente).trim() : 'S/D', sexo: row.Sexo ? String(row.Sexo).trim() : 'Hembra', lote: loteLeido, nacimiento: procesarFechaExcel(row.Nacimiento), madre: row.Madre ? String(row.Madre).trim() : 'S/D', foto: fotoExcel, historialLeche: [], historialPeso: [], vacunas: [] });
+                    nuevosAnimales.push({ id_interno: Date.now().toString() + Math.random().toString(36).substr(2, 5), id_animal: String(idLeido).trim(), nombre: row.Nombre ? String(row.Nombre).trim() : '', especie: row.Especie ? String(row.Especie).trim() : 'Bovino', raza: row.Raza ? String(row.Raza).trim() : 'S/D', genetica: row.Genética || row.Genetica ? String(row.Genética || row.Genetica).trim() : 'Puro', potrero: row.Potrero ? String(row.Potrero).trim() : 'N/A', proveniente: row.PROVENIENTE || row.Proveniente ? String(row.PROVENIENTE || row.Proveniente).trim() : 'S/D', sexo: row.Sexo ? String(row.Sexo).trim() : 'Hembra', lote: loteLeido, nacimiento: procesarFechaExcel(row.Nacimiento), madre: row.Madre ? String(row.Madre).trim() : 'S/D', foto: 'https://placehold.co/400x400/795548/ffffff?text=Sin+Foto', historialLeche: [], historialPeso: [], vacunas: [] });
                 });
                 
-                if(nuevosAnimales.length === 0) {
-                    alert("Estructura de documento no reconocida. Falta columna 'ID Por Animal'.");
-                    fileInput.value = ''; return;
-                }
+                if(nuevosAnimales.length === 0) { alert("Estructura de documento no reconocida."); fileInput.value = ''; return; }
 
                 lecheSheet.forEach(row => { const vaca = nuevosAnimales.find(a => a.id_animal === (row["ID Por Animal"]?String(row["ID Por Animal"]).trim():'')); if (vaca && row.Litros !== undefined) { let litrosNum = parseFloat(String(row.Litros).replace(',', '.')); if(!isNaN(litrosNum)) vaca.historialLeche.push({ fecha: procesarFechaExcel(row.Fecha) || new Date().toISOString().split('T')[0], litros: litrosNum, personal: row.Ordenador ? String(row.Ordenador).trim() : 'N/A' }); } });
                 pesosSheet.forEach(row => { const vaca = nuevosAnimales.find(a => a.id_animal === (row["ID Por Animal"]?String(row["ID Por Animal"]).trim():'')); if (vaca && row["Peso(Kg)"] !== undefined) { let pesoNum = parseFloat(String(row["Peso(Kg)"]).replace(',', '.')); if(!isNaN(pesoNum)) vaca.historialPeso.push({ fecha: procesarFechaExcel(row.Fecha) || new Date().toISOString().split('T')[0], peso: pesoNum }); } });
@@ -921,9 +997,7 @@
                 let nuevosProductos = []; productosSheet.forEach(row => { if(row.Nombre) nuevosProductos.push({ id: row.ID ? String(row.ID) : Date.now().toString() + Math.random().toString(36).substr(2, 5), nombre: String(row.Nombre).trim(), categoria: row["Categoría"] ? String(row["Categoría"]).trim() : 'Otros', precio: parseFloat(row.Precio) || 0, stock: parseInt(row.Stock) || 0, descripcion: row["Descripción"] ? String(row["Descripción"]).trim() : '', foto: 'https://placehold.co/400x400/795548/ffffff?text=Producto' }); });
 
                 animales = nuevosAnimales; vacunas = nuevasVacunas; productos = nuevosProductos;
-                
-                guardarLocal(); 
-                actualizarSelectsLotes(); 
+                guardarLocal(); actualizarSelectsLotes(); 
                 alert(`Lectura de archivo exitosa. Se procesaron ${nuevosAnimales.length} registros en memoria local.`); 
                 fileInput.value = ''; showView('dashboard'); 
 
