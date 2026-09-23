@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#2e7d32">
-    <title>AgroSystems - Gestión Integral V17</title>
+    <meta name="theme-color" content="#795548">
+    <title>AgroSystems - Gestión de Fincas</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,96 +12,115 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        :root { --primary: #2e7d32; --secondary: #f1f8e9; --dark: #1b5e20; }
-        body { background-color: #f4f6f4; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
-        input, select, textarea { font-size: 16px !important; }
+        /* PALETA DE COLORES TIERRA/PASTEL FORMAL */
+        :root { 
+            --primary: #795548; /* Marrón principal */
+            --secondary: #efebe9; /* Fondo claro pastel */
+            --dark: #4e342e; /* Marrón oscuro para hover y header */
+            --accent: #a1887f; /* Marrón suave */
+        }
+        body { background-color: var(--secondary); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; color: #333; }
+        input, select, textarea { font-size: 15px !important; }
+
+        /* UTILIDADES Y BOTONES */
+        .btn-primary, .bg-primary { background-color: var(--primary) !important; border-color: var(--primary) !important; color: white !important;}
+        .btn-success, .bg-success { background-color: #6d4c41 !important; border-color: #6d4c41 !important; color: white !important;}
+        .btn-outline-primary { border-color: var(--primary) !important; color: var(--primary) !important; }
+        .btn-outline-primary:hover { background-color: var(--primary) !important; color: white !important; }
+        .btn-outline-success { border-color: #6d4c41 !important; color: #6d4c41 !important; }
+        .btn-outline-success:hover { background-color: #6d4c41 !important; color: white !important; }
+        .text-primary { color: var(--primary) !important; }
+        .text-success { color: #5d4037 !important; }
+        .border-primary { border-color: var(--primary) !important; }
 
         #init-loader { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: white; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #auth-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--primary); z-index: 10000; display: none; align-items: center; justify-content: center; overflow-y: auto; padding: 20px 0; }
-        .auth-box { background: white; padding: 2.5rem 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 90%; max-width: 400px; text-align: center; margin: auto;}
+        .auth-box { background: white; padding: 2rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 90%; max-width: 380px; text-align: center; margin: auto;}
         
         #app-screen { display: none; }
-        .sidebar-desktop, .offcanvas, .offcanvas-md, .offcanvas-body { background-color: var(--primary) !important; }
-        .sidebar-menu a { color: #e8f5e9 !important; text-decoration: none; padding: 12px 20px; display: block; margin-bottom: 5px; border-radius: 8px; font-size: 1.1rem; transition: 0.2s; }
-        .sidebar-menu a:hover, .sidebar-menu a.active { background-color: var(--dark) !important; color: white !important; font-weight: bold; }
+        .sidebar-desktop, .offcanvas, .offcanvas-md, .offcanvas-body { background-color: var(--dark) !important; }
+        .sidebar-menu a { color: #d7ccc8 !important; text-decoration: none; padding: 10px 16px; display: block; margin-bottom: 4px; border-radius: 6px; font-size: 1rem; transition: 0.2s; border-left: 3px solid transparent; }
+        .sidebar-menu a:hover, .sidebar-menu a.active { background-color: rgba(255,255,255,0.1) !important; color: white !important; font-weight: 600; border-left: 3px solid var(--accent); }
         
         @media (min-width: 768px) {
-            .sidebar-desktop { position: fixed; top: 0; left: 0; width: 250px; height: 100vh; overflow-y: auto; padding-top: 20px; border-right: 2px solid var(--dark); z-index: 1000; }
-            .main-content { margin-left: 250px; padding: 2rem; }
+            .sidebar-desktop { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; overflow-y: auto; padding-top: 20px; z-index: 1000; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+            .main-content { margin-left: 240px; padding: 2rem; }
             .mobile-header { display: none !important; }
         }
         @media (max-width: 767.98px) {
-            .main-content { margin-left: 0; padding: 1rem; padding-top: 85px; padding-bottom: 40px; }
-            .mobile-header { position: fixed; top: 0; left: 0; right: 0; height: 65px; background-color: var(--primary) !important; color: white; z-index: 1030; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+            .main-content { margin-left: 0; padding: 1rem; padding-top: 75px; padding-bottom: 40px; }
+            .mobile-header { position: fixed; top: 0; left: 0; right: 0; height: 60px; background-color: var(--dark) !important; color: white; z-index: 1030; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
             .animal-card-body { flex-direction: column !important; align-items: center !important; text-align: center; }
-            .img-thumbnail-animal { margin-bottom: 15px; margin-right: 0 !important; width: 110px !important; height: 110px !important; }
+            .img-thumbnail-animal { margin-bottom: 10px; margin-right: 0 !important; width: 100px !important; height: 100px !important; }
             .animal-info-col { border-left: none !important; border-top: 1px solid #dee2e6; margin-top: 10px; padding-top: 10px; }
-            .btn-action-mobile-group { justify-content: center !important; margin-bottom: 10px; }
+            .btn-action-mobile-group { justify-content: center !important; margin-bottom: 5px; }
         }
 
-        .card-stat { border-left: 5px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .card-lote { box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-radius: 8px; border: none; }
+        .card-stat { border-left: 4px solid var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-radius: 8px; border-top: none; border-right: none; border-bottom: none; }
+        .card-lote { box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-radius: 8px; border: 1px solid #e0e0e0; }
         .hidden { display: none !important; }
         .chart-container-modal { position: relative; height: 300px; width: 100%; }
-        .preview-img { max-width: 100%; height: 150px; object-fit: cover; display: none; margin-top: 10px; border-radius: 8px; }
-        .btn-card-action { font-size: 0.9rem; padding: 0.3rem 0.6rem; margin: 0 2px;}
-        .img-thumbnail-animal { width: 90px; height: 90px; border-radius: 10px; object-fit: cover; cursor: pointer; border: 2px solid #ddd; transition: transform 0.2s; }
-        .precio-tag { font-size: 1.4rem; font-weight: 900; color: var(--primary); letter-spacing: -0.5px; }
-        .btn-whatsapp { background-color: #25D366; border-color: #25D366; color: white; border-radius: 8px; }
-        .departamentos-wrapper { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
+        .preview-img { max-width: 100%; height: 120px; object-fit: cover; display: none; margin-top: 10px; border-radius: 6px; }
+        .btn-card-action { font-size: 0.85rem; padding: 0.25rem 0.5rem; margin: 0 2px;}
+        .img-thumbnail-animal { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; cursor: pointer; border: 1px solid #ccc; transition: transform 0.2s; }
+        .precio-tag { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
+        .btn-whatsapp { background-color: #25D366; border-color: #25D366; color: white; border-radius: 6px; font-size: 0.9rem;}
+        .departamentos-wrapper { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
         .departamentos-wrapper::-webkit-scrollbar { display: none; } 
-        .btn-depto { white-space: nowrap; border-radius: 25px; font-weight: 700; padding: 8px 20px; transition: all 0.2s; }
-        .card-producto-img { height: 200px; object-fit: contain; background-color: white; padding: 10px; border-bottom: 1px solid #f0f0f0; }
-        #badge-rol { font-size: 0.75rem; margin-top: 5px; display: inline-block; padding: 4px 10px; border-radius: 15px; background: rgba(255,255,255,0.2); }
-        .badge-nube { font-size: 0.8rem; font-weight: bold; vertical-align: middle; padding: 6px 12px; border-radius: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .btn-depto { white-space: nowrap; border-radius: 20px; font-weight: 600; padding: 6px 16px; font-size: 0.9rem; }
+        .card-producto-img { height: 180px; object-fit: contain; background-color: white; padding: 10px; border-bottom: 1px solid #eee; }
+        
+        #sidebar-logo { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin: 0 auto 15px auto; display: none; border: 2px solid var(--accent); background-color: white; }
+        .logo-text-finca { font-size: 1.3rem; font-weight: 600; color: white; letter-spacing: 0.5px; margin-bottom: 5px; text-align: center;}
+        .user-info-text { font-size: 0.85rem; color: #bcaaa4; text-align: center; margin-bottom: 20px; border-bottom: 1px solid #5d4037; padding-bottom: 15px; }
+        .badge-nube { font-size: 0.7rem; font-weight: 500; vertical-align: middle; padding: 4px 8px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
 <div id="init-loader">
-    <h3 class="text-success fw-bold">🌿 Cargando AgroSystems...</h3>
-    <div class="spinner-border text-success" role="status"></div>
+    <h4 class="text-primary fw-bold">AgroSystems</h4>
+    <div class="spinner-border text-primary mt-2" role="status" style="width: 1.5rem; height: 1.5rem;"></div>
 </div>
 
 <div id="auth-screen">
     <div class="auth-box">
-        <h2 class="fw-bold text-success mb-0">🌿 AgroSystems <span class="badge" style="background-color: #000000; font-size: 0.8rem; vertical-align: middle;">V17</span></h2>
-        <p class="text-muted mb-4">Gestión Inteligente de Fincas</p>
+        <h3 class="fw-bold text-primary mb-1">AgroSystems</h3>
+        <p class="text-muted mb-4 small">Gestión Administrativa</p>
         
         <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
 
         <div id="auth-login-view">
             <input type="email" id="auth-email" class="form-control mb-3" placeholder="Correo Electrónico">
             <input type="password" id="auth-pass" class="form-control mb-3" placeholder="Contraseña">
-            <button type="button" class="btn btn-success btn-lg w-100 fw-bold mb-3 shadow-sm" onclick="login()">Iniciar Sesión</button>
-            <button type="button" class="btn btn-dark w-100 fw-bold" onclick="showAuthView('register')">Crear una cuenta nueva</button>
+            <button type="button" class="btn btn-primary w-100 fw-bold mb-2 shadow-sm" onclick="login()">Iniciar Sesión</button>
+            <button type="button" class="btn btn-outline-secondary w-100 btn-sm" onclick="showAuthView('register')">Registrar nueva cuenta</button>
         </div>
 
         <div id="auth-register-view" class="hidden">
-            <h5 class="fw-bold mb-3">Crear Cuenta Personal</h5>
-            <div class="row g-2 mb-3">
-                <div class="col-6"><input type="text" id="reg-nombre" class="form-control" placeholder="Nombre"></div>
-                <div class="col-6"><input type="text" id="reg-apellido" class="form-control" placeholder="Apellido"></div>
+            <h6 class="fw-bold mb-3 text-dark">Registro de Usuario</h6>
+            <div class="row g-2 mb-2">
+                <div class="col-6"><input type="text" id="reg-nombre" class="form-control form-control-sm" placeholder="Nombre"></div>
+                <div class="col-6"><input type="text" id="reg-apellido" class="form-control form-control-sm" placeholder="Apellido"></div>
             </div>
-            <input type="email" id="reg-email" class="form-control mb-3" placeholder="Tu Correo">
-            <input type="password" id="reg-pass" class="form-control mb-3" placeholder="Contraseña (Min. 6 letras)">
-            <button type="button" id="btn-registrar" class="btn btn-primary btn-lg w-100 fw-bold mb-3" onclick="registrarUsuario()">Registrarme</button>
-            <button type="button" class="btn btn-link text-muted w-100" onclick="showAuthView('login')">Volver al inicio</button>
+            <input type="email" id="reg-email" class="form-control form-control-sm mb-2" placeholder="Correo Electrónico">
+            <input type="password" id="reg-pass" class="form-control form-control-sm mb-3" placeholder="Contraseña (Min. 6 letras)">
+            <button type="button" id="btn-registrar" class="btn btn-primary w-100 fw-bold mb-2" onclick="registrarUsuario()">Crear Cuenta</button>
+            <button type="button" class="btn btn-link text-muted w-100 btn-sm" onclick="showAuthView('login')">Volver al inicio</button>
         </div>
 
         <div id="auth-setup-finca-view" class="hidden">
-            <h5 class="fw-bold text-success mb-3">¡Bienvenido!</h5>
-            <p class="text-muted small">Registra tu Finca o únete a una existente.</p>
+            <h6 class="fw-bold text-primary mb-3">Configuración de Finca</h6>
             <hr>
-            <h6 class="fw-bold text-start">Soy Dueño (Crear Finca/Hato):</h6>
-            <input type="text" id="nueva-finca-nombre" class="form-control mb-2" placeholder="Nombre de Finca o Hato">
-            <input type="text" id="nueva-finca-ubicacion" class="form-control mb-2" placeholder="Ubicación (Ej: Barinas, Sector X)">
-            <input type="text" id="nueva-finca-telefono" class="form-control mb-3" placeholder="Teléfono de contacto">
-            <button type="button" id="btn-crear-finca" class="btn btn-primary w-100 fw-bold mb-4" onclick="crearNuevaFinca()">Registrar Finca</button>
+            <p class="fw-bold text-start small mb-1">Administrador (Crear Finca):</p>
+            <input type="text" id="nueva-finca-nombre" class="form-control form-control-sm mb-2" placeholder="Nombre de la Finca / Hato">
+            <input type="text" id="nueva-finca-ubicacion" class="form-control form-control-sm mb-2" placeholder="Ubicación">
+            <input type="text" id="nueva-finca-telefono" class="form-control form-control-sm mb-3" placeholder="Teléfono de contacto">
+            <button type="button" id="btn-crear-finca" class="btn btn-primary w-100 fw-bold mb-4 btn-sm" onclick="crearNuevaFinca()">Registrar Finca</button>
             
-            <h6 class="fw-bold text-start">Soy Empleado:</h6>
-            <input type="text" id="unirme-codigo" class="form-control mb-2" placeholder="Código de Invitación (Ej: ABCD12)">
-            <button type="button" id="btn-unirme-finca" class="btn btn-warning text-dark w-100 fw-bold" onclick="unirmeAFinca()">Unirme a Finca</button>
+            <p class="fw-bold text-start small mb-1">Personal (Unirse a Finca):</p>
+            <input type="text" id="unirme-codigo" class="form-control form-control-sm mb-2" placeholder="Código de Invitación">
+            <button type="button" id="btn-unirme-finca" class="btn btn-outline-primary w-100 fw-bold btn-sm" onclick="unirmeAFinca()">Vincular</button>
         </div>
     </div>
 </div>
@@ -109,89 +128,93 @@
 <div id="app-screen">
     
     <div class="mobile-header d-md-none">
-        <h5 class="m-0 fw-bold text-white" id="finca-titulo-movil">🌿 AgroSystems</h5>
-        <button class="btn btn-outline-light border-0 fs-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">☰</button>
+        <h5 class="m-0 fw-bold text-white" id="finca-titulo-movil">AgroSystems</h5>
+        <button class="btn btn-outline-light border-0 fs-4 py-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">☰</button>
     </div>
 
     <div class="sidebar-desktop d-none d-md-flex flex-column">
-        <div class="logo-finca px-3">
-            <span id="finca-titulo-desk" class="fs-4">🌿 AgroSystems</span> <br>
-            <span id="badge-nombre" style="font-size: 0.95rem; color: #a5d6a7;">Usuario</span><br>
-            <span id="badge-rol">Rol: -</span><br>
+        <div class="px-3">
+            <img id="sidebar-logo" src="" alt="Logo Finca">
+            <div class="logo-text-finca" id="finca-titulo-desk">AgroSystems</div>
+            <div class="user-info-text">
+                <span id="badge-nombre">Usuario</span><br>
+                <span id="badge-rol" class="badge bg-secondary mt-1" style="font-size: 0.65rem;">Rol</span>
+            </div>
         </div>
         <div class="sidebar-menu px-3 w-100">
-            <a href="#" onclick="showView('dashboard')" class="nav-btn-dashboard active">📊 Dashboard</a>
-            <a href="#" onclick="showView('animales')" class="nav-btn-animales">🐾 Rebaño y Genética</a>
-            <a href="#" onclick="showView('ordeño')" class="nav-btn-ordeño">🥛 Producción</a>
-            <a href="#" onclick="showView('sanidad')" class="nav-btn-sanidad">💉 Sanidad</a>
-            <a href="#" onclick="showView('tienda')" class="nav-btn-tienda">🛒 Tienda</a>
-            <hr class="border-light opacity-50 w-100 my-3">
-            <a href="#" onclick="showView('ajustes')" class="nav-btn-ajustes">⚙️ Ajustes</a>
-            <a href="#" onclick="showView('equipo')" class="nav-btn-equipo admin-only">👥 Mi Equipo</a>
-            <a href="#" onclick="showView('datos')" class="nav-btn-datos admin-only">💾 Respaldo Excel</a>
-            <a href="#" onclick="intentarCerrarSesion()" class="text-danger mt-4">🚪 Cerrar Sesión</a>
+            <a href="#" onclick="showView('dashboard')" class="nav-btn-dashboard active">Dashboard</a>
+            <a href="#" onclick="showView('animales')" class="nav-btn-animales">Rebaño y Genética</a>
+            <a href="#" onclick="showView('ordeño')" class="nav-btn-ordeño">Producción</a>
+            <a href="#" onclick="showView('sanidad')" class="nav-btn-sanidad">Sanidad</a>
+            <a href="#" onclick="showView('tienda')" class="nav-btn-tienda">Inventario / Tienda</a>
+            <hr class="border-light opacity-25 w-100 my-3">
+            <a href="#" onclick="showView('perfil')" class="nav-btn-perfil">Perfil y Ajustes</a>
+            <a href="#" onclick="showView('equipo')" class="nav-btn-equipo admin-only">Equipo de Trabajo</a>
+            <a href="#" onclick="showView('datos')" class="nav-btn-datos admin-only">Gestor de Datos Excel</a>
+            <a href="#" onclick="intentarCerrarSesion()" class="text-danger mt-4">Cerrar Sesión</a>
         </div>
     </div>
 
     <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="sidebarOffcanvas">
-        <div class="offcanvas-header border-bottom border-success" style="background-color: var(--dark) !important;">
-            <h5 class="offcanvas-title text-white fw-bold">Menú</h5>
+        <div class="offcanvas-header border-bottom" style="background-color: var(--dark) !important; border-color: var(--accent) !important;">
+            <h6 class="offcanvas-title text-white fw-bold">Menú</h6>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
         </div>
         <div class="offcanvas-body sidebar-menu flex-column p-3">
-            <a href="#" onclick="showView('dashboard')" class="nav-btn-dashboard active">📊 Dashboard</a>
-            <a href="#" onclick="showView('animales')" class="nav-btn-animales">🐾 Rebaño y Genética</a>
-            <a href="#" onclick="showView('ordeño')" class="nav-btn-ordeño">🥛 Producción</a>
-            <a href="#" onclick="showView('sanidad')" class="nav-btn-sanidad">💉 Sanidad</a>
-            <a href="#" onclick="showView('tienda')" class="nav-btn-tienda">🛒 Tienda</a>
-            <hr class="border-light opacity-50 w-100 my-3">
-            <a href="#" onclick="showView('ajustes')" class="nav-btn-ajustes">⚙️ Ajustes</a>
-            <a href="#" onclick="showView('equipo')" class="nav-btn-equipo admin-only">👥 Mi Equipo</a>
-            <a href="#" onclick="showView('datos')" class="nav-btn-datos admin-only">💾 Respaldo Excel</a>
-            <a href="#" onclick="intentarCerrarSesion()" class="text-warning mt-4">🚪 Cerrar Sesión</a>
+            <a href="#" onclick="showView('dashboard')" class="nav-btn-dashboard active">Dashboard</a>
+            <a href="#" onclick="showView('animales')" class="nav-btn-animales">Rebaño y Genética</a>
+            <a href="#" onclick="showView('ordeño')" class="nav-btn-ordeño">Producción</a>
+            <a href="#" onclick="showView('sanidad')" class="nav-btn-sanidad">Sanidad</a>
+            <a href="#" onclick="showView('tienda')" class="nav-btn-tienda">Inventario / Tienda</a>
+            <hr class="border-light opacity-25 w-100 my-3">
+            <a href="#" onclick="showView('perfil')" class="nav-btn-perfil">Perfil y Ajustes</a>
+            <a href="#" onclick="showView('equipo')" class="nav-btn-equipo admin-only">Equipo de Trabajo</a>
+            <a href="#" onclick="showView('datos')" class="nav-btn-datos admin-only">Gestor de Datos Excel</a>
+            <a href="#" onclick="intentarCerrarSesion()" class="text-warning mt-4">Cerrar Sesión</a>
         </div>
     </div>
 
     <div class="main-content">
         
         <div id="view-dashboard" class="view-section">
-            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                <h2 class="fw-bold text-dark m-0" id="display-finca-nombre">Mi Finca </h2>
-                <span id="nube-status" class="badge bg-secondary badge-nube">📱 Guardado en Teléfono</span>
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <h3 class="fw-bold text-dark m-0" id="display-finca-nombre">Panel Principal</h3>
+                <span id="nube-status" class="badge bg-secondary badge-nube">Almacenamiento Local</span>
             </div>
-            <p class="text-muted mb-4" id="display-finca-info">📍 Ubicación | 📞 Teléfono</p>
+            <p class="text-muted mb-4 small" id="display-finca-info">Ubicación | Teléfono</p>
             
             <div class="row mb-3 g-3">
-                <div class="col-md-4 col-12"><div class="card card-stat p-3 h-100"><h6 class="text-muted">Total Inventario (Cabezas)</h6><h2 id="stat-total" class="fw-bold m-0">0</h2></div></div>
-                <div class="col-md-4 col-12"><div class="card card-stat p-3 h-100 border-primary"><h6 class="text-muted">Prod. Leche Semanal (Lts)</h6><h2 id="stat-leche" class="text-primary fw-bold m-0">0.0</h2></div></div>
-                <div class="col-md-4 col-12"><div class="card card-stat p-3 h-100 border-success"><h6 class="text-muted">Queso Est. (Kg)</h6><h2 id="stat-queso" class="text-success fw-bold m-0">0.0</h2></div></div>
+                <div class="col-md-4 col-12"><div class="card card-stat p-3 h-100"><h6 class="text-muted mb-1 small">Inventario (Cabezas)</h6><h3 id="stat-total" class="fw-bold m-0 text-dark">0</h3></div></div>
+                <div class="col-md-4 col-12"><div class="card card-stat p-3 h-100 border-primary"><h6 class="text-muted mb-1 small">Leche Semanal (Lts)</h6><h3 id="stat-leche" class="text-primary fw-bold m-0">0.0</h3></div></div>
+                <div class="col-md-4 col-12"><div class="card card-stat p-3 h-100 border-success"><h6 class="text-muted mb-1 small">Queso Est. (Kg)</h6><h3 id="stat-queso" class="text-success fw-bold m-0">0.0</h3></div></div>
             </div>
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mt-4 mb-3">
-                <h4 class="m-0 mb-2 mb-md-0 fw-bold">Lotes / Galpones</h4>
-                <button class="btn btn-sm btn-outline-success fw-bold admin-only" data-bs-toggle="modal" data-bs-target="#modalNuevoLote">➕ Crear Lote</button>
+                <h5 class="m-0 mb-2 mb-md-0 fw-bold text-dark">Distribución de Lotes</h5>
+                <button class="btn btn-sm btn-outline-primary fw-bold admin-only" data-bs-toggle="modal" data-bs-target="#modalNuevoLote">Crear Lote</button>
             </div>
             <div class="row mb-4 g-2" id="dashboard-lotes-container"></div>
-            <h4 class="text-danger mt-4 fw-bold">⚠️ Alertas de Destete</h4>
+            
+            <h5 class="text-danger mt-4 fw-bold">Alertas de Destete</h5>
             <ul class="list-group shadow-sm border-0" id="alertas-destete"></ul>
         </div>
 
         <div id="view-tienda" class="view-section hidden">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold">🛒 Tienda AgroSystems</h2>
-                <button class="btn btn-success fw-bold shadow-sm admin-only" onclick="abrirModalNuevoProducto()">➕ Producto</button>
+                <h3 class="fw-bold m-0">Inventario y Tienda</h3>
+                <button class="btn btn-primary btn-sm fw-bold shadow-sm admin-only" onclick="abrirModalNuevoProducto()">Registrar Producto</button>
             </div>
-            <div class="alert alert-success d-flex align-items-center justify-content-between mb-4 shadow-sm border-0" style="background-color: #e8f5e9;">
-                <div><span class="fs-5 me-2">📞</span><strong>WhatsApp Ventas:</strong> <span id="display-wa-num" class="fw-bold ms-2">...</span></div>
-                <button class="btn btn-sm btn-outline-success fw-bold bg-white admin-only" data-bs-toggle="modal" data-bs-target="#modalConfigWA">⚙️ Configurar</button>
+            <div class="alert alert-secondary d-flex align-items-center justify-content-between mb-4 shadow-sm border-0">
+                <div class="small"><strong>Línea de Ventas:</strong> <span id="display-wa-num" class="fw-bold ms-1">...</span></div>
+                <button class="btn btn-sm btn-outline-dark fw-bold bg-white admin-only" data-bs-toggle="modal" data-bs-target="#modalConfigWA">Configurar</button>
             </div>
             <div class="row mb-3 g-2 align-items-center">
-                <div class="col-12 col-md-4"><input type="text" id="busqueda-producto" class="form-control shadow-sm" placeholder="🔍 Buscar..." onkeyup="renderTienda()"></div>
+                <div class="col-12 col-md-4"><input type="text" id="busqueda-producto" class="form-control form-control-sm shadow-sm" placeholder="Buscar producto..." onkeyup="renderTienda()"></div>
                 <div class="col-12 col-md-8">
                     <div class="departamentos-wrapper">
-                        <button id="btn-depto-Todos" class="btn btn-depto btn-primary active" onclick="setCategoriaTienda('Todos')">🌟 Todos</button>
-                        <button id="btn-depto-Medicamentos" class="btn btn-depto btn-outline-primary" onclick="setCategoriaTienda('Medicamentos')">💉 Medicamentos</button>
-                        <button id="btn-depto-Accesorios" class="btn btn-depto btn-outline-primary" onclick="setCategoriaTienda('Accesorios')">🏷️ Accesorios</button>
-                        <button id="btn-depto-Utensilios" class="btn btn-depto btn-outline-primary" onclick="setCategoriaTienda('Utensilios')">🔧 Utensilios</button>
+                        <button id="btn-depto-Todos" class="btn btn-depto btn-primary active border-0" onclick="setCategoriaTienda('Todos')">Todos</button>
+                        <button id="btn-depto-Medicamentos" class="btn btn-depto btn-outline-primary" onclick="setCategoriaTienda('Medicamentos')">Medicamentos</button>
+                        <button id="btn-depto-Accesorios" class="btn btn-depto btn-outline-primary" onclick="setCategoriaTienda('Accesorios')">Accesorios</button>
+                        <button id="btn-depto-Utensilios" class="btn btn-depto btn-outline-primary" onclick="setCategoriaTienda('Utensilios')">Utensilios</button>
                     </div>
                 </div>
             </div>
@@ -199,77 +222,107 @@
         </div>
 
         <div id="view-animales" class="view-section hidden">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold">Rebaño y Genética</h2>
-                <button class="btn btn-success fw-bold" onclick="prepararModalNuevoAnimal()" data-bs-toggle="modal" data-bs-target="#modalAnimal">➕ Nuevo Registro</button>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="fw-bold m-0">Rebaño y Genética</h3>
+                <button class="btn btn-primary btn-sm fw-bold" onclick="prepararModalNuevoAnimal()" data-bs-toggle="modal" data-bs-target="#modalAnimal">Registrar Animal</button>
             </div>
             <div class="row mb-3 g-2">
-                <div class="col-12 col-md-3"><select id="filtro-lote" class="form-select" onchange="reiniciarYRenderAnimales()"></select></div>
-                <div class="col-12 col-md-6"><input type="text" id="busqueda-animal" class="form-control" placeholder="🔍 Buscar Chapa o Nombre..." onkeyup="busquedaInteligenteAnimales()"></div>
-                <div class="col-12 col-md-3 text-end"><button class="btn btn-danger w-100 admin-only" data-bs-toggle="modal" data-bs-target="#modalBorrarLote">⚠️ Vaciar Lote</button></div>
+                <div class="col-12 col-md-4"><select id="filtro-lote" class="form-select form-select-sm" onchange="reiniciarYRenderAnimales()"></select></div>
+                <div class="col-12 col-md-5"><input type="text" id="busqueda-animal" class="form-control form-control-sm" placeholder="Buscar por ID o Nombre..." onkeyup="busquedaInteligenteAnimales()"></div>
+                <div class="col-12 col-md-3 text-end"><button class="btn btn-outline-danger btn-sm w-100 admin-only fw-bold" data-bs-toggle="modal" data-bs-target="#modalBorrarLote">Vaciar Lote</button></div>
             </div>
             <div class="row g-3" id="lista-animales"></div>
-            <div id="btn-cargar-mas-animales" class="text-center mt-4 hidden"><button class="btn btn-primary px-5 rounded-pill shadow" onclick="cargarMasAnimales()">🔽 Mostrar Más</button></div>
+            <div id="btn-cargar-mas-animales" class="text-center mt-4 hidden"><button class="btn btn-secondary btn-sm px-4 rounded shadow-sm" onclick="cargarMasAnimales()">Mostrar Más</button></div>
         </div>
 
         <div id="view-ordeño" class="view-section hidden">
-            <h2 class="fw-bold mb-3">Control de Producción</h2>
-            <div class="table-responsive bg-white rounded shadow-sm p-2">
-                <table class="table table-hover align-middle">
-                    <thead class="table-success"><tr><th>Animal</th><th>Último Registro</th><th>Producción</th><th>Acciones</th></tr></thead>
+            <h3 class="fw-bold mb-3">Producción</h3>
+            <div class="table-responsive bg-white rounded shadow-sm p-2 border">
+                <table class="table table-hover align-middle mb-0 text-sm">
+                    <thead class="table-light"><tr><th class="small text-muted">Animal</th><th class="small text-muted">Último Registro</th><th class="small text-muted">Producción</th><th class="small text-muted text-end">Acciones</th></tr></thead>
                     <tbody id="tabla-ordeno"></tbody>
                 </table>
             </div>
         </div>
 
         <div id="view-sanidad" class="view-section hidden">
-            <h2 class="fw-bold mb-3">Control Sanitario</h2>
-            <div class="card p-3 mb-4 shadow-sm border-0 admin-only">
-                <h4 class="mb-3">Aplicar Tratamiento / Vacuna</h4>
+            <h3 class="fw-bold mb-3">Control Sanitario</h3>
+            <div class="card p-3 mb-4 shadow-sm border admin-only">
+                <h6 class="mb-3 fw-bold">Registro de Tratamiento</h6>
                 <form id="form-vacuna" onsubmit="aplicarVacuna(event)">
                     <div class="row g-2">
-                        <div class="col-12 col-md-3"><select id="vacuna-lote" class="form-select" required></select></div>
-                        <div class="col-12 col-md-4"><input type="text" id="vacuna-tipo" class="form-control" placeholder="Vacuna o Tratamiento..." required></div>
-                        <div class="col-6 col-md-3"><input type="date" id="vacuna-fecha" class="form-control" required></div>
-                        <div class="col-6 col-md-2"><button type="submit" class="btn btn-primary w-100 h-100">Aplicar</button></div>
+                        <div class="col-12 col-md-3"><select id="vacuna-lote" class="form-select form-select-sm" required></select></div>
+                        <div class="col-12 col-md-4"><input type="text" id="vacuna-tipo" class="form-control form-control-sm" placeholder="Medicamento / Vacuna..." required></div>
+                        <div class="col-6 col-md-3"><input type="date" id="vacuna-fecha" class="form-control form-control-sm" required></div>
+                        <div class="col-6 col-md-2"><button type="submit" class="btn btn-primary btn-sm w-100 h-100 fw-bold">Aplicar</button></div>
                     </div>
                 </form>
             </div>
-            <ul class="list-group shadow-sm border-0" id="lista-vacunas"></ul>
+            <ul class="list-group shadow-sm border" id="lista-vacunas"></ul>
         </div>
         
-        <!-- NUEVA VISTA: AJUSTES -->
-        <div id="view-ajustes" class="view-section hidden">
-            <h2 class="fw-bold mb-4">⚙️ Ajustes de Sincronización</h2>
-            <div class="card p-4 shadow-sm border-0 mb-4 bg-white">
-                <h4 class="fw-bold text-dark">Almacenamiento Local (Modo Fuera de Línea)</h4>
-                <p class="text-muted">Tu aplicación guarda los datos automáticamente en la memoria de este dispositivo, permitiéndote trabajar rápido y sin internet. Usa estos botones para coordinar tu información con la nube cuando tengas buena señal.</p>
-                <div class="d-flex flex-column gap-3 mt-3">
-                    <button class="btn btn-success btn-lg fw-bold shadow-sm" onclick="forzarSubidaNube()">☁️ Subir mi progreso a la Nube (Guardar)</button>
-                    <button class="btn btn-outline-primary btn-lg fw-bold" onclick="forzarDescargaNube()">⬇️ Descargar datos de la Nube (Sincronizar)</button>
+        <!-- VISTA DE PERFIL Y AJUSTES (FORMAL) -->
+        <div id="view-perfil" class="view-section hidden">
+            <h3 class="fw-bold mb-3">Perfil y Ajustes</h3>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card p-3 shadow-sm border h-100 bg-white">
+                        <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Información del Administrador</h6>
+                        <p class="mb-1 small text-muted">Nombre Registrado</p>
+                        <p class="fw-bold mb-3" id="info-admin-nombre">-</p>
+                        <p class="mb-1 small text-muted">Correo de Acceso</p>
+                        <p class="fw-bold mb-3" id="info-admin-correo">-</p>
+                        <hr>
+                        <p class="fw-bold text-dark small mb-2">Logo de la Finca</p>
+                        <input type="file" id="input-logo-finca" class="form-control form-control-sm mb-2" accept="image/*">
+                        <button class="btn btn-outline-primary btn-sm w-100" onclick="procesarLogoFinca()">Actualizar Logo</button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card p-3 shadow-sm border h-100 bg-white">
+                        <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Sincronización de Datos</h6>
+                        <p class="small text-muted mb-4">El sistema guarda la información automáticamente en este dispositivo. Para compartir la información con otros dispositivos o respaldarla de forma segura, utilice las opciones de sincronización.</p>
+                        <div class="d-flex flex-column gap-2 mt-auto">
+                            <button class="btn btn-primary btn-sm fw-bold shadow-sm" onclick="forzarSubidaNube()">Respaldar en la Nube</button>
+                            <button class="btn btn-outline-dark btn-sm fw-bold" onclick="forzarDescargaNube()">Recuperar datos de la Nube</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div id="view-equipo" class="view-section hidden admin-only">
-            <h2 class="fw-bold mb-3">👥 Equipo de Trabajo</h2>
-            <div class="alert alert-info border-0 shadow-sm">
-                <strong>Código de Invitación Finca:</strong> Pasa este código a tus empleados para que se unan a tu sistema: 
-                <span id="display-codigo-equipo" class="fs-4 fw-bold ms-2 text-dark bg-white px-2 rounded"></span>
+            <h3 class="fw-bold mb-3">Equipo de Trabajo</h3>
+            <div class="alert alert-secondary border shadow-sm small py-2">
+                <strong>Código de Finca:</strong> Proporcione este código a su personal para acceso: 
+                <span id="display-codigo-equipo" class="fs-6 fw-bold ms-2 text-primary bg-white px-2 py-1 rounded border"></span>
             </div>
-            <div class="table-responsive bg-white rounded shadow-sm p-2">
-                <table class="table table-hover align-middle">
-                    <thead class="table-success"><tr><th>Correo del Trabajador</th><th>Rol</th><th>Acciones</th></tr></thead>
+            <div class="table-responsive bg-white rounded shadow-sm p-2 border">
+                <table class="table table-hover align-middle text-sm mb-0">
+                    <thead class="table-light"><tr><th class="small text-muted">Usuario</th><th class="small text-muted">Permisos</th><th class="small text-muted text-end">Gestión</th></tr></thead>
                     <tbody id="tabla-equipo"></tbody>
                 </table>
             </div>
         </div>
 
         <div id="view-datos" class="view-section hidden admin-only">
-            <h2 class="mb-4 fw-bold">Respaldo Excel</h2>
+            <h3 class="mb-3 fw-bold">Gestor de Datos Excel</h3>
             <div class="row g-3">
-                <div class="col-12 col-md-6"><div class="card p-4 text-center h-100 shadow-sm border-success"><h4 class="text-success mb-3 fw-bold">📤 Exportar Datos</h4><button class="btn btn-success btn-lg mt-auto shadow" onclick="exportarExcel()">Descargar Archivo Excel</button></div></div>
-                <div class="col-12 col-md-6"><div class="card p-4 text-center h-100 shadow-sm border-primary"><h4 class="text-primary mb-3 fw-bold">📥 Importar Excel</h4><input type="file" id="input-importar" class="form-control mb-3" accept=".xlsx, .xls"><button class="btn btn-primary btn-lg mt-auto shadow" onclick="importarExcel()">Subir Archivo</button></div></div>
+                <div class="col-12 col-md-6">
+                    <div class="card p-4 text-center h-100 shadow-sm border border-success bg-white">
+                        <h6 class="text-success mb-2 fw-bold">Exportar Base de Datos</h6>
+                        <p class="small text-muted mb-3">Descarga un archivo Excel con todo el inventario.</p>
+                        <button class="btn btn-success btn-sm mt-auto shadow-sm fw-bold" onclick="exportarExcel()">Descargar Excel</button>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="card p-4 text-center h-100 shadow-sm border border-primary bg-white">
+                        <h6 class="text-primary mb-2 fw-bold">Importar Base de Datos</h6>
+                        <p class="small text-muted mb-3">Las imágenes pesadas serán omitidas automáticamente.</p>
+                        <input type="file" id="input-importar" class="form-control form-control-sm mb-3" accept=".xlsx, .xls">
+                        <button class="btn btn-primary btn-sm mt-auto shadow-sm fw-bold" onclick="importarExcel()">Procesar Archivo</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -278,31 +331,31 @@
 <!-- ============================================== -->
 <!-- MODALES -->
 <!-- ============================================== -->
-<div class="modal fade" id="modalConfigWA" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">📞 WhatsApp</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-config-wa" onsubmit="guardarWhatsApp(event)"><label class="fw-bold text-muted mb-2">Ingresa número (Ej: +584141234567):</label><input type="text" id="input-wa-numero" class="form-control" required></form></div><div class="modal-footer border-0"><button type="submit" form="form-config-wa" class="btn btn-success w-100 fw-bold">Guardar</button></div></div></div></div>
-<div class="modal fade" id="modalProducto" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold" id="modalProductoTitle">Registrar Producto</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-producto" onsubmit="guardarProducto(event)"><input type="hidden" id="prod-id-edit"> <div class="row g-2"><div class="col-12 mb-2"><label class="fw-bold">Nombre</label><input type="text" id="prod-nombre" class="form-control" required></div><div class="col-12 mb-2"><label class="fw-bold">Categoría</label><select id="prod-categoria" class="form-select" required><option value="Medicamentos">Medicamentos</option><option value="Accesorios">Accesorios</option><option value="Utensilios">Utensilios</option><option value="Otros">Otros</option></select></div><div class="col-6 mb-2"><label class="fw-bold">Precio ($)</label><input type="number" step="0.01" id="prod-precio" class="form-control" required></div><div class="col-6 mb-2"><label class="fw-bold">Stock</label><input type="number" id="prod-stock" class="form-control" required></div><div class="col-12 mb-2"><label class="fw-bold">Descripción</label><textarea id="prod-descripcion" class="form-control" rows="2"></textarea></div><div class="col-12 mb-2"><label class="fw-bold">Foto</label><input type="file" id="prod-foto-file" class="form-control" accept="image/*" capture="environment"><input type="hidden" id="prod-foto-base64"><div class="text-center mt-2"><img id="prod-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-producto" class="btn btn-success w-100 fw-bold">Guardar</button></div></div></div></div>
+<div class="modal fade" id="modalConfigWA" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h6 class="modal-title fw-bold m-0">Línea de Ventas</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-config-wa" onsubmit="guardarWhatsApp(event)"><label class="fw-bold text-muted mb-2 small">Número (Ej: +584141234567):</label><input type="text" id="input-wa-numero" class="form-control form-control-sm" required></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-config-wa" class="btn btn-primary btn-sm w-100 fw-bold">Actualizar</button></div></div></div></div>
+<div class="modal fade" id="modalProducto" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h6 class="modal-title fw-bold m-0" id="modalProductoTitle">Ficha de Producto</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-producto" onsubmit="guardarProducto(event)"><input type="hidden" id="prod-id-edit"> <div class="row g-2"><div class="col-12 mb-1"><label class="fw-bold small text-muted">Nombre</label><input type="text" id="prod-nombre" class="form-control form-control-sm" required></div><div class="col-12 mb-1"><label class="fw-bold small text-muted">Categoría</label><select id="prod-categoria" class="form-select form-select-sm" required><option value="Medicamentos">Medicamentos</option><option value="Accesorios">Accesorios</option><option value="Utensilios">Utensilios</option><option value="Otros">Otros</option></select></div><div class="col-6 mb-1"><label class="fw-bold small text-muted">Precio ($)</label><input type="number" step="0.01" id="prod-precio" class="form-control form-control-sm" required></div><div class="col-6 mb-1"><label class="fw-bold small text-muted">Stock</label><input type="number" id="prod-stock" class="form-control form-control-sm" required></div><div class="col-12 mb-1"><label class="fw-bold small text-muted">Descripción</label><textarea id="prod-descripcion" class="form-control form-control-sm" rows="2"></textarea></div><div class="col-12 mb-1"><label class="fw-bold small text-muted">Fotografía</label><input type="file" id="prod-foto-file" class="form-control form-control-sm" accept="image/*" capture="environment"><input type="hidden" id="prod-foto-base64"><div class="text-center mt-2"><img id="prod-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-producto" class="btn btn-primary btn-sm w-100 fw-bold">Guardar Cambios</button></div></div></div></div>
 
-<div class="modal fade" id="modalAnimal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold" id="modalAnimalTitle">Registrar Animal</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-animal" onsubmit="guardarAnimal(event)"><input type="hidden" id="ani-id-interno-edit"> <div class="row g-2">
-<div class="col-6 mb-2"><label class="fw-bold text-primary">Chapa / ID *</label><input type="text" id="ani-id-animal" class="form-control border-primary" required></div>
-<div class="col-6 mb-2"><label class="fw-bold">Nombre</label><input type="text" id="ani-nombre" class="form-control"></div>
-<div class="col-6 mb-2"><label class="fw-bold">Especie</label><select id="ani-especie" class="form-select" required><option value="Bovino">Bovino (Vacas/Toros)</option><option value="Porcino">Porcino (Cerdos)</option><option value="Caprino">Caprino (Cabras)</option><option value="Ovino">Ovino (Ovejas)</option><option value="Equino">Equino (Caballos)</option><option value="Avícola">Avícola (Gallinas)</option><option value="Otro">Otro</option></select></div>
-<div class="col-6 mb-2"><label class="fw-bold">Sexo</label><select id="ani-sexo" class="form-select" required><option value="Hembra">Hembra</option><option value="Macho">Macho</option></select></div>
-<div class="col-6 mb-2"><label class="fw-bold text-success">Raza</label><input type="text" id="ani-raza" class="form-control" placeholder="Ej: Brahman, Holstein"></div>
-<div class="col-6 mb-2"><label class="fw-bold text-success">Genética</label><select id="ani-genetica" class="form-select" required><option value="Puro">Puro</option><option value="Mestizo">Mestizo / Criollo</option><option value="F1">F1 (50% - 50%)</option><option value="F2">F2 (75% - 25%)</option><option value="F3">F3 (87.5% - 12.5%)</option></select></div>
-<div class="col-6 mb-2"><label class="fw-bold">Lote / Grupo</label><select id="ani-lote" class="form-select" required></select></div><div class="col-6 mb-2"><label class="fw-bold">Potrero / Galpón</label><input type="text" id="ani-potrero" class="form-control" placeholder="Ej. Potrero 1"></div><div class="col-6 mb-2"><label class="fw-bold">Origen</label><input type="text" id="ani-proveniente" class="form-control"></div><div class="col-6 mb-2"><label class="fw-bold">Nacimiento</label><input type="date" id="ani-fecha" class="form-control"></div><div class="col-12 mb-2"><label class="fw-bold">Madre</label><input type="text" id="ani-madre" class="form-control"><div class="form-check mt-1"><input class="form-check-input" type="checkbox" id="ani-madre-desc" onchange="toggleMadre()"><label class="form-check-label text-muted">Madre desconocida</label></div></div><div class="col-12 mb-2"><label class="fw-bold">Foto (Cámara)</label><input type="file" id="ani-foto-file" class="form-control" accept="image/*" capture="environment"><input type="hidden" id="ani-foto-base64"><div class="text-center mt-2"><img id="ani-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-animal" class="btn btn-success w-100 fw-bold">Guardar Localmente</button></div></div></div></div>
+<div class="modal fade" id="modalAnimal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h6 class="modal-title fw-bold m-0" id="modalAnimalTitle">Ficha de Animal</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-animal" onsubmit="guardarAnimal(event)"><input type="hidden" id="ani-id-interno-edit"> <div class="row g-2">
+<div class="col-6 mb-1"><label class="fw-bold text-primary small">Identificación *</label><input type="text" id="ani-id-animal" class="form-control form-control-sm border-primary" required></div>
+<div class="col-6 mb-1"><label class="fw-bold text-muted small">Nombre Alias</label><input type="text" id="ani-nombre" class="form-control form-control-sm"></div>
+<div class="col-6 mb-1"><label class="fw-bold text-muted small">Especie</label><select id="ani-especie" class="form-select form-select-sm" required><option value="Bovino">Bovino</option><option value="Porcino">Porcino</option><option value="Caprino">Caprino</option><option value="Ovino">Ovino</option><option value="Equino">Equino</option><option value="Avícola">Avícola</option><option value="Otro">Otro</option></select></div>
+<div class="col-6 mb-1"><label class="fw-bold text-muted small">Sexo</label><select id="ani-sexo" class="form-select form-select-sm" required><option value="Hembra">Hembra</option><option value="Macho">Macho</option></select></div>
+<div class="col-6 mb-1"><label class="fw-bold text-primary small">Raza</label><input type="text" id="ani-raza" class="form-control form-control-sm" placeholder="Ej: Brahman"></div>
+<div class="col-6 mb-1"><label class="fw-bold text-primary small">Genética</label><select id="ani-genetica" class="form-select form-select-sm" required><option value="Puro">Puro</option><option value="Mestizo">Mestizo / Criollo</option><option value="F1">F1</option><option value="F2">F2</option><option value="F3">F3</option></select></div>
+<div class="col-6 mb-1"><label class="fw-bold text-muted small">Ubicación (Lote)</label><select id="ani-lote" class="form-select form-select-sm" required></select></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Potrero Específico</label><input type="text" id="ani-potrero" class="form-control form-control-sm"></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Origen</label><input type="text" id="ani-proveniente" class="form-control form-control-sm"></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Fecha Nacimiento</label><input type="date" id="ani-fecha" class="form-control form-control-sm"></div><div class="col-12 mb-1"><label class="fw-bold text-muted small">ID de la Madre</label><input type="text" id="ani-madre" class="form-control form-control-sm"><div class="form-check mt-1"><input class="form-check-input" type="checkbox" id="ani-madre-desc" onchange="toggleMadre()"><label class="form-check-label text-muted small">Desconocida</label></div></div><div class="col-12 mb-1"><label class="fw-bold text-muted small">Fotografía</label><input type="file" id="ani-foto-file" class="form-control form-control-sm" accept="image/*" capture="environment"><input type="hidden" id="ani-foto-base64"><div class="text-center mt-2"><img id="ani-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-animal" class="btn btn-primary btn-sm w-100 fw-bold">Guardar Información</button></div></div></div></div>
 
-<div class="modal fade" id="modalTrasladoLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">🔄 Trasladar</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-traslado" onsubmit="ejecutarTraslado(event)"><input type="hidden" id="traslado-id-interno"><label class="fw-bold mb-2">Nuevo Lote:</label><select id="traslado-nuevo-lote" class="form-select" required></select></form></div><div class="modal-footer border-0"><button type="submit" form="form-traslado" class="btn btn-success w-100">Confirmar</button></div></div></div></div>
-<div class="modal fade" id="modalRegistroPeso" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-warning text-dark"><h5 class="modal-title fw-bold">⚖️ Registrar Peso</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-peso" onsubmit="guardarPeso(event)"><input type="hidden" id="peso-id-interno"><div class="mb-3"><label class="fw-bold">Fecha</label><input type="date" id="peso-fecha" class="form-control" required></div><div class="mb-3"><label class="fw-bold">Peso (Kg)</label><input type="number" step="0.1" id="peso-kilos" class="form-control" required></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-peso" class="btn btn-warning w-100 fw-bold">Guardar</button></div></div></div></div>
-<div class="modal fade" id="modalGraficoHistorial" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-info text-dark" id="headerModalGrafico"><h5 class="modal-title fw-bold" id="tituloModalGrafico">Historial</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-1 p-md-3"><div class="chart-container-modal"><canvas id="canvas-grafico-unico"></canvas></div></div></div></div></div>
-<div class="modal fade" id="modalNuevoLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">Nuevo Lote</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-lote-manual" onsubmit="guardarNuevoLote(event)"><label class="fw-bold">Nombre del Lote:</label><input type="text" id="nuevo-lote-nombre" class="form-control mt-2" required></form></div><div class="modal-footer border-0"><button type="submit" form="form-lote-manual" class="btn btn-success w-100">Crear Lote</button></div></div></div></div>
-<div class="modal fade" id="modalLeche" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">Producción Semanal</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-leche" onsubmit="guardarLeche(event)"><input type="hidden" id="leche-id-interno"><div class="mb-3"><label class="fw-bold">Fecha</label><input type="date" id="leche-fecha" class="form-control" required></div><div class="mb-3"><label class="fw-bold">Cantidad Producida</label><input type="number" step="0.1" id="leche-litros" class="form-control" required></div><div class="mb-3"><label class="fw-bold">Encargado</label><input type="text" id="leche-personal" class="form-control" required></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-leche" class="btn btn-primary w-100 fw-bold">Registrar</button></div></div></div></div>
-<div class="modal fade" id="modalBorrarLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-danger shadow-lg"><div class="modal-header bg-danger text-white"><h5 class="modal-title fw-bold">⚠️ ZONA DE PELIGRO</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-borrar-lote" onsubmit="ejecutarBorradoLote(event)"><p>Vas a eliminar <strong>todos los animales</strong> de un lote. No se puede deshacer.</p><label class="fw-bold">Lote a vaciar:</label><select id="borrar-lote-select" class="form-select mb-3" required></select><label class="fw-bold text-danger">Escribe ELIMINAR en mayúsculas:</label><input type="text" id="borrar-lote-confirmacion" class="form-control border-danger" placeholder="ELIMINAR" required></form></div><div class="modal-footer border-0"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" form="form-borrar-lote" class="btn btn-danger fw-bold">Destruir Datos</button></div></div></div></div>
-<div class="modal fade" id="modalImagenGrande" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content bg-transparent border-0"><div class="modal-body text-center position-relative p-0"><button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 shadow" data-bs-dismiss="modal" style="background-color: rgba(255,255,255,0.8); padding: 12px; border-radius: 50%; z-index: 1055;"></button><img id="img-zoom" src="" class="img-fluid rounded shadow-lg w-100" style="max-height: 85vh; border: 4px solid white; object-fit: contain;" alt="Foto Grande"></div></div></div></div>
+<div class="modal fade" id="modalTrasladoLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h6 class="modal-title fw-bold m-0">Reubicación</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-traslado" onsubmit="ejecutarTraslado(event)"><input type="hidden" id="traslado-id-interno"><label class="fw-bold text-muted mb-2 small">Seleccionar destino:</label><select id="traslado-nuevo-lote" class="form-select form-select-sm" required></select></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-traslado" class="btn btn-primary btn-sm w-100 fw-bold">Confirmar Traslado</button></div></div></div></div>
+<div class="modal fade" id="modalRegistroPeso" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-secondary text-dark border-bottom"><h6 class="modal-title fw-bold m-0">Control de Peso</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-peso" onsubmit="guardarPeso(event)"><input type="hidden" id="peso-id-interno"><div class="mb-2"><label class="fw-bold text-muted small">Fecha de Medición</label><input type="date" id="peso-fecha" class="form-control form-control-sm" required></div><div class="mb-2"><label class="fw-bold text-muted small">Resultado (Kg)</label><input type="number" step="0.1" id="peso-kilos" class="form-control form-control-sm" required></div></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-peso" class="btn btn-dark btn-sm w-100 fw-bold">Registrar Peso</button></div></div></div></div>
+<div class="modal fade" id="modalGraficoHistorial" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-light text-dark border-bottom" id="headerModalGrafico"><h6 class="modal-title fw-bold m-0" id="tituloModalGrafico">Reporte Histórico</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-1 p-md-3"><div class="chart-container-modal"><canvas id="canvas-grafico-unico"></canvas></div></div></div></div></div>
+<div class="modal fade" id="modalNuevoLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h6 class="modal-title fw-bold m-0">Creación de Lote</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-lote-manual" onsubmit="guardarNuevoLote(event)"><label class="fw-bold text-muted small">Asigne un nombre:</label><input type="text" id="nuevo-lote-nombre" class="form-control form-control-sm mt-1" required></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-lote-manual" class="btn btn-primary btn-sm w-100 fw-bold">Establecer Lote</button></div></div></div></div>
+<div class="modal fade" id="modalLeche" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-light border-bottom text-dark"><h6 class="modal-title fw-bold m-0">Registro Lácteo</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-leche" onsubmit="guardarLeche(event)"><input type="hidden" id="leche-id-interno"><div class="mb-2"><label class="fw-bold text-muted small">Fecha</label><input type="date" id="leche-fecha" class="form-control form-control-sm" required></div><div class="mb-2"><label class="fw-bold text-muted small">Volumen (Litros)</label><input type="number" step="0.1" id="leche-litros" class="form-control form-control-sm" required></div><div class="mb-2"><label class="fw-bold text-muted small">Personal Encargado</label><input type="text" id="leche-personal" class="form-control form-control-sm" required></div></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-leche" class="btn btn-primary btn-sm w-100 fw-bold">Archivar Datos</button></div></div></div></div>
+<div class="modal fade" id="modalBorrarLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-danger shadow-lg"><div class="modal-header bg-danger text-white"><h6 class="modal-title fw-bold m-0">Autorización Requerida</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-borrar-lote" onsubmit="ejecutarBorradoLote(event)"><p class="small text-muted">Esta acción eliminará todos los registros asociados al lote seleccionado. La acción es irreversible.</p><label class="fw-bold small">Seleccione Grupo:</label><select id="borrar-lote-select" class="form-select form-select-sm mb-3" required></select><label class="fw-bold text-danger small">Firma de seguridad (Escriba ELIMINAR):</label><input type="text" id="borrar-lote-confirmacion" class="form-control form-control-sm border-danger" placeholder="..." required></form></div><div class="modal-footer border-0 p-2"><button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button><button type="submit" form="form-borrar-lote" class="btn btn-danger btn-sm fw-bold">Proceder</button></div></div></div></div>
+<div class="modal fade" id="modalImagenGrande" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content bg-transparent border-0"><div class="modal-body text-center position-relative p-0"><button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 shadow" data-bs-dismiss="modal" style="background-color: rgba(255,255,255,0.8); padding: 12px; border-radius: 50%; z-index: 1055;"></button><img id="img-zoom" src="" class="img-fluid rounded shadow-lg w-100" style="max-height: 85vh; border: 4px solid white; object-fit: contain;" alt="Fotografía"></div></div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     // MANEJADOR GLOBAL DE ERRORES 
-    window.onerror = function(msg, url, line) { console.error("Error del Sistema:", msg, "Línea:", line); return false; };
+    window.onerror = function(msg, url, line) { console.error("Error Interno:", msg, line); return false; };
 
     const SUPABASE_URL = 'https://pznaumhcnpotlarvrcjl.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_3Upyqun-W_H5F7KdOQpMpQ_HuHHtJXp';
@@ -310,12 +363,12 @@
     let session = null;
     let miFincaInfo = null; 
 
-    let animales = []; let vacunas = []; let productos = []; let lotes = []; let telefono_tienda = ''; let ubicacion_finca = '';
+    let animales = []; let vacunas = []; let productos = []; let lotes = []; let telefono_tienda = ''; let ubicacion_finca = ''; let logo_finca = '';
     let limiteAnimalesMostrados = 50; let limiteOrdenoMostrados = 50; let temporizadorBusqueda; let chartModalUnico = null; let categoriaTiendaActual = 'Todos';
 
     document.addEventListener('DOMContentLoaded', async () => {
         try {
-            if (typeof window.supabase === 'undefined') throw new Error("No se pudo cargar la librería de la nube.");
+            if (typeof window.supabase === 'undefined') throw new Error("Fallo de conexión base.");
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             document.getElementById('init-loader').style.display = 'none';
             document.getElementById('auth-screen').style.display = 'flex';
@@ -326,7 +379,7 @@
         } catch (e) {
             document.getElementById('init-loader').style.display = 'none';
             document.getElementById('auth-screen').style.display = 'flex';
-            document.getElementById('auth-error').innerText = "❌ " + e.message;
+            document.getElementById('auth-error').innerText = "Fallo: " + e.message;
         }
     });
 
@@ -341,14 +394,14 @@
     async function login() {
         const email = document.getElementById('auth-email').value.trim();
         const pass = document.getElementById('auth-pass').value.trim();
-        if(!email || !pass) return document.getElementById('auth-error').innerText = "⚠️ Ingresa correo y contraseña.";
-        document.getElementById('auth-error').innerText = "Conectando...";
+        if(!email || !pass) return document.getElementById('auth-error').innerText = "Ingrese credenciales válidas.";
+        document.getElementById('auth-error').innerText = "Autenticando...";
         try {
             const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
             if (error) throw error;
             session = data.session;
             await verificarFincaUsuario();
-        } catch (error) { document.getElementById('auth-error').innerText = "❌ Correo o clave incorrectos."; }
+        } catch (error) { document.getElementById('auth-error').innerText = "Credenciales rechazadas."; }
     }
 
     async function registrarUsuario() {
@@ -358,10 +411,10 @@
         const pass = document.getElementById('reg-pass').value.trim();
         const errorBox = document.getElementById('auth-error');
         
-        if(!nombre || !apellido || !email || !pass) return errorBox.innerText = "⚠️ Debes llenar todos los campos.";
-        if(pass.length < 6) return errorBox.innerText = "⚠️ La contraseña debe tener 6 letras mínimo.";
+        if(!nombre || !apellido || !email || !pass) return errorBox.innerText = "Complete el formulario.";
+        if(pass.length < 6) return errorBox.innerText = "La contraseña requiere 6 caracteres mínimo.";
         
-        errorBox.innerText = "Creando cuenta en AgroSystems...";
+        errorBox.innerText = "Procesando...";
         try {
             const { data, error } = await supabaseClient.auth.signUp({ email, password: pass, options: { data: { nombre: nombre, apellido: apellido } } });
             if (error) throw error;
@@ -370,15 +423,12 @@
                 session = loginData.session;
             } else { session = data.session; }
             showAuthView('setup-finca');
-        } catch(e) { errorBox.innerText = "❌ " + e.message; }
+        } catch(e) { errorBox.innerText = "Error: " + e.message; }
     }
 
-    // ==========================================
-    // CIERRE DE SESIÓN CON AVISO DE GUARDADO
-    // ==========================================
     async function intentarCerrarSesion() {
-        if(confirm("¿Deseas GUARDAR tu progreso actual en la Nube antes de salir?\n\n[Aceptar] = Guardar en la Nube y salir\n[Cancelar] = Salir rápido (Los datos quedan en tu teléfono)")) {
-            await forzarSubidaNube(true); // Guarda de forma silenciosa
+        if(confirm("¿Desea respaldar la información en la Nube Central antes de cerrar sesión?")) {
+            await forzarSubidaNube(true); 
         }
         await supabaseClient.auth.signOut(); 
         window.location.reload();
@@ -386,7 +436,7 @@
 
     async function verificarFincaUsuario() {
         document.getElementById('auth-screen').style.display = 'flex';
-        document.getElementById('auth-error').innerText = 'Cargando perfil...';
+        document.getElementById('auth-error').innerText = 'Validando permisos...';
         try {
             const { data: miembroDataArray } = await supabaseClient.from('miembros').select('finca_id, rol').eq('user_id', session.user.id).limit(1);
             const miembroData = miembroDataArray && miembroDataArray.length > 0 ? miembroDataArray[0] : null;
@@ -394,7 +444,7 @@
             if (miembroData && miembroData.finca_id) {
                 const { data: fincaDataArray } = await supabaseClient.from('fincas').select('id, nombre, codigo_invitacion').eq('id', miembroData.finca_id).limit(1);
                 const fincaData = fincaDataArray && fincaDataArray.length > 0 ? fincaDataArray[0] : null;
-                if(!fincaData) throw new Error("Finca no encontrada");
+                if(!fincaData) throw new Error("Registro no hallado.");
                 
                 miFincaInfo = { id: fincaData.id, nombre: fincaData.nombre, rol: miembroData.rol, codigo: fincaData.codigo_invitacion };
                 arrancarAplicacion(); 
@@ -407,50 +457,54 @@
         const ubicacion = document.getElementById('nueva-finca-ubicacion').value.trim();
         const telefono = document.getElementById('nueva-finca-telefono').value.trim();
         const errorBox = document.getElementById('auth-error');
-        if(!nombre) return errorBox.innerText = '⚠️ Escribe el nombre de Finca o Hato.';
-        errorBox.innerText = "Registrando Finca..."; 
+        if(!nombre) return errorBox.innerText = 'El identificador de la instalación es obligatorio.';
+        errorBox.innerText = "Configurando entorno..."; 
         const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
         try {
             const { data: nuevaFinca, error: errFinca } = await supabaseClient.from('fincas').insert([{ nombre: nombre, admin_id: session.user.id, codigo_invitacion: codigo }]).select().single();
             if (errFinca) throw errFinca;
             await supabaseClient.from('miembros').insert([ { finca_id: nuevaFinca.id, user_id: session.user.id, correo: session.user.email, rol: 'admin' } ]);
             
-            const datosVacios = { animales: [], vacunas: [], productos: [], lotes: ['Ordeño', 'Horro', 'Mautes', 'Becerros'], fincaExtra: { ubicacion: ubicacion, telefono: telefono } };
+            const datosVacios = { animales: [], vacunas: [], productos: [], lotes: ['Ordeño', 'Horro', 'Mautes', 'Becerros'], fincaExtra: { ubicacion: ubicacion, telefono: telefono, logo: '' } };
             await supabaseClient.from('finca_data').insert([ { finca_id: nuevaFinca.id, data: datosVacios } ]);
             
             await verificarFincaUsuario();
-        } catch(e) { errorBox.innerText = "❌ No se pudo crear. " + e.message; }
+        } catch(e) { errorBox.innerText = "Fallo estructural: " + e.message; }
     }
 
     async function unirmeAFinca() {
         const codigo = document.getElementById('unirme-codigo').value.trim().toUpperCase();
         const errorBox = document.getElementById('auth-error');
-        if(!codigo) return errorBox.innerText = '⚠️ Escribe el código.';
-        errorBox.innerText = "Buscando..."; 
+        if(!codigo) return errorBox.innerText = 'Indique credencial válida.';
+        errorBox.innerText = "Verificando..."; 
         try {
             const { data: fincaArray, error: errFinca } = await supabaseClient.from('fincas').select('id').eq('codigo_invitacion', codigo).limit(1);
-            if (errFinca || !fincaArray || fincaArray.length === 0) throw new Error("Código no válido.");
+            if (errFinca || !fincaArray || fincaArray.length === 0) throw new Error("Credencial inválida.");
             await supabaseClient.from('miembros').insert([ { finca_id: fincaArray[0].id, user_id: session.user.id, correo: session.user.email, rol: 'empleado' } ]);
             await verificarFincaUsuario();
-        } catch(e) { errorBox.innerText = "❌ " + e.message; }
+        } catch(e) { errorBox.innerText = "Error: " + e.message; }
     }
 
     // ==========================================
-    // SISTEMA LOCAL-FIRST (V17): EL TELÉFONO MANDA
+    // SISTEMA LOCAL-FIRST PROTEGIDO
     // ==========================================
     
     function guardarLocal() {
         if(!miFincaInfo) return;
-        // Se asegura que los lotes existan
         if (!lotes || lotes.length === 0) lotes = ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
-        const estadoCompleto = { animales, vacunas, productos, lotes, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda } };
-        localStorage.setItem('agro_data_' + miFincaInfo.id, JSON.stringify(estadoCompleto));
+        const estadoCompleto = { animales, vacunas, productos, lotes, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } };
         
-        // Actualizamos el status de la app
-        const statusBadge = document.getElementById('nube-status');
-        if(statusBadge) {
-            statusBadge.className = 'badge bg-secondary badge-nube'; 
-            statusBadge.innerText = '📱 Guardado en Teléfono';
+        try {
+            localStorage.setItem('agro_data_' + miFincaInfo.id, JSON.stringify(estadoCompleto));
+            const statusBadge = document.getElementById('nube-status');
+            if(statusBadge) {
+                statusBadge.className = 'badge bg-secondary badge-nube'; 
+                statusBadge.innerText = 'Almacenamiento Local';
+            }
+        } catch (e) {
+            if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+                alert("LÍMITE DE MEMORIA ALCANZADO: El navegador no puede almacenar más información. Por favor respalde en la nube inmediatamente y purgue datos antiguos.");
+            }
         }
     }
 
@@ -459,19 +513,21 @@
         document.getElementById('app-screen').style.display = 'block';
         
         const meta = session.user.user_metadata;
-        if(meta && meta.nombre) { document.getElementById('badge-nombre').innerText = `👤 ${meta.nombre} ${meta.apellido || ''}`; } 
-        else { document.getElementById('badge-nombre').innerText = `👤 ${session.user.email}`; }
+        const nombreCompleto = meta && meta.nombre ? `${meta.nombre} ${meta.apellido || ''}` : session.user.email;
+        document.getElementById('badge-nombre').innerText = nombreCompleto;
+        document.getElementById('info-admin-nombre').innerText = nombreCompleto;
+        document.getElementById('info-admin-correo').innerText = session.user.email;
 
-        document.getElementById('display-finca-nombre').innerHTML = `${miFincaInfo.nombre}`;
-        document.getElementById('badge-rol').innerText = miFincaInfo.rol === 'admin' ? '👑 Admin / Dueño' : '🧑‍🌾 Empleado';
-        document.getElementById('badge-codigo').innerText = `Código Invite: ${miFincaInfo.codigo}`;
+        document.getElementById('finca-titulo-desk').innerText = miFincaInfo.nombre;
+        document.getElementById('display-finca-nombre').innerText = miFincaInfo.nombre;
+        document.getElementById('badge-rol').innerText = miFincaInfo.rol === 'admin' ? 'Administrador' : 'Personal Operativo';
+        document.getElementById('display-codigo-equipo').innerText = miFincaInfo.codigo;
+        
         if(miFincaInfo.rol !== 'admin') document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
 
-        // 1. LEER LOCALMENTE PRIMERO (Velocidad Inmediata y Offline)
         const localRaw = localStorage.getItem('agro_data_' + miFincaInfo.id);
         let dataFinal = localRaw ? JSON.parse(localRaw) : null;
         
-        // 2. SI NO HAY NADA LOCAL, BUSCAR EN LA NUBE (LA ESTRATEGIA DEL GAVETERO)
         if(!dataFinal || !dataFinal.animales || dataFinal.animales.length === 0) {
             try {
                 const { data: todosLosCajones } = await supabaseClient.from('finca_data').select('id, data').eq('finca_id', miFincaInfo.id);
@@ -482,13 +538,11 @@
                         if(cantidad > maxAnimales) { maxAnimales = cantidad; dataFinal = cajon.data; }
                     });
                 }
-            } catch(e) { console.error("Error conectando a la nube al arrancar:", e); }
+            } catch(e) {}
         }
         
-        // 3. SI TODAVIA NO HAY NADA, CREAMOS UN FORMATO VACIO
         if(!dataFinal) dataFinal = { animales: [], vacunas: [], productos: [], lotes: ['Ordeño', 'Horro', 'Mautes', 'Becerros'], fincaExtra: {} };
 
-        // 4. CARGAMOS LA MEMORIA VIVA
         animales = Array.isArray(dataFinal.animales) ? dataFinal.animales : [];
         vacunas = Array.isArray(dataFinal.vacunas) ? dataFinal.vacunas : [];
         productos = Array.isArray(dataFinal.productos) ? dataFinal.productos : [];
@@ -497,10 +551,17 @@
         const extraInfo = dataFinal.fincaExtra || {};
         telefono_tienda = extraInfo.telefono || '';
         ubicacion_finca = extraInfo.ubicacion || '';
+        logo_finca = extraInfo.logo || '';
         
-        document.getElementById('display-finca-info').innerText = `📍 ${ubicacion_finca || 'Sin ubicación'} | 📞 ${telefono_tienda || 'Sin teléfono'}`;
-        document.getElementById('display-wa-num').innerText = telefono_tienda || 'No configurado';
+        document.getElementById('display-finca-info').innerText = `${ubicacion_finca || 'Sede Principal'} | Cel: ${telefono_tienda || 'No asig.'}`;
+        document.getElementById('display-wa-num').innerText = telefono_tienda || 'No asig.';
         document.getElementById('input-wa-numero').value = telefono_tienda;
+        
+        if(logo_finca) {
+            const elLogo = document.getElementById('sidebar-logo');
+            elLogo.src = logo_finca;
+            elLogo.style.display = 'block';
+        }
         
         guardarLocal();
         actualizarSelectsLotes(); 
@@ -508,53 +569,43 @@
     }
 
     // ==========================================
-    // SINCRONIZACIÓN MANUAL (UN SOLO CAJÓN DE VERDAD)
+    // SINCRONIZACIÓN MANUAL
     // ==========================================
     async function forzarSubidaNube(silencioso = false) {
         if(!miFincaInfo) return;
         const statusBadge = document.getElementById('nube-status');
-        if(statusBadge && !silencioso) { statusBadge.className = 'badge bg-warning text-dark badge-nube'; statusBadge.innerText = '⏳ Subiendo a la Nube...'; }
+        if(statusBadge && !silencioso) { statusBadge.className = 'badge bg-primary text-white badge-nube'; statusBadge.innerText = 'Procesando Envío...'; }
         
         try {
-            const estadoCompleto = { animales, vacunas, productos, lotes, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda } };
-            
-            // Buscar gavetas
+            const estadoCompleto = { animales, vacunas, productos, lotes, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } };
             const { data: cajones } = await supabaseClient.from('finca_data').select('id').eq('finca_id', miFincaInfo.id);
             
             if (cajones && cajones.length > 0) {
-                // Actualiza la primera gaveta (Maestra)
                 await supabaseClient.from('finca_data').update({ data: estadoCompleto }).eq('id', cajones[0].id);
-                
-                // Si hay gavetas duplicadas, bota la basura a la papelera
                 if (cajones.length > 1) {
                     const idsExtra = cajones.slice(1).map(c => c.id);
                     await supabaseClient.from('finca_data').delete().in('id', idsExtra);
                 }
             } else {
-                // Si no había gaveta, crea una nueva
                 await supabaseClient.from('finca_data').insert([{ finca_id: miFincaInfo.id, data: estadoCompleto }]);
             }
             
-            if(statusBadge) { statusBadge.className = 'badge bg-success badge-nube'; statusBadge.innerText = '✅ Nube Actualizada'; }
-            if(!silencioso) alert("¡Tus datos están respaldados de forma segura en la Nube de AgroSystems!");
-            
+            if(statusBadge) { statusBadge.className = 'badge bg-success badge-nube'; statusBadge.innerText = 'Sincronizado'; }
+            if(!silencioso) alert("Procedimiento completado. Información respaldada.");
         } catch (e) {
-            console.error("Error al subir:", e);
-            if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube'; statusBadge.innerText = '❌ Error de Subida'; }
-            if(!silencioso) alert("⚠️ No se pudo guardar en la nube. Revisa tu internet.");
+            if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube'; statusBadge.innerText = 'Fallo de Red'; }
+            if(!silencioso) alert("Anomalía en la red. Intente más tarde.");
         }
     }
 
     async function forzarDescargaNube() {
-        if(!confirm("⚠️ ATENCIÓN: Esto reemplazará los datos de tu teléfono con los que están guardados en la Nube.\n\n¿Estás seguro de que quieres Sincronizar?")) return;
+        if(!confirm("Esta acción sobrescribirá la memoria interna actual con los registros de la base central. ¿Desea proceder?")) return;
         
         const statusBadge = document.getElementById('nube-status');
-        if(statusBadge) { statusBadge.className = 'badge bg-warning text-dark badge-nube'; statusBadge.innerText = '⏳ Descargando...'; }
+        if(statusBadge) { statusBadge.className = 'badge bg-primary text-white badge-nube'; statusBadge.innerText = 'Obteniendo Datos...'; }
         
         try {
-            // ESTRATEGIA DEL GAVETERO PARA DESCARGAR EL MEJOR
             const { data: todosLosCajones } = await supabaseClient.from('finca_data').select('data').eq('finca_id', miFincaInfo.id);
-            
             let dataFinal = null;
             let maxAnimales = -1;
             
@@ -572,25 +623,53 @@
                 lotes = Array.isArray(dataFinal.lotes) && dataFinal.lotes.length > 0 ? dataFinal.lotes : ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
                 
                 const extraInfo = dataFinal.fincaExtra || {};
-                telefono_tienda = extraInfo.telefono || ''; ubicacion_finca = extraInfo.ubicacion || '';
+                telefono_tienda = extraInfo.telefono || ''; ubicacion_finca = extraInfo.ubicacion || ''; logo_finca = extraInfo.logo || '';
                 
-                document.getElementById('display-finca-info').innerText = `📍 ${ubicacion_finca || 'Sin ubicación'} | 📞 ${telefono_tienda || 'Sin teléfono'}`;
+                document.getElementById('display-finca-info').innerText = `${ubicacion_finca || 'Sede Principal'} | Cel: ${telefono_tienda || 'No asig.'}`;
+                if(logo_finca) { const elLogo = document.getElementById('sidebar-logo'); elLogo.src = logo_finca; elLogo.style.display = 'block'; }
                 
-                guardarLocal();
-                actualizarSelectsLotes(); 
-                showView('dashboard');
+                guardarLocal(); actualizarSelectsLotes(); showView('dashboard');
                 
-                if(statusBadge) { statusBadge.className = 'badge bg-success badge-nube'; statusBadge.innerText = '✅ Nube Descargada'; }
-                alert(`Sincronización Completa.\nSe descargaron ${animales.length} animales de la nube.`);
+                if(statusBadge) { statusBadge.className = 'badge bg-success badge-nube'; statusBadge.innerText = 'Sincronizado'; }
+                alert("Recepción completada exitosamente.");
             } else {
-                alert("La nube está vacía. No hay datos que descargar.");
-                if(statusBadge) { statusBadge.className = 'badge bg-secondary badge-nube'; statusBadge.innerText = '📱 Guardado en Teléfono'; }
+                alert("Base central sin registros detectados.");
+                if(statusBadge) { statusBadge.className = 'badge bg-secondary badge-nube'; statusBadge.innerText = 'Almacenamiento Local'; }
             }
         } catch (e) {
-            console.error("Error al descargar:", e);
-            if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube'; statusBadge.innerText = '❌ Error de Descarga'; }
-            alert("⚠️ No se pudo descargar de la nube. Revisa tu internet.");
+            if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube'; statusBadge.innerText = 'Fallo de Red'; }
+            alert("Interrupción en la descarga.");
         }
+    }
+
+    function procesarLogoFinca() {
+        const fileInput = document.getElementById('input-logo-finca');
+        if(!fileInput.files || !fileInput.files[0]) return alert("Seleccione un archivo visual.");
+        
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX = 200;
+                let width = img.width; let height = img.height;
+                if(width > height) { if(width > MAX) { height *= MAX / width; width = MAX; } } else { if(height > MAX) { width *= MAX / height; height = MAX; } }
+                canvas.width = width; canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                logo_finca = canvas.toDataURL('image/jpeg', 0.8);
+                
+                const elLogo = document.getElementById('sidebar-logo');
+                elLogo.src = logo_finca;
+                elLogo.style.display = 'block';
+                
+                guardarLocal();
+                alert("Emblema actualizado en el sistema.");
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
     }
 
     function cerrarMenuCelular() { if(window.innerWidth < 768) { const offcanvasEl = document.getElementById('sidebarOffcanvas'); if(offcanvasEl && offcanvasEl.classList.contains('show')) { const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl); if(bsOffcanvas) bsOffcanvas.hide(); } } }
@@ -606,24 +685,23 @@
 
     async function renderEquipo() {
         if(miFincaInfo.rol !== 'admin') return;
-        document.getElementById('display-codigo-equipo').innerText = miFincaInfo.codigo;
-        const tabla = document.getElementById('tabla-equipo'); tabla.innerHTML = '<tr><td colspan="3" class="text-center">Cargando equipo...</td></tr>';
+        const tabla = document.getElementById('tabla-equipo'); tabla.innerHTML = '<tr><td colspan="3" class="text-center small">Analizando registros...</td></tr>';
         try {
             const { data: miembros } = await supabaseClient.from('miembros').select('*').eq('finca_id', miFincaInfo.id);
             tabla.innerHTML = '';
             miembros.forEach(m => {
-                const rolBadge = m.rol === 'admin' ? '<span class="badge bg-primary">Admin</span>' : '<span class="badge bg-secondary">Empleado</span>';
-                const btnEliminar = m.rol !== 'admin' ? `<button class="btn btn-sm btn-danger fw-bold" onclick="eliminarMiembro('${m.id}')">Despedir / Eliminar</button>` : '';
-                tabla.innerHTML += `<tr><td>${m.correo}</td><td>${rolBadge}</td><td>${btnEliminar}</td></tr>`;
+                const rolBadge = m.rol === 'admin' ? '<span class="text-primary fw-bold">Admin</span>' : '<span class="text-muted">Operativo</span>';
+                const btnEliminar = m.rol !== 'admin' ? `<button class="btn btn-sm btn-outline-danger" onclick="eliminarMiembro('${m.id}')">Revocar</button>` : '';
+                tabla.innerHTML += `<tr><td>${m.correo}</td><td>${rolBadge}</td><td class="text-end">${btnEliminar}</td></tr>`;
             });
-        } catch(e) { tabla.innerHTML = '<tr><td colspan="3" class="text-danger">Error cargando equipo.</td></tr>'; }
+        } catch(e) { tabla.innerHTML = '<tr><td colspan="3" class="text-danger small">Fallo en la lectura estructural.</td></tr>'; }
     }
     async function eliminarMiembro(idMiembro) {
-        if(!confirm("⚠️ ¿Estás seguro de ELIMINAR a este empleado de tu finca? Perderá el acceso de inmediato.")) return;
+        if(!confirm("Se revocarán los accesos de este usuario. ¿Confirmar?")) return;
         await supabaseClient.from('miembros').delete().eq('id', idMiembro); renderEquipo();
     }
 
-    function guardarWhatsApp(e) { e.preventDefault(); telefono_tienda = document.getElementById('input-wa-numero').value.trim(); document.getElementById('display-wa-num').innerText = telefono_tienda; document.getElementById('display-finca-info').innerText = `📍 ${ubicacion_finca || 'Sin ubicación'} | 📞 ${telefono_tienda || 'Sin teléfono'}`; bootstrap.Modal.getInstance(document.getElementById('modalConfigWA')).hide(); guardarLocal(); renderTienda(); }
+    function guardarWhatsApp(e) { e.preventDefault(); telefono_tienda = document.getElementById('input-wa-numero').value.trim(); document.getElementById('display-wa-num').innerText = telefono_tienda; document.getElementById('display-finca-info').innerText = `${ubicacion_finca || 'Sede Principal'} | Cel: ${telefono_tienda || 'No asig.'}`; bootstrap.Modal.getInstance(document.getElementById('modalConfigWA')).hide(); guardarLocal(); renderTienda(); }
     
     function actualizarSelectsLotes() { 
         const selects = ['filtro-lote', 'ani-lote', 'vacuna-lote', 'borrar-lote-select', 'traslado-nuevo-lote']; 
@@ -633,7 +711,7 @@
             try {
                 const el = document.getElementById(id); 
                 if(el) { 
-                    if(id === 'filtro-lote') el.innerHTML = '<option value="Todos">Todos los Lotes</option>'; 
+                    if(id === 'filtro-lote') el.innerHTML = '<option value="Todos">Visualización General</option>'; 
                     else el.innerHTML = ''; 
                     safeLotes.forEach(lote => { el.innerHTML += `<option value="${lote}">${lote}</option>`; }); 
                     if(id === 'vacuna-lote') el.innerHTML += `<option value="Todos">Todos</option>`; 
@@ -649,13 +727,13 @@
     document.getElementById('prod-foto-file').addEventListener('change', function(e) { if(e.target.files[0]) comprimirImagen(e.target.files[0], 'prod-foto-base64', 'prod-foto-preview'); });
 
     function setCategoriaTienda(categoria) { categoriaTiendaActual = categoria; const botones = document.querySelectorAll('.btn-depto'); botones.forEach(btn => { btn.classList.remove('btn-primary', 'active'); btn.classList.add('btn-outline-primary'); }); const btnActivo = document.getElementById(`btn-depto-${categoria}`); if(btnActivo) { btnActivo.classList.remove('btn-outline-primary'); btnActivo.classList.add('btn-primary', 'active'); } renderTienda(); }
-    function abrirModalNuevoProducto() { document.getElementById('prod-id-edit').value = ''; document.getElementById('prod-foto-base64').value = ''; document.getElementById('prod-foto-preview').style.display = 'none'; document.getElementById('modalProductoTitle').innerText = 'Registrar Producto'; document.getElementById('form-producto').reset(); if(categoriaTiendaActual !== 'Todos') document.getElementById('prod-categoria').value = categoriaTiendaActual; new bootstrap.Modal(document.getElementById('modalProducto')).show(); }
-    function abrirModalEditarProducto(id) { const prod = productos.find(p => p.id === id); if(!prod) return; document.getElementById('modalProductoTitle').innerText = '✏️ Editar Producto'; document.getElementById('prod-id-edit').value = prod.id; document.getElementById('prod-nombre').value = prod.nombre; document.getElementById('prod-categoria').value = prod.categoria; document.getElementById('prod-precio').value = prod.precio; document.getElementById('prod-stock').value = prod.stock; document.getElementById('prod-descripcion').value = prod.descripcion; if (prod.foto && !prod.foto.includes('placehold')) { document.getElementById('prod-foto-base64').value = prod.foto; document.getElementById('prod-foto-preview').src = prod.foto; document.getElementById('prod-foto-preview').style.display = 'block'; } else { document.getElementById('prod-foto-base64').value = ''; document.getElementById('prod-foto-preview').style.display = 'none'; } new bootstrap.Modal(document.getElementById('modalProducto')).show(); }
-    function eliminarProducto(id) { if(confirm("⚠️ ¿Eliminar producto?")) { productos = productos.filter(p => p.id !== id); guardarLocal(); renderTienda(); } }
-    function guardarProducto(e) { e.preventDefault(); const editId = document.getElementById('prod-id-edit').value; const fotoGuardada = document.getElementById('prod-foto-base64').value || 'https://placehold.co/400x400/2e7d32/ffffff?text=Producto'; if (editId) { const indice = productos.findIndex(p => p.id === editId); if(indice !== -1) { productos[indice].nombre = document.getElementById('prod-nombre').value.trim(); productos[indice].categoria = document.getElementById('prod-categoria').value; productos[indice].precio = parseFloat(document.getElementById('prod-precio').value); productos[indice].stock = parseInt(document.getElementById('prod-stock').value); productos[indice].descripcion = document.getElementById('prod-descripcion').value.trim(); productos[indice].foto = fotoGuardada; } } else { productos.push({ id: Date.now().toString() + Math.random().toString(36).substr(2, 5), nombre: document.getElementById('prod-nombre').value.trim(), categoria: document.getElementById('prod-categoria').value, precio: parseFloat(document.getElementById('prod-precio').value), stock: parseInt(document.getElementById('prod-stock').value), descripcion: document.getElementById('prod-descripcion').value.trim(), foto: fotoGuardada }); } guardarLocal(); bootstrap.Modal.getInstance(document.getElementById('modalProducto')).hide(); setCategoriaTienda(document.getElementById('prod-categoria').value); }
-    function renderTienda() { const busqueda = document.getElementById('busqueda-producto').value.toLowerCase(); const lista = document.getElementById('lista-productos'); lista.innerHTML = ''; let filtrados = productos; if(categoriaTiendaActual !== 'Todos') filtrados = filtrados.filter(p => p.categoria === categoriaTiendaActual); if(busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda) || p.descripcion.toLowerCase().includes(busqueda)); filtrados.forEach(p => { const telLimpio = telefono_tienda.replace(/\D/g,''); const mensajeWa = encodeURIComponent(`Hola! 🌿 Me interesa comprar: *${p.nombre}*. Precio: $${p.precio.toFixed(2)}`); const urlWhatsapp = `https://api.whatsapp.com/send?phone=${telLimpio}&text=${mensajeWa}`; const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<div class="d-flex gap-2 justify-content-between border-top pt-2 mt-2"><button class="btn btn-sm btn-outline-primary w-50 fw-bold" onclick="abrirModalEditarProducto('${p.id}')">✏️ Editar</button><button class="btn btn-sm btn-outline-danger w-50 fw-bold" onclick="eliminarProducto('${p.id}')">🗑️</button></div>` : ''; lista.innerHTML += `<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3"><div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;"><img src="${p.foto}" onclick="verImagen('${p.foto}')" class="card-img-top card-producto-img" alt="Producto"><div class="card-body d-flex flex-column p-3 bg-white"><span class="badge bg-secondary mb-2 align-self-start">${p.categoria}</span><h5 class="card-title fw-bold text-dark mb-1" style="font-size: 1.15rem;">${p.nombre}</h5><p class="precio-tag mb-2">$${p.precio.toFixed(2)}</p><p class="text-muted small mb-2" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.5em;">${p.descripcion}</p><p class="mb-3 text-dark small fw-bold">Stock: ${p.stock} und.</p><div class="mt-auto"><a href="${urlWhatsapp}" target="_blank" class="btn btn-whatsapp w-100 fw-bold mb-2 shadow-sm d-flex align-items-center justify-content-center">💬 WhatsApp</a>${botonesAdmin}</div></div></div></div>`; }); if(filtrados.length === 0) lista.innerHTML = `<div class="col-12 text-center text-muted mt-5"><h4>No hay productos.</h4></div>`; }
+    function abrirModalNuevoProducto() { document.getElementById('prod-id-edit').value = ''; document.getElementById('prod-foto-base64').value = ''; document.getElementById('prod-foto-preview').style.display = 'none'; document.getElementById('modalProductoTitle').innerText = 'Ficha de Producto'; document.getElementById('form-producto').reset(); if(categoriaTiendaActual !== 'Todos') document.getElementById('prod-categoria').value = categoriaTiendaActual; new bootstrap.Modal(document.getElementById('modalProducto')).show(); }
+    function abrirModalEditarProducto(id) { const prod = productos.find(p => p.id === id); if(!prod) return; document.getElementById('modalProductoTitle').innerText = 'Revisión de Ficha'; document.getElementById('prod-id-edit').value = prod.id; document.getElementById('prod-nombre').value = prod.nombre; document.getElementById('prod-categoria').value = prod.categoria; document.getElementById('prod-precio').value = prod.precio; document.getElementById('prod-stock').value = prod.stock; document.getElementById('prod-descripcion').value = prod.descripcion; if (prod.foto && !prod.foto.includes('placehold')) { document.getElementById('prod-foto-base64').value = prod.foto; document.getElementById('prod-foto-preview').src = prod.foto; document.getElementById('prod-foto-preview').style.display = 'block'; } else { document.getElementById('prod-foto-base64').value = ''; document.getElementById('prod-foto-preview').style.display = 'none'; } new bootstrap.Modal(document.getElementById('modalProducto')).show(); }
+    function eliminarProducto(id) { if(confirm("Se eliminará este ítem del inventario. Proceder?")) { productos = productos.filter(p => p.id !== id); guardarLocal(); renderTienda(); } }
+    function guardarProducto(e) { e.preventDefault(); const editId = document.getElementById('prod-id-edit').value; const fotoGuardada = document.getElementById('prod-foto-base64').value || 'https://placehold.co/400x400/795548/ffffff?text=Producto'; if (editId) { const indice = productos.findIndex(p => p.id === editId); if(indice !== -1) { productos[indice].nombre = document.getElementById('prod-nombre').value.trim(); productos[indice].categoria = document.getElementById('prod-categoria').value; productos[indice].precio = parseFloat(document.getElementById('prod-precio').value); productos[indice].stock = parseInt(document.getElementById('prod-stock').value); productos[indice].descripcion = document.getElementById('prod-descripcion').value.trim(); productos[indice].foto = fotoGuardada; } } else { productos.push({ id: Date.now().toString() + Math.random().toString(36).substr(2, 5), nombre: document.getElementById('prod-nombre').value.trim(), categoria: document.getElementById('prod-categoria').value, precio: parseFloat(document.getElementById('prod-precio').value), stock: parseInt(document.getElementById('prod-stock').value), descripcion: document.getElementById('prod-descripcion').value.trim(), foto: fotoGuardada }); } guardarLocal(); bootstrap.Modal.getInstance(document.getElementById('modalProducto')).hide(); setCategoriaTienda(document.getElementById('prod-categoria').value); }
+    function renderTienda() { const busqueda = document.getElementById('busqueda-producto').value.toLowerCase(); const lista = document.getElementById('lista-productos'); lista.innerHTML = ''; let filtrados = productos; if(categoriaTiendaActual !== 'Todos') filtrados = filtrados.filter(p => p.categoria === categoriaTiendaActual); if(busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda) || p.descripcion.toLowerCase().includes(busqueda)); filtrados.forEach(p => { const telLimpio = telefono_tienda.replace(/\D/g,''); const mensajeWa = encodeURIComponent(`Saludos. Me interesa el producto: *${p.nombre}*. Valor referencial: $${p.precio.toFixed(2)}`); const urlWhatsapp = `https://api.whatsapp.com/send?phone=${telLimpio}&text=${mensajeWa}`; const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<div class="d-flex gap-2 justify-content-between border-top pt-2 mt-2"><button class="btn btn-sm btn-outline-primary w-50 fw-bold" onclick="abrirModalEditarProducto('${p.id}')">Gestión</button><button class="btn btn-sm btn-outline-danger w-50 fw-bold" onclick="eliminarProducto('${p.id}')">Baja</button></div>` : ''; lista.innerHTML += `<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3"><div class="card h-100 shadow-sm border-0" style="border-radius: 8px; overflow: hidden;"><img src="${p.foto}" onclick="verImagen('${p.foto}')" class="card-img-top card-producto-img" alt="Producto"><div class="card-body d-flex flex-column p-3 bg-white"><span class="badge bg-secondary text-dark mb-2 align-self-start">${p.categoria}</span><h6 class="fw-bold text-dark mb-1">${p.nombre}</h6><p class="precio-tag mb-2">$${p.precio.toFixed(2)}</p><p class="text-muted small mb-2" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.5em;">${p.descripcion}</p><p class="mb-3 text-dark small fw-bold">Stock actual: ${p.stock}</p><div class="mt-auto"><a href="${urlWhatsapp}" target="_blank" class="btn btn-whatsapp btn-sm w-100 fw-bold mb-2">WhatsApp</a>${botonesAdmin}</div></div></div></div>`; }); if(filtrados.length === 0) lista.innerHTML = `<div class="col-12 text-center text-muted mt-5 small">Ausencia de registros en esta categoría.</div>`; }
 
-    function toggleMadre() { const check = document.getElementById('ani-madre-desc').checked; const input = document.getElementById('ani-madre'); input.disabled = check; if(check) input.value = 'Desconocida'; else input.value = ''; }
+    function toggleMadre() { const check = document.getElementById('ani-madre-desc').checked; const input = document.getElementById('ani-madre'); input.disabled = check; if(check) input.value = 'No Aplica'; else input.value = ''; }
     
     function prepararModalNuevoAnimal() { 
         document.getElementById('form-animal').reset(); 
@@ -663,13 +741,13 @@
         document.getElementById('ani-foto-base64').value = ''; 
         document.getElementById('ani-foto-preview').style.display = 'none'; 
         document.getElementById('ani-madre').disabled = false; 
-        document.getElementById('modalAnimalTitle').innerText = 'Registrar Animal'; 
+        document.getElementById('modalAnimalTitle').innerText = 'Registro Genético Base'; 
     }
     
     function abrirModalEditar(id_interno) { 
         const vaca = animales.find(a => a.id_interno === id_interno || a.id === id_interno); 
         if(!vaca) return; 
-        document.getElementById('modalAnimalTitle').innerText = '✏️ Editar Animal'; 
+        document.getElementById('modalAnimalTitle').innerText = 'Modificación de Ficha'; 
         document.getElementById('ani-id-interno-edit').value = vaca.id_interno || vaca.id; 
         document.getElementById('ani-id-animal').value = vaca.id_animal || vaca.id || ''; 
         document.getElementById('ani-nombre').value = vaca.nombre && vaca.nombre !== 'undefined' ? vaca.nombre : ''; 
@@ -693,15 +771,14 @@
         
         const animalExistente = animales.find(a => a.id_animal === inputIdAnimal);
         if (animalExistente && editId !== animalExistente.id_interno) {
-            const msg = `⚠️ ¡ATENCIÓN! La Chapa/ID "${inputIdAnimal}" ya existe.\n\nPertenece a:\n- Nombre: ${animalExistente.nombre || 'Sin nombre'}\n- Especie: ${animalExistente.especie}\n- Lote: ${animalExistente.lote}\n\n¿Deseas CANCELAR tu registro nuevo y EDITAR el animal que ya existe?`;
-            if (confirm(msg)) {
+            if (confirm(`El identificador "${inputIdAnimal}" se encuentra en uso por el lote ${animalExistente.lote}. ¿Desea proceder a su edición en su lugar?`)) {
                 bootstrap.Modal.getInstance(document.getElementById('modalAnimal')).hide();
                 setTimeout(() => abrirModalEditar(animalExistente.id_interno), 400);
-                return;
-            } else { return; } 
+            } 
+            return;
         }
 
-        const fotoGuardada = document.getElementById('ani-foto-base64').value || 'https://placehold.co/400x400/2e7d32/ffffff?text=Sin+Foto'; 
+        const fotoGuardada = document.getElementById('ani-foto-base64').value || 'https://placehold.co/400x400/795548/ffffff?text=Sin+Registro'; 
         
         if (editId) { 
             const indice = animales.findIndex(a => a.id_interno === editId || a.id === editId); 
@@ -709,14 +786,14 @@
                 animales[indice].id_animal = inputIdAnimal; 
                 animales[indice].nombre = document.getElementById('ani-nombre').value.trim(); 
                 animales[indice].especie = document.getElementById('ani-especie').value; 
-                animales[indice].raza = document.getElementById('ani-raza').value.trim() || 'No definida'; 
+                animales[indice].raza = document.getElementById('ani-raza').value.trim() || 'S/D'; 
                 animales[indice].genetica = document.getElementById('ani-genetica').value; 
-                animales[indice].potrero = document.getElementById('ani-potrero').value.trim() || 'No asignado'; 
+                animales[indice].potrero = document.getElementById('ani-potrero').value.trim() || 'N/A'; 
                 animales[indice].sexo = document.getElementById('ani-sexo').value; 
                 animales[indice].proveniente = document.getElementById('ani-proveniente').value.trim(); 
                 animales[indice].lote = document.getElementById('ani-lote').value; 
                 animales[indice].nacimiento = document.getElementById('ani-fecha').value; 
-                animales[indice].madre = document.getElementById('ani-madre').value.trim() || 'No registrada'; 
+                animales[indice].madre = document.getElementById('ani-madre').value.trim() || 'S/D'; 
                 animales[indice].foto = fotoGuardada; 
             } 
         } else { 
@@ -725,19 +802,19 @@
                 id_animal: inputIdAnimal, 
                 nombre: document.getElementById('ani-nombre').value.trim(), 
                 especie: document.getElementById('ani-especie').value, 
-                raza: document.getElementById('ani-raza').value.trim() || 'No definida',
+                raza: document.getElementById('ani-raza').value.trim() || 'S/D',
                 genetica: document.getElementById('ani-genetica').value,
-                potrero: document.getElementById('ani-potrero').value.trim() || 'No asignado', 
+                potrero: document.getElementById('ani-potrero').value.trim() || 'N/A', 
                 sexo: document.getElementById('ani-sexo').value, 
                 proveniente: document.getElementById('ani-proveniente').value.trim(), 
                 lote: document.getElementById('ani-lote').value, 
                 nacimiento: document.getElementById('ani-fecha').value, 
-                madre: document.getElementById('ani-madre').value.trim() || 'No registrada', 
+                madre: document.getElementById('ani-madre').value.trim() || 'S/D', 
                 foto: fotoGuardada, historialLeche: [], historialPeso: [], vacunas: [] 
             }); 
         } 
         
-        guardarLocal(); // SOLO GUARDA LOCAL. RAPIDISIMO Y SIN ERRORES.
+        guardarLocal(); 
         
         const modalEl = document.getElementById('modalAnimal');
         const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -747,7 +824,7 @@
         renderDashboard(); 
     }
     
-    function eliminarAnimal(id_interno) { if(confirm("⚠️ ¿Eliminar este animal?")) { animales = animales.filter(a => a.id_interno !== id_interno && a.id !== id_interno); guardarLocal(); reiniciarYRenderAnimales(); renderDashboard(); } }
+    function eliminarAnimal(id_interno) { if(confirm("Registro será suprimido. Confirmar acción?")) { animales = animales.filter(a => a.id_interno !== id_interno && a.id !== id_interno); guardarLocal(); reiniciarYRenderAnimales(); renderDashboard(); } }
     function abrirModalTraslado(id_interno, lote_actual) { document.getElementById('traslado-id-interno').value = id_interno; document.getElementById('traslado-nuevo-lote').value = lote_actual; new bootstrap.Modal(document.getElementById('modalTrasladoLote')).show(); }
     function ejecutarTraslado(e) { e.preventDefault(); const id = document.getElementById('traslado-id-interno').value; const vaca = animales.find(a => a.id_interno === id || a.id === id); if(vaca) { vaca.lote = document.getElementById('traslado-nuevo-lote').value; guardarLocal(); } bootstrap.Modal.getInstance(document.getElementById('modalTrasladoLote')).hide(); reiniciarYRenderAnimales(); renderDashboard(); }
     function abrirModalPeso(id_interno) { document.getElementById('peso-id-interno').value = id_interno; document.getElementById('peso-fecha').valueAsDate = new Date(); document.getElementById('peso-kilos').value = ''; new bootstrap.Modal(document.getElementById('modalRegistroPeso')).show(); }
@@ -764,58 +841,51 @@
         const arrayPaginado = filtrados.slice(0, limiteAnimalesMostrados); 
         
         arrayPaginado.forEach(a => { 
-            const idMostrar = a.id_animal || a.id || 'Sin ID'; const nomMostrar = (a.nombre && a.nombre !== 'undefined') ? a.nombre : ''; const tituloVaca = nomMostrar ? `#${idMostrar} - ${nomMostrar}` : `#${idMostrar}`; 
-            const sexMostrar = a.sexo || 'N/A'; const iconSexo = sexMostrar === 'Macho' ? '♂️' : '♀️'; const provMostrar = (a.proveniente && a.proveniente !== 'undefined') ? a.proveniente : 'N/A'; 
-            const idInternoReal = a.id_interno || a.id; const pesos = a.historialPeso || []; const ultimoPeso = pesos.length > 0 ? pesos[pesos.length-1].peso + ' Kg' : 'Sin registro'; 
-            let imgSrc = a.foto; if(imgSrc.includes('placeholder.com')) imgSrc = 'https://placehold.co/400x400/2e7d32/ffffff?text=Sin+Foto'; 
-            
-            let iconEspecie = '🐄';
-            if(a.especie === 'Porcino') iconEspecie = '🐖';
-            else if(a.especie === 'Caprino') iconEspecie = '🐐';
-            else if(a.especie === 'Ovino') iconEspecie = '🐑';
-            else if(a.especie === 'Equino') iconEspecie = '🐎';
-            else if(a.especie === 'Avícola') iconEspecie = '🐔';
+            const idMostrar = a.id_animal || a.id || 'N/A'; const nomMostrar = (a.nombre && a.nombre !== 'undefined') ? a.nombre : ''; const tituloVaca = nomMostrar ? `${idMostrar} - ${nomMostrar}` : `${idMostrar}`; 
+            const sexMostrar = a.sexo || 'N/D'; const provMostrar = (a.proveniente && a.proveniente !== 'undefined') ? a.proveniente : 'N/D'; 
+            const idInternoReal = a.id_interno || a.id; const pesos = a.historialPeso || []; const ultimoPeso = pesos.length > 0 ? pesos[pesos.length-1].peso + ' Kg' : 'S/R'; 
+            let imgSrc = a.foto; if(imgSrc.includes('placehold')) imgSrc = 'https://placehold.co/400x400/795548/ffffff?text=Sin+Foto'; 
 
-            const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<button class="btn btn-sm btn-outline-danger btn-card-action" onclick="eliminarAnimal('${idInternoReal}')">🗑️</button>` : ''; 
+            const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<button class="btn btn-sm btn-outline-danger btn-card-action" onclick="eliminarAnimal('${idInternoReal}')">Baja</button>` : ''; 
             
-            lista.innerHTML += `<div class="col-md-6 col-lg-4 mb-3"><div class="card h-100 shadow-sm border-0"><div class="card-body bg-white d-flex flex-column justify-content-between p-3"><div class="d-flex flex-md-row flex-column align-items-center align-items-md-start animal-card-body"><img src="${imgSrc}" onclick="verImagen('${imgSrc}')" class="img-thumbnail-animal me-md-3 mb-2 mb-md-0" alt="Foto"><div class="flex-grow-1 w-100"><div class="d-flex justify-content-between align-items-start border-bottom pb-2 mb-2"><h5 class="fw-bold text-dark mb-0">${tituloVaca}</h5><div class="d-flex"><button class="btn btn-sm btn-outline-primary btn-card-action" onclick="abrirModalEditar('${idInternoReal}')">✏️</button>${botonesAdmin}</div></div><div class="row text-start animal-info-col" style="font-size: 0.85rem;"><div class="col-6"><strong>Lote:</strong> <span class="badge bg-success">${a.lote}</span><br><strong>Ubicación:</strong> ${a.potrero || 'N/A'}<br><strong>Sexo:</strong> ${iconSexo} ${sexMostrar}<br><strong>Origen:</strong> ${provMostrar}</div><div class="col-6 border-start"><strong>Genética:</strong> ${iconEspecie} ${a.raza || ''} (${a.genetica || 'Puro'})<br><strong>Peso:</strong> <span class="text-primary fw-bold">${ultimoPeso}</span><br><strong>Nac.:</strong> ${a.nacimiento}<br><strong>Madre:</strong> ${a.madre}</div></div></div></div><div class="mt-3 d-flex gap-2 justify-content-end flex-wrap border-top pt-2 btn-action-mobile-group"><button class="btn btn-sm btn-outline-success fw-bold flex-grow-1 flex-md-grow-0" onclick="abrirModalTraslado('${idInternoReal}', '${a.lote}')">🔄 Trasladar</button><button class="btn btn-sm btn-outline-warning fw-bold flex-grow-1 flex-md-grow-0" onclick="abrirModalPeso('${idInternoReal}')">⚖️ Pesar</button><button class="btn btn-sm btn-outline-info fw-bold w-100 w-md-auto mt-2 mt-md-0" onclick="abrirGraficoIndividual('${idInternoReal}', '${idMostrar}', '${nomMostrar}', 'peso')">📈 Historial</button></div></div></div></div>`; 
+            lista.innerHTML += `<div class="col-md-6 col-lg-4 mb-3"><div class="card h-100 shadow-sm border"><div class="card-body bg-white d-flex flex-column justify-content-between p-3"><div class="d-flex flex-md-row flex-column align-items-center align-items-md-start animal-card-body"><img src="${imgSrc}" onclick="verImagen('${imgSrc}')" class="img-thumbnail-animal me-md-3 mb-2 mb-md-0" alt="Foto"><div class="flex-grow-1 w-100"><div class="d-flex justify-content-between align-items-start border-bottom pb-2 mb-2"><h6 class="fw-bold text-dark mb-0">${tituloVaca}</h6><div class="d-flex"><button class="btn btn-sm btn-outline-primary btn-card-action" onclick="abrirModalEditar('${idInternoReal}')">Ver</button>${botonesAdmin}</div></div><div class="row text-start animal-info-col" style="font-size: 0.8rem;"><div class="col-6"><span class="text-muted">Lote:</span> <span class="fw-bold">${a.lote}</span><br><span class="text-muted">Ubic:</span> ${a.potrero || 'N/A'}<br><span class="text-muted">Sexo:</span> ${sexMostrar}<br><span class="text-muted">Origen:</span> ${provMostrar}</div><div class="col-6 border-start"><span class="text-muted">G.:</span> ${a.raza || ''} (${a.genetica || 'Puro'})<br><span class="text-muted">Peso:</span> <span class="text-primary fw-bold">${ultimoPeso}</span><br><span class="text-muted">Nac.:</span> ${a.nacimiento}<br><span class="text-muted">Madre:</span> ${a.madre}</div></div></div></div><div class="mt-3 d-flex gap-2 justify-content-end flex-wrap border-top pt-2 btn-action-mobile-group"><button class="btn btn-sm btn-outline-dark fw-bold flex-grow-1 flex-md-grow-0" onclick="abrirModalTraslado('${idInternoReal}', '${a.lote}')">Mover</button><button class="btn btn-sm btn-outline-primary fw-bold flex-grow-1 flex-md-grow-0" onclick="abrirModalPeso('${idInternoReal}')">Pesar</button><button class="btn btn-sm btn-outline-success fw-bold w-100 w-md-auto mt-2 mt-md-0" onclick="abrirGraficoIndividual('${idInternoReal}', '${idMostrar}', '${nomMostrar}', 'peso')">Reportes</button></div></div></div></div>`; 
         }); 
         if (filtrados.length > limiteAnimalesMostrados) btnCargarMas.classList.remove('hidden'); else btnCargarMas.classList.add('hidden'); 
     }
 
-    function abrirGraficoIndividual(id_interno, id_mostrar, nom_mostrar, tipo = 'leche') { const vaca = animales.find(a => a.id_interno === id_interno || a.id === id_interno); if(!vaca) return; const titulo = tipo === 'leche' ? `Producción` : `Evolución de Peso (Kg)`; const color = tipo === 'leche' ? '#0dcaf0' : '#ffc107'; document.getElementById('tituloModalGrafico').innerText = `${titulo}: #${id_mostrar} - ${nom_mostrar}`; document.getElementById('headerModalGrafico').className = tipo === 'leche' ? 'modal-header bg-info text-dark' : 'modal-header bg-warning text-dark'; const ctx = document.getElementById('canvas-grafico-unico'); if (chartModalUnico) chartModalUnico.destroy(); const dataArray = tipo === 'leche' ? (vaca.historialLeche || []) : (vaca.historialPeso || []); const ultimas = dataArray.slice(-10); const mapData = tipo === 'leche' ? ultimas.map(h => h.litros) : ultimas.map(h => h.peso); chartModalUnico = new Chart(ctx, { type: 'line', data: { labels: ultimas.map(h => h.fecha.substring(5)), datasets: [{ label: tipo==='leche'?'Litros':'Kilos', data: mapData, borderColor: color, backgroundColor: tipo === 'leche' ? 'rgba(13, 202, 240, 0.2)' : 'rgba(255, 193, 7, 0.2)', tension: 0.3, fill: true, pointBackgroundColor: color, pointRadius: 5 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: tipo === 'leche' } } } }); new bootstrap.Modal(document.getElementById('modalGraficoHistorial')).show(); }
+    function abrirGraficoIndividual(id_interno, id_mostrar, nom_mostrar, tipo = 'leche') { const vaca = animales.find(a => a.id_interno === id_interno || a.id === id_interno); if(!vaca) return; const titulo = tipo === 'leche' ? `Producción` : `Evolución de Peso (Kg)`; const color = '#795548'; document.getElementById('tituloModalGrafico').innerText = `${titulo}: ${id_mostrar} - ${nom_mostrar}`; const ctx = document.getElementById('canvas-grafico-unico'); if (chartModalUnico) chartModalUnico.destroy(); const dataArray = tipo === 'leche' ? (vaca.historialLeche || []) : (vaca.historialPeso || []); const ultimas = dataArray.slice(-10); const mapData = tipo === 'leche' ? ultimas.map(h => h.litros) : ultimas.map(h => h.peso); chartModalUnico = new Chart(ctx, { type: 'line', data: { labels: ultimas.map(h => h.fecha.substring(5)), datasets: [{ label: tipo==='leche'?'Litros':'Kilos', data: mapData, borderColor: color, backgroundColor: 'rgba(121, 85, 72, 0.1)', tension: 0.3, fill: true, pointBackgroundColor: color, pointRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: tipo === 'leche' } } } }); new bootstrap.Modal(document.getElementById('modalGraficoHistorial')).show(); }
     function reiniciarYRenderOrdeno() { limiteOrdenoMostrados = 50; renderOrdeno(); }
     function cargarMasOrdeno() { limiteOrdenoMostrados += 50; renderOrdeno(); }
-    function renderOrdeno() { const tabla = document.getElementById('tabla-ordeno'); const btnCargarMas = document.getElementById('btn-cargar-mas-ordeno'); tabla.innerHTML = ''; const vacasOrdeno = animales.filter(a => a.lote === 'Ordeño' || a.especie === 'Bovino' || a.especie === 'Caprino'); const arrayPaginado = vacasOrdeno.slice(0, limiteOrdenoMostrados); arrayPaginado.forEach(vaca => { const hist = vaca.historialLeche || []; const ultimo = hist.length > 0 ? hist[hist.length-1] : null; let lecheHtml = '<span class="text-muted">Sin registros</span>'; if(ultimo) lecheHtml = `<span class="badge bg-primary fs-6 mb-1">${ultimo.litros} Lts</span><br><small class="text-muted">🧑‍🌾 ${ultimo.personal || 'N/A'}</small>`; const idMostrar = vaca.id_animal || vaca.id || ''; const nomMostrar = vaca.nombre && vaca.nombre !== 'undefined' ? vaca.nombre : ''; const idInternoReal = vaca.id_interno || vaca.id; tabla.innerHTML += `<tr><td><strong>#${idMostrar}</strong><br><small class="text-muted">${nomMostrar}</small></td><td>${ultimo ? ultimo.fecha.substring(5) : 'N/A'}</td><td>${lecheHtml}</td><td class="text-end"><div class="btn-group btn-group-sm"><button class="btn btn-outline-primary fw-bold" onclick="abrirModalLeche('${idInternoReal}')">➕</button><button class="btn btn-outline-info fw-bold" onclick="abrirGraficoIndividual('${idInternoReal}', '${idMostrar}', '${nomMostrar}', 'leche')">📊</button></div></td></tr>`; }); if (vacasOrdeno.length > limiteOrdenoMostrados) btnCargarMas.classList.remove('hidden'); else btnCargarMas.classList.add('hidden'); }
+    function renderOrdeno() { const tabla = document.getElementById('tabla-ordeno'); const btnCargarMas = document.getElementById('btn-cargar-mas-ordeno'); tabla.innerHTML = ''; const vacasOrdeno = animales.filter(a => a.lote === 'Ordeño' || a.especie === 'Bovino' || a.especie === 'Caprino'); const arrayPaginado = vacasOrdeno.slice(0, limiteOrdenoMostrados); arrayPaginado.forEach(vaca => { const hist = vaca.historialLeche || []; const ultimo = hist.length > 0 ? hist[hist.length-1] : null; let lecheHtml = '<span class="text-muted small">Sin registros</span>'; if(ultimo) lecheHtml = `<span class="fw-bold text-primary">${ultimo.litros} Lts</span><br><small class="text-muted">${ultimo.personal || 'N/A'}</small>`; const idMostrar = vaca.id_animal || vaca.id || ''; const nomMostrar = vaca.nombre && vaca.nombre !== 'undefined' ? vaca.nombre : ''; const idInternoReal = vaca.id_interno || vaca.id; tabla.innerHTML += `<tr><td><span class="fw-bold">${idMostrar}</span><br><small class="text-muted">${nomMostrar}</small></td><td class="small">${ultimo ? ultimo.fecha.substring(5) : 'N/A'}</td><td>${lecheHtml}</td><td class="text-end"><div class="btn-group btn-group-sm"><button class="btn btn-outline-primary fw-bold" onclick="abrirModalLeche('${idInternoReal}')">Registrar</button><button class="btn btn-outline-dark fw-bold" onclick="abrirGraficoIndividual('${idInternoReal}', '${idMostrar}', '${nomMostrar}', 'leche')">Curva</button></div></td></tr>`; }); if (vacasOrdeno.length > limiteOrdenoMostrados) btnCargarMas.classList.remove('hidden'); else btnCargarMas.classList.add('hidden'); }
     function abrirModalLeche(id_interno) { document.getElementById('leche-id-interno').value = id_interno; document.getElementById('leche-fecha').valueAsDate = new Date(); document.getElementById('leche-litros').value = ''; document.getElementById('leche-personal').value = ''; new bootstrap.Modal(document.getElementById('modalLeche')).show(); }
     function guardarLeche(e) { e.preventDefault(); const id = document.getElementById('leche-id-interno').value; const vaca = animales.find(a => a.id_interno === id || a.id === id); if(vaca) { vaca.historialLeche = vaca.historialLeche || []; vaca.historialLeche.push({ fecha: document.getElementById('leche-fecha').value, litros: parseFloat(document.getElementById('leche-litros').value), personal: document.getElementById('leche-personal').value.trim() }); vaca.historialLeche.sort((a,b) => new Date(a.fecha) - new Date(b.fecha)); guardarLocal(); } bootstrap.Modal.getInstance(document.getElementById('modalLeche')).hide(); reiniciarYRenderOrdeno(); }
-    function ejecutarBorradoLote(e) { e.preventDefault(); const lote = document.getElementById('borrar-lote-select').value; const confirmacion = document.getElementById('borrar-lote-confirmacion').value; if (confirmacion !== 'ELIMINAR') { alert('Escribe ELIMINAR.'); return; } animales = animales.filter(a => a.lote !== lote); guardarLocal(); bootstrap.Modal.getInstance(document.getElementById('modalBorrarLote')).hide(); document.getElementById('form-borrar-lote').reset(); reiniciarYRenderAnimales(); renderDashboard(); }
-    function aplicarVacuna(e) { e.preventDefault(); vacunas.push({ lote: document.getElementById('vacuna-lote').value, tipo: document.getElementById('vacuna-tipo').value.trim(), personal: document.getElementById('vacuna-personal').value.trim(), fecha: document.getElementById('vacuna-fecha').value }); guardarLocal(); e.target.reset(); renderVacunas(); }
-    function renderVacunas() { const lista = document.getElementById('lista-vacunas'); lista.innerHTML = ''; const ultimasVacunas = vacunas.slice().reverse().slice(0, 50); ultimasVacunas.forEach(v => { lista.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-start border-0 border-bottom mb-1"><div><h6 class="mb-1 fw-bold text-dark">${v.tipo}</h6><small class="text-muted">Lote aplicado: ${v.lote}</small><br><small class="text-primary">🧑‍⚕️ Por: ${v.personal || 'N/A'}</small></div><span class="badge bg-secondary rounded-pill mt-2">${v.fecha}</span></li>`; }); }
+    function ejecutarBorradoLote(e) { e.preventDefault(); const lote = document.getElementById('borrar-lote-select').value; const confirmacion = document.getElementById('borrar-lote-confirmacion').value; if (confirmacion !== 'ELIMINAR') { alert('Texto de seguridad incorrecto.'); return; } animales = animales.filter(a => a.lote !== lote); guardarLocal(); bootstrap.Modal.getInstance(document.getElementById('modalBorrarLote')).hide(); document.getElementById('form-borrar-lote').reset(); reiniciarYRenderAnimales(); renderDashboard(); }
+    function aplicarVacuna(e) { e.preventDefault(); vacunas.push({ lote: document.getElementById('vacuna-lote').value, tipo: document.getElementById('vacuna-tipo').value.trim(), personal: document.getElementById('vacuna-personal') ? document.getElementById('vacuna-personal').value.trim() : 'Personal', fecha: document.getElementById('vacuna-fecha').value }); guardarLocal(); e.target.reset(); renderVacunas(); }
+    function renderVacunas() { const lista = document.getElementById('lista-vacunas'); lista.innerHTML = ''; const ultimasVacunas = vacunas.slice().reverse().slice(0, 50); ultimasVacunas.forEach(v => { lista.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-start border-0 border-bottom mb-1"><div><h6 class="mb-1 fw-bold text-dark">${v.tipo}</h6><small class="text-muted">Grupo: ${v.lote}</small></div><span class="badge bg-secondary text-dark rounded mt-2">${v.fecha}</span></li>`; }); }
 
     function renderDashboard() { 
         document.getElementById('stat-total').innerText = animales.length; let lecheTotal = 0; const vacasOrdeno = animales.filter(a => a.lote === 'Ordeño'); vacasOrdeno.forEach(v => { if(v.historialLeche && v.historialLeche.length > 0) lecheTotal += v.historialLeche[v.historialLeche.length - 1].litros; }); document.getElementById('stat-leche').innerText = lecheTotal.toFixed(1); document.getElementById('stat-queso').innerText = (lecheTotal / 8.5).toFixed(1);
-        const containerLotes = document.getElementById('dashboard-lotes-container'); containerLotes.innerHTML = ''; const colores = ['success', 'secondary', 'warning', 'info', 'primary', 'danger', 'dark'];
-        lotes.forEach((loteNombre, index) => { const cantidad = animales.filter(a => a.lote === loteNombre).length; const claseColor = colores[index % colores.length]; containerLotes.innerHTML += `<div class="col-6 col-md-3 mb-2"><div class="card card-lote p-3 text-center bg-white border-bottom border-${claseColor} border-4 h-100"><h6 class="text-muted text-uppercase fw-bold" style="font-size: 0.8rem;">${loteNombre}</h6><h3 class="text-${claseColor} m-0">${cantidad}</h3></div></div>`; });
+        const containerLotes = document.getElementById('dashboard-lotes-container'); containerLotes.innerHTML = '';
+        lotes.forEach(loteNombre => { const cantidad = animales.filter(a => a.lote === loteNombre).length; containerLotes.innerHTML += `<div class="col-6 col-md-3 mb-2"><div class="card card-lote p-2 text-center bg-white border-bottom border-primary border-3 h-100"><h6 class="text-muted text-uppercase fw-bold m-0 mt-2 mb-1" style="font-size: 0.75rem;">${loteNombre}</h6><h3 class="text-dark m-0 pb-1">${cantidad}</h3></div></div>`; });
         const alertasBox = document.getElementById('alertas-destete'); alertasBox.innerHTML = ''; let destetesPendientes = 0; const becerros = animales.filter(a => a.lote === 'Becerros');
-        becerros.forEach(b => { if(b.nacimiento && b.nacimiento !== 'undefined') { const dias = Math.floor((new Date() - new Date(b.nacimiento)) / (1000 * 60 * 60 * 24)); if(dias >= 210) { destetesPendientes++; const idMostrar = b.id_animal || b.id || ''; const nomMostrar = b.nombre && b.nombre !== 'undefined' ? b.nombre : ''; alertasBox.innerHTML += `<li class="list-group-item list-group-item-warning d-flex justify-content-between border-0 border-bottom flex-wrap"><span><strong>#${idMostrar} - ${nomMostrar}</strong></span><span>Tiene ${Math.floor(dias/30)} meses. ¡Mover!</span></li>`; } } });
-        if(destetesPendientes === 0) alertasBox.innerHTML = '<li class="list-group-item text-muted border-0">Sin alertas.</li>';
+        becerros.forEach(b => { if(b.nacimiento && b.nacimiento !== 'undefined') { const dias = Math.floor((new Date() - new Date(b.nacimiento)) / (1000 * 60 * 60 * 24)); if(dias >= 210) { destetesPendientes++; const idMostrar = b.id_animal || b.id || ''; const nomMostrar = b.nombre && b.nombre !== 'undefined' ? b.nombre : ''; alertasBox.innerHTML += `<li class="list-group-item list-group-item-danger d-flex justify-content-between border flex-wrap mb-1 rounded small"><span><strong>${idMostrar} - ${nomMostrar}</strong></span><span>Evaluar reubicación (${Math.floor(dias/30)} meses)</span></li>`; } } });
+        if(destetesPendientes === 0) alertasBox.innerHTML = '<li class="list-group-item text-muted border-0 small">Operatividad normal. Ningún caso detectado.</li>';
     }
 
     function exportarExcel() { 
         const wb = XLSX.utils.book_new();
-        const animalesData = animales.map(a => ({ "ID Por Animal": a.id_animal || a.id || '', "Nombre": a.nombre !== 'undefined' ? a.nombre : '', "Especie": a.especie || 'Bovino', "Raza": a.raza || 'No definida', "Genética": a.genetica || 'Puro', "PROVENIENTE": a.proveniente !== 'undefined' ? a.proveniente : '', "Sexo": a.sexo || '', "Lote": a.lote, "Potrero": a.potrero || 'No asignado', "Nacimiento": a.nacimiento !== 'undefined' ? a.nacimiento : '', "Madre": a.madre !== 'undefined' ? a.madre : '', "Foto": a.foto })); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(animalesData, {header: ["ID Por Animal", "Nombre", "Especie", "Raza", "Genética", "PROVENIENTE", "Sexo", "Lote", "Potrero", "Nacimiento", "Madre", "Foto"]}), "Animales");
+        const animalesData = animales.map(a => ({ "ID Por Animal": a.id_animal || a.id || '', "Nombre": a.nombre !== 'undefined' ? a.nombre : '', "Especie": a.especie || 'Bovino', "Raza": a.raza || 'S/D', "Genética": a.genetica || 'Puro', "PROVENIENTE": a.proveniente !== 'undefined' ? a.proveniente : '', "Sexo": a.sexo || '', "Lote": a.lote, "Potrero": a.potrero || 'S/A', "Nacimiento": a.nacimiento !== 'undefined' ? a.nacimiento : '', "Madre": a.madre !== 'undefined' ? a.madre : '' })); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(animalesData, {header: ["ID Por Animal", "Nombre", "Especie", "Raza", "Genética", "PROVENIENTE", "Sexo", "Lote", "Potrero", "Nacimiento", "Madre"]}), "Animales");
         const lecheData = []; animales.forEach(a => { if(a.historialLeche) a.historialLeche.forEach(h => { lecheData.push({ "ID Por Animal": a.id_animal || a.id || '', "Fecha": h.fecha, "Litros": h.litros, "Ordenador": h.personal || '' }); }); }); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(lecheData, {header: ["ID Por Animal", "Fecha", "Litros", "Ordenador"]}), "Ordeño");
         const pesoData = []; animales.forEach(a => { if(a.historialPeso) a.historialPeso.forEach(h => { pesoData.push({ "ID Por Animal": a.id_animal || a.id || '', "Fecha": h.fecha, "Peso(Kg)": h.peso }); }); }); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(pesoData, {header: ["ID Por Animal", "Fecha", "Peso(Kg)"]}), "Pesos");
         const vacunasData = vacunas.map(v => ({ "Lote": v.lote, "Tipo_Vacuna": v.tipo, "Personal": v.personal, "Fecha": v.fecha })); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(vacunasData, {header: ["Lote", "Tipo_Vacuna", "Personal", "Fecha"]}), "Vacunas");
-        const prodData = productos.map(p => ({ "ID": p.id, "Nombre": p.nombre, "Categoría": p.categoria, "Precio": p.precio, "Stock": p.stock, "Descripción": p.descripcion, "Foto": p.foto })); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(prodData, {header: ["ID", "Nombre", "Categoría", "Precio", "Stock", "Descripción", "Foto"]}), "Productos");
+        const prodData = productos.map(p => ({ "ID": p.id, "Nombre": p.nombre, "Categoría": p.categoria, "Precio": p.precio, "Stock": p.stock, "Descripción": p.descripcion })); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(prodData, {header: ["ID", "Nombre", "Categoría", "Precio", "Stock", "Descripción"]}), "Productos");
         XLSX.writeFile(wb, "AgroSystems_BaseDatos.xlsx");
     }
 
     function procesarFechaExcel(valor) { if (!valor) return ''; if (valor instanceof Date) { const offset = valor.getTimezoneOffset() * 60000; return new Date(valor.getTime() - offset).toISOString().split('T')[0]; } if (!isNaN(valor) && typeof valor === 'number') { return new Date(Math.round((valor - 25569) * 86400 * 1000)).toISOString().split('T')[0]; } let str = String(valor).trim(); if (str.includes('/')) { let partes = str.split('/'); if(partes[2] && partes[2].length === 4) { return `${partes[2]}-${partes[1].padStart(2, '0')}-${partes[0].padStart(2, '0')}`; } } return str; }
 
     function importarExcel() { 
-        const fileInput = document.getElementById('input-importar'); const file = fileInput.files[0]; if(!file) return alert("Selecciona un Excel.");
+        const fileInput = document.getElementById('input-importar'); const file = fileInput.files[0]; if(!file) return alert("Seleccione documento operativo.");
         const reader = new FileReader();
         reader.onload = function(e) {
             try {
@@ -834,31 +904,30 @@
                     let loteLeido = String(row.Lote || 'Becerros').trim(); loteLeido = loteLeido.charAt(0).toUpperCase() + loteLeido.slice(1).toLowerCase();
                     if(!lotes.includes(loteLeido)) lotes.push(loteLeido);
                     
-                    let fotoExcel = row.Foto ? String(row.Foto).trim() : ''; 
-                    if(fotoExcel.length > 500 && !fotoExcel.startsWith('http')) { fotoExcel = 'https://placehold.co/400x400/2e7d32/ffffff?text=Vaca+Sin+Foto'; }
-                    if(!fotoExcel || fotoExcel.includes('placehold')) { fotoExcel = 'https://placehold.co/400x400/2e7d32/ffffff?text=Vaca+Sin+Foto'; }
+                    // FILTRO DE BASURA: Imposibilita la subida de fotos pesadas que traban el sistema.
+                    let fotoExcel = 'https://placehold.co/400x400/795548/ffffff?text=Sin+Registro';
                     
-                    nuevosAnimales.push({ id_interno: Date.now().toString() + Math.random().toString(36).substr(2, 5), id_animal: String(idLeido).trim(), nombre: row.Nombre ? String(row.Nombre).trim() : '', especie: row.Especie ? String(row.Especie).trim() : 'Bovino', raza: row.Raza ? String(row.Raza).trim() : 'No definida', genetica: row.Genética || row.Genetica ? String(row.Genética || row.Genetica).trim() : 'Puro', potrero: row.Potrero ? String(row.Potrero).trim() : 'No asignado', proveniente: row.PROVENIENTE || row.Proveniente ? String(row.PROVENIENTE || row.Proveniente).trim() : 'Desconocido', sexo: row.Sexo ? String(row.Sexo).trim() : 'Hembra', lote: loteLeido, nacimiento: procesarFechaExcel(row.Nacimiento), madre: row.Madre ? String(row.Madre).trim() : 'No registrada', foto: fotoExcel, historialLeche: [], historialPeso: [], vacunas: [] });
+                    nuevosAnimales.push({ id_interno: Date.now().toString() + Math.random().toString(36).substr(2, 5), id_animal: String(idLeido).trim(), nombre: row.Nombre ? String(row.Nombre).trim() : '', especie: row.Especie ? String(row.Especie).trim() : 'Bovino', raza: row.Raza ? String(row.Raza).trim() : 'S/D', genetica: row.Genética || row.Genetica ? String(row.Genética || row.Genetica).trim() : 'Puro', potrero: row.Potrero ? String(row.Potrero).trim() : 'N/A', proveniente: row.PROVENIENTE || row.Proveniente ? String(row.PROVENIENTE || row.Proveniente).trim() : 'S/D', sexo: row.Sexo ? String(row.Sexo).trim() : 'Hembra', lote: loteLeido, nacimiento: procesarFechaExcel(row.Nacimiento), madre: row.Madre ? String(row.Madre).trim() : 'S/D', foto: fotoExcel, historialLeche: [], historialPeso: [], vacunas: [] });
                 });
                 
                 if(nuevosAnimales.length === 0) {
-                    alert("⚠️ No se encontraron animales en el Excel.");
+                    alert("Estructura de documento no reconocida. Falta columna 'ID Por Animal'.");
                     fileInput.value = ''; return;
                 }
 
-                lecheSheet.forEach(row => { const vaca = nuevosAnimales.find(a => a.id_animal === (row["ID Por Animal"]?String(row["ID Por Animal"]).trim():'')); if (vaca && row.Litros !== undefined) { let litrosNum = parseFloat(String(row.Litros).replace(',', '.')); if(!isNaN(litrosNum)) vaca.historialLeche.push({ fecha: procesarFechaExcel(row.Fecha) || new Date().toISOString().split('T')[0], litros: litrosNum, personal: row.Ordenador ? String(row.Ordenador).trim() : 'No registrado' }); } });
+                lecheSheet.forEach(row => { const vaca = nuevosAnimales.find(a => a.id_animal === (row["ID Por Animal"]?String(row["ID Por Animal"]).trim():'')); if (vaca && row.Litros !== undefined) { let litrosNum = parseFloat(String(row.Litros).replace(',', '.')); if(!isNaN(litrosNum)) vaca.historialLeche.push({ fecha: procesarFechaExcel(row.Fecha) || new Date().toISOString().split('T')[0], litros: litrosNum, personal: row.Ordenador ? String(row.Ordenador).trim() : 'N/A' }); } });
                 pesosSheet.forEach(row => { const vaca = nuevosAnimales.find(a => a.id_animal === (row["ID Por Animal"]?String(row["ID Por Animal"]).trim():'')); if (vaca && row["Peso(Kg)"] !== undefined) { let pesoNum = parseFloat(String(row["Peso(Kg)"]).replace(',', '.')); if(!isNaN(pesoNum)) vaca.historialPeso.push({ fecha: procesarFechaExcel(row.Fecha) || new Date().toISOString().split('T')[0], peso: pesoNum }); } });
-                const nuevasVacunas = []; vacunasSheet.forEach(row => { if(row.Tipo_Vacuna || row.Tipo) nuevasVacunas.push({ lote: row.Lote ? String(row.Lote).trim() : 'Todos', tipo: row.Tipo_Vacuna ? String(row.Tipo_Vacuna).trim() : String(row.Tipo).trim(), personal: row.Personal ? String(row.Personal).trim() : 'Desconocido', fecha: procesarFechaExcel(row.Fecha) || new Date().toISOString().split('T')[0] }); });
-                let nuevosProductos = []; productosSheet.forEach(row => { if(row.Nombre) nuevosProductos.push({ id: row.ID ? String(row.ID) : Date.now().toString() + Math.random().toString(36).substr(2, 5), nombre: String(row.Nombre).trim(), categoria: row["Categoría"] ? String(row["Categoría"]).trim() : 'Otros', precio: parseFloat(row.Precio) || 0, stock: parseInt(row.Stock) || 0, descripcion: row["Descripción"] ? String(row["Descripción"]).trim() : '', foto: row.Foto ? String(row.Foto).trim() : 'https://placehold.co/400x400/2e7d32/ffffff?text=Producto' }); });
+                const nuevasVacunas = []; vacunasSheet.forEach(row => { if(row.Tipo_Vacuna || row.Tipo) nuevasVacunas.push({ lote: row.Lote ? String(row.Lote).trim() : 'Todos', tipo: row.Tipo_Vacuna ? String(row.Tipo_Vacuna).trim() : String(row.Tipo).trim(), personal: row.Personal ? String(row.Personal).trim() : 'N/A', fecha: procesarFechaExcel(row.Fecha) || new Date().toISOString().split('T')[0] }); });
+                let nuevosProductos = []; productosSheet.forEach(row => { if(row.Nombre) nuevosProductos.push({ id: row.ID ? String(row.ID) : Date.now().toString() + Math.random().toString(36).substr(2, 5), nombre: String(row.Nombre).trim(), categoria: row["Categoría"] ? String(row["Categoría"]).trim() : 'Otros', precio: parseFloat(row.Precio) || 0, stock: parseInt(row.Stock) || 0, descripcion: row["Descripción"] ? String(row["Descripción"]).trim() : '', foto: 'https://placehold.co/400x400/795548/ffffff?text=Producto' }); });
 
                 animales = nuevosAnimales; vacunas = nuevasVacunas; productos = nuevosProductos;
                 
-                guardarLocal(); // SOLO LOCAL
+                guardarLocal(); 
                 actualizarSelectsLotes(); 
-                alert(`¡Éxito! Se cargaron ${nuevosAnimales.length} animales a la memoria de tu dispositivo. Ve a 'Ajustes' para subirlos a la nube cuando tengas buena señal.`); 
+                alert(`Lectura de archivo exitosa. Se procesaron ${nuevosAnimales.length} registros en memoria local.`); 
                 fileInput.value = ''; showView('dashboard'); 
 
-            } catch (error) { alert("Hubo un error interpretando el archivo. Asegúrate de que es un archivo .xlsx válido."); console.error(error); }
+            } catch (error) { alert("Archivo incompatible o defectuoso."); }
         };
         reader.readAsArrayBuffer(file);
     }
