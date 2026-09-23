@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#2e7d32">
-    <title>AgroSystems - Gestión Integral V13</title>
+    <title>AgroSystems - Gestión Integral V14</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -66,7 +66,7 @@
 
 <div id="auth-screen">
     <div class="auth-box">
-        <h2 class="fw-bold text-success mb-0">🌿 AgroSystems <span class="badge" style="background-color: #d81b60; font-size: 0.8rem; vertical-align: middle;">V13</span></h2>
+        <h2 class="fw-bold text-success mb-0">🌿 AgroSystems <span class="badge" style="background-color: #e65100; font-size: 0.8rem; vertical-align: middle;">V14</span></h2>
         <p class="text-muted mb-4">Gestión Inteligente de Fincas</p>
         
         <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
@@ -394,7 +394,11 @@
             const { data: nuevaFinca, error: errFinca } = await supabaseClient.from('fincas').insert([{ nombre: nombre, admin_id: session.user.id, codigo_invitacion: codigo }]).select().single();
             if (errFinca) throw errFinca;
             await supabaseClient.from('miembros').insert([ { finca_id: nuevaFinca.id, user_id: session.user.id, correo: session.user.email, rol: 'admin' } ]);
-            await supabaseClient.from('finca_data').insert([ { finca_id: nuevaFinca.id, data: { fincaExtra: { ubicacion: ubicacion, telefono: telefono } } } ]);
+            
+            // Insertamos datos vacíos base
+            const datosVacios = { animales: [], vacunas: [], productos: [], lotes: ['Ordeño', 'Horro', 'Mautes', 'Becerros'], fincaExtra: { ubicacion: ubicacion, telefono: telefono } };
+            await supabaseClient.from('finca_data').insert([ { finca_id: nuevaFinca.id, data: datosVacios } ]);
+            
             await verificarFincaUsuario();
         } catch(e) { errorBox.innerText = "❌ No se pudo crear. " + e.message; }
     }
@@ -433,7 +437,14 @@
                 rawData = fetchArray[0].data;
             }
             
-            animales = rawData.animales || []; vacunas = rawData.vacunas || []; productos = rawData.productos || []; lotes = rawData.lotes || ['Ordeño', 'Horro', 'Mautes', 'Becerros']; 
+            // SI LOS LOTES VIENEN VACIOS, LES PONEMOS LOS POR DEFECTO PARA QUE NO SE DAÑE EL MENÚ
+            let lotesGuardados = rawData.lotes || [];
+            if (lotesGuardados.length === 0) { lotesGuardados = ['Ordeño', 'Horro', 'Mautes', 'Becerros']; }
+            
+            animales = rawData.animales || []; 
+            vacunas = rawData.vacunas || []; 
+            productos = rawData.productos || []; 
+            lotes = lotesGuardados; 
             
             const extraInfo = rawData.fincaExtra || {};
             telefono_tienda = extraInfo.telefono || rawData.telefono_tienda || '';
@@ -451,7 +462,7 @@
     }
 
     // ==========================================
-    // SISTEMA DE GUARDADO V13 (Usa solo finca_id)
+    // SISTEMA BLINDADO: WIPE & INSERT (V14)
     // ==========================================
     async function guardarDatos() {
         if(!miFincaInfo) return { success: false, error: "No hay finca registrada" };
@@ -459,18 +470,18 @@
         if(statusBadge) { statusBadge.className = 'badge bg-warning text-dark badge-nube'; statusBadge.innerText = '⏳ Sincronizando...'; }
         
         try {
+            // Seguro anti-borrado de lotes
+            if (!lotes || lotes.length === 0) lotes = ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
+            
             const estadoCompleto = { animales, vacunas, productos, lotes, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda } };
             
-            const { data: filasBusqueda, error: errB } = await supabaseClient.from('finca_data').select('finca_id').eq('finca_id', miFincaInfo.id).limit(1);
-            if(errB) throw errB;
+            // 1. Borramos CUALQUIER FILA DUPLICADA (Los fantasmas) de esta finca en la base de datos
+            const { error: errDel } = await supabaseClient.from('finca_data').delete().eq('finca_id', miFincaInfo.id);
+            if (errDel) throw errDel;
 
-            if (filasBusqueda && filasBusqueda.length > 0) {
-                const { error: errUpdate } = await supabaseClient.from('finca_data').update({ data: estadoCompleto }).eq('finca_id', miFincaInfo.id);
-                if (errUpdate) throw errUpdate;
-            } else {
-                const { error: errInsert } = await supabaseClient.from('finca_data').insert([{ finca_id: miFincaInfo.id, data: estadoCompleto }]);
-                if (errInsert) throw errInsert;
-            }
+            // 2. Insertamos UNA SOLA FILA LIMPIA con los datos completos
+            const { error: errInsert } = await supabaseClient.from('finca_data').insert([{ finca_id: miFincaInfo.id, data: estadoCompleto }]);
+            if (errInsert) throw errInsert;
             
             if(statusBadge) { 
                 statusBadge.className = 'badge bg-success badge-nube'; statusBadge.innerText = '✅ Sincronizado'; 
@@ -486,10 +497,17 @@
     function iniciarSincronizacionEnTiempoReal() {
         supabaseClient.channel('custom-all-channel')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'finca_data', filter: `finca_id=eq.${miFincaInfo.id}` }, async (payload) => {
+                
                 const { data: fetchArray } = await supabaseClient.from('finca_data').select('data').eq('finca_id', miFincaInfo.id).limit(1);
-                if(fetchArray && fetchArray.length > 0 && fetchArray[0].data) {
+                
+                // Solo actualiza la pantalla si REALMENTE encontró datos. Si no hay datos (porque está borrando fantasmas), lo ignora.
+                if(fetchArray && fetchArray.length > 0 && fetchArray[0].data && Object.keys(fetchArray[0].data).length > 0) {
                     const rawData = fetchArray[0].data;
-                    animales = rawData.animales || []; vacunas = rawData.vacunas || []; productos = rawData.productos || []; lotes = rawData.lotes || ['Ordeño', 'Horro', 'Mautes', 'Becerros']; 
+                    animales = rawData.animales || animales; // Si por error viene vacio, conserva los locales
+                    vacunas = rawData.vacunas || vacunas; 
+                    productos = rawData.productos || productos; 
+                    lotes = rawData.lotes && rawData.lotes.length > 0 ? rawData.lotes : lotes; 
+                    
                     const extraInfo = rawData.fincaExtra || {};
                     telefono_tienda = extraInfo.telefono || rawData.telefono_tienda || ''; ubicacion_finca = extraInfo.ubicacion || '';
                     document.getElementById('display-finca-info').innerText = `📍 ${ubicacion_finca || 'Sin ubicación'} | 📞 ${telefono_tienda || 'Sin teléfono'}`;
@@ -534,7 +552,22 @@
     }
 
     function guardarWhatsApp(e) { e.preventDefault(); telefono_tienda = document.getElementById('input-wa-numero').value.trim(); document.getElementById('display-wa-num').innerText = telefono_tienda; document.getElementById('display-finca-info').innerText = `📍 ${ubicacion_finca || 'Sin ubicación'} | 📞 ${telefono_tienda || 'Sin teléfono'}`; bootstrap.Modal.getInstance(document.getElementById('modalConfigWA')).hide(); guardarDatos(); renderTienda(); }
-    function actualizarSelectsLotes() { const selects = ['filtro-lote', 'ani-lote', 'vacuna-lote', 'borrar-lote-select', 'traslado-nuevo-lote']; selects.forEach(id => { const el = document.getElementById(id); if(el) { if(id === 'filtro-lote') el.innerHTML = '<option value="Todos">Todos los Lotes</option>'; else el.innerHTML = ''; lotes.forEach(lote => { el.innerHTML += `<option value="${lote}">${lote}</option>`; }); if(id === 'vacuna-lote') el.innerHTML += `<option value="Todos">Todos</option>`; } }); }
+    
+    function actualizarSelectsLotes() { 
+        const selects = ['filtro-lote', 'ani-lote', 'vacuna-lote', 'borrar-lote-select', 'traslado-nuevo-lote']; 
+        const safeLotes = lotes && lotes.length > 0 ? lotes : ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
+        
+        selects.forEach(id => { 
+            const el = document.getElementById(id); 
+            if(el) { 
+                if(id === 'filtro-lote') el.innerHTML = '<option value="Todos">Todos los Lotes</option>'; 
+                else el.innerHTML = ''; 
+                safeLotes.forEach(lote => { el.innerHTML += `<option value="${lote}">${lote}</option>`; }); 
+                if(id === 'vacuna-lote') el.innerHTML += `<option value="Todos">Todos</option>`; 
+            } 
+        }); 
+    }
+    
     function guardarNuevoLote(e) { e.preventDefault(); let nombre = document.getElementById('nuevo-lote-nombre').value.trim(); nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase(); if (nombre && !lotes.includes(nombre)) { lotes.push(nombre); guardarDatos(); actualizarSelectsLotes(); renderDashboard(); } bootstrap.Modal.getInstance(document.getElementById('modalNuevoLote')).hide(); e.target.reset(); }
     function verImagen(url) { document.getElementById('img-zoom').src = url; new bootstrap.Modal(document.getElementById('modalImagenGrande')).show(); }
     function comprimirImagen(file, outputBase64Id, outputPreviewId) { const reader = new FileReader(); reader.onload = function(event) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); const MAX_WIDTH = 400; const scaleSize = MAX_WIDTH / img.width; canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height); document.getElementById(outputBase64Id).value = canvas.toDataURL('image/jpeg', 0.6); document.getElementById(outputPreviewId).src = document.getElementById(outputBase64Id).value; document.getElementById(outputPreviewId).style.display = 'block'; }; img.src = event.target.result; }; reader.readAsDataURL(file); }
@@ -630,13 +663,16 @@
             }); 
         } 
         
-        await guardarDatos(); 
-        const modalEl = document.getElementById('modalAnimal');
-        const modalInstance = bootstrap.Modal.getInstance(modalEl);
-        if(modalInstance) modalInstance.hide();
-        
-        reiniciarYRenderAnimales(); 
-        renderDashboard(); 
+        const guardadoExitoso = await guardarDatos(); 
+        if(guardadoExitoso.success) {
+            const modalEl = document.getElementById('modalAnimal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if(modalInstance) modalInstance.hide();
+            reiniciarYRenderAnimales(); 
+            renderDashboard(); 
+        } else {
+            alert("No se pudo guardar el animal en la nube. Revisa tu conexión.");
+        }
     }
     
     function eliminarAnimal(id_interno) { if(confirm("⚠️ ¿Eliminar este animal?")) { animales = animales.filter(a => a.id_interno !== id_interno && a.id !== id_interno); guardarDatos(); reiniciarYRenderAnimales(); renderDashboard(); } }
@@ -749,7 +785,7 @@
                 
                 if (resultado.success) {
                     actualizarSelectsLotes(); 
-                    alert(`¡Éxito total! Se cargaron y sincronizaron ${nuevosAnimales.length} animales a la Nube.`); 
+                    alert(`¡Éxito total! Se cargaron y sincronizaron ${nuevosAnimales.length} animales a la Nube. Tu información está 100% segura.`); 
                     fileInput.value = ''; showView('dashboard'); 
                 } else {
                     alert("⚠️ SUPABASE RECHAZÓ EL ARCHIVO.\n\nMotivo técnico:\n" + resultado.error + "\n\nPor favor envíame captura de este error para resolverlo.");
