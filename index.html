@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#2e7d32">
-    <title>AgroSystems - Gestión Integral V10</title>
+    <title>AgroSystems - Gestión Integral V11</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -53,7 +53,7 @@
         .btn-depto { white-space: nowrap; border-radius: 25px; font-weight: 700; padding: 8px 20px; transition: all 0.2s; }
         .card-producto-img { height: 200px; object-fit: contain; background-color: white; padding: 10px; border-bottom: 1px solid #f0f0f0; }
         #badge-rol { font-size: 0.75rem; margin-top: 5px; display: inline-block; padding: 4px 10px; border-radius: 15px; background: rgba(255,255,255,0.2); }
-        .badge-nube { font-size: 0.6em; vertical-align: middle; padding: 5px 8px; border-radius: 10px; transition: all 0.3s; }
+        .badge-nube { font-size: 0.8rem; font-weight: bold; vertical-align: middle; padding: 6px 12px; border-radius: 20px; transition: all 0.4s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
@@ -66,7 +66,7 @@
 
 <div id="auth-screen">
     <div class="auth-box">
-        <h2 class="fw-bold text-success mb-0">🌿 AgroSystems <span class="badge bg-primary fs-6 align-middle">V10</span></h2>
+        <h2 class="fw-bold text-success mb-0">🌿 AgroSystems <span class="badge bg-primary fs-6 align-middle">V11</span></h2>
         <p class="text-muted mb-4">Gestión Inteligente de Fincas</p>
         
         <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
@@ -156,7 +156,7 @@
         <div id="view-dashboard" class="view-section">
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <h2 class="fw-bold text-dark m-0" id="display-finca-nombre">Mi Finca </h2>
-                <span id="nube-status" class="badge bg-primary badge-nube">☁️ Sincronizado</span>
+                <span id="nube-status" class="badge bg-success badge-nube">☁️ Sincronizado</span>
             </div>
             <p class="text-muted mb-4" id="display-finca-info">📍 Ubicación | 📞 Teléfono</p>
             
@@ -174,7 +174,6 @@
             <ul class="list-group shadow-sm border-0" id="alertas-destete"></ul>
         </div>
 
-        <!-- Demás vistas ocultas de AgroSystems -->
         <div id="view-tienda" class="view-section hidden">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="fw-bold">🛒 Tienda AgroSystems</h2>
@@ -367,9 +366,17 @@
         document.getElementById('auth-screen').style.display = 'flex';
         document.getElementById('auth-error').innerText = 'Cargando perfil...';
         try {
-            const { data: miembroData, error } = await supabaseClient.from('miembros').select('finca_id, rol').eq('user_id', session.user.id).limit(1).single();
+            // SOLUCIÓN AL CHOQUE MULTI-FILAS (.limit(1))
+            const { data: miembroDataArray, error } = await supabaseClient.from('miembros').select('finca_id, rol').eq('user_id', session.user.id).limit(1);
+            if(error) throw error;
+            const miembroData = miembroDataArray && miembroDataArray.length > 0 ? miembroDataArray[0] : null;
+
             if (miembroData && miembroData.finca_id) {
-                const { data: fincaData } = await supabaseClient.from('fincas').select('id, nombre, codigo_invitacion').eq('id', miembroData.finca_id).single();
+                const { data: fincaDataArray } = await supabaseClient.from('fincas').select('id, nombre, codigo_invitacion').eq('id', miembroData.finca_id).limit(1);
+                const fincaData = fincaDataArray && fincaDataArray.length > 0 ? fincaDataArray[0] : null;
+                
+                if(!fincaData) throw new Error("Finca no encontrada");
+                
                 miFincaInfo = { id: fincaData.id, nombre: fincaData.nombre, rol: miembroData.rol, codigo: fincaData.codigo_invitacion };
                 arrancarAplicacion(); 
             } else { showAuthView('setup-finca'); }
@@ -400,9 +407,9 @@
         if(!codigo) return errorBox.innerText = '⚠️ Escribe el código.';
         errorBox.innerText = "Buscando..."; 
         try {
-            const { data: finca, error: errFinca } = await supabaseClient.from('fincas').select('id').eq('codigo_invitacion', codigo).single();
-            if (errFinca || !finca) throw new Error("Código no válido.");
-            await supabaseClient.from('miembros').insert([ { finca_id: finca.id, user_id: session.user.id, correo: session.user.email, rol: 'empleado' } ]);
+            const { data: fincaArray, error: errFinca } = await supabaseClient.from('fincas').select('id').eq('codigo_invitacion', codigo).limit(1);
+            if (errFinca || !fincaArray || fincaArray.length === 0) throw new Error("Código no válido.");
+            await supabaseClient.from('miembros').insert([ { finca_id: fincaArray[0].id, user_id: session.user.id, correo: session.user.email, rol: 'empleado' } ]);
             await verificarFincaUsuario();
         } catch(e) { errorBox.innerText = "❌ " + e.message; }
     }
@@ -421,49 +428,64 @@
 
         if(miFincaInfo.rol !== 'admin') document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
 
-        // Cargar los datos desde Supabase de forma segura
-        const { data: datosCargados } = await supabaseClient.from('finca_data').select('data').eq('finca_id', miFincaInfo.id).single();
-        let rawData = datosCargados && datosCargados.data ? datosCargados.data : {};
-        
-        animales = rawData.animales || []; vacunas = rawData.vacunas || []; productos = rawData.productos || []; lotes = rawData.lotes || ['Ordeño', 'Horro', 'Mautes', 'Becerros']; 
-        
-        const extraInfo = rawData.fincaExtra || {};
-        telefono_tienda = extraInfo.telefono || rawData.telefono_tienda || '';
-        ubicacion_finca = extraInfo.ubicacion || '';
-        
-        document.getElementById('display-finca-info').innerText = `📍 ${ubicacion_finca || 'Sin ubicación'} | 📞 ${telefono_tienda || 'Sin teléfono'}`;
-        document.getElementById('display-wa-num').innerText = telefono_tienda || 'No configurado';
-        document.getElementById('input-wa-numero').value = telefono_tienda;
-        
-        actualizarSelectsLotes(); showView('dashboard'); iniciarSincronizacionEnTiempoReal();
+        // LECTURA BLINDADA (Ignora los fantasmas duplicados)
+        try {
+            const { data: fetchArray, error: fetchErr } = await supabaseClient.from('finca_data').select('data').eq('finca_id', miFincaInfo.id).limit(1);
+            let rawData = {};
+            if(fetchArray && fetchArray.length > 0 && fetchArray[0].data) {
+                rawData = fetchArray[0].data;
+            }
+            
+            animales = rawData.animales || []; vacunas = rawData.vacunas || []; productos = rawData.productos || []; lotes = rawData.lotes || ['Ordeño', 'Horro', 'Mautes', 'Becerros']; 
+            
+            const extraInfo = rawData.fincaExtra || {};
+            telefono_tienda = extraInfo.telefono || rawData.telefono_tienda || '';
+            ubicacion_finca = extraInfo.ubicacion || '';
+            
+            document.getElementById('display-finca-info').innerText = `📍 ${ubicacion_finca || 'Sin ubicación'} | 📞 ${telefono_tienda || 'Sin teléfono'}`;
+            document.getElementById('display-wa-num').innerText = telefono_tienda || 'No configurado';
+            document.getElementById('input-wa-numero').value = telefono_tienda;
+            
+            actualizarSelectsLotes(); showView('dashboard'); iniciarSincronizacionEnTiempoReal();
+        } catch(e) {
+            console.error("Error al arrancar:", e);
+            alert("No se pudo cargar correctamente tu información desde la nube.");
+        }
     }
 
     // ==========================================
-    // SISTEMA BLINDADO DE GUARDADO EN NUBE (V10)
+    // SISTEMA BLINDADO DE GUARDADO EN NUBE (V11)
     // ==========================================
     async function guardarDatos() {
-        if(!miFincaInfo) return;
+        if(!miFincaInfo) return false;
         const statusBadge = document.getElementById('nube-status');
-        if(statusBadge) { statusBadge.className = 'badge bg-warning text-dark badge-nube ms-2'; statusBadge.innerText = '⏳ Guardando Nube...'; }
+        if(statusBadge) { statusBadge.className = 'badge bg-warning text-dark badge-nube'; statusBadge.innerText = '⏳ Sincronizando...'; }
         
         try {
             const estadoCompleto = { animales, vacunas, productos, lotes, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda } };
             
-            const { data, error } = await supabaseClient.from('finca_data').update({ data: estadoCompleto }).eq('finca_id', miFincaInfo.id).select();
-            if (error) throw error;
-            
-            if (!data || data.length === 0) {
-                 const { error: insErr } = await supabaseClient.from('finca_data').insert([{ finca_id: miFincaInfo.id, data: estadoCompleto }]);
-                 if(insErr) throw insErr;
+            // Verificamos si existe su fila EXACTA en la tabla para actualizarla
+            const { data: filasBusqueda, error: errB } = await supabaseClient.from('finca_data').select('id').eq('finca_id', miFincaInfo.id).limit(1);
+            if(errB) throw errB;
+
+            if (filasBusqueda && filasBusqueda.length > 0) {
+                // Actualiza exactamente su fila
+                const { error: errUpdate } = await supabaseClient.from('finca_data').update({ data: estadoCompleto }).eq('id', filasBusqueda[0].id);
+                if (errUpdate) throw errUpdate;
+            } else {
+                // Si la fila desapareció, la vuelve a crear
+                const { error: errInsert } = await supabaseClient.from('finca_data').insert([{ finca_id: miFincaInfo.id, data: estadoCompleto }]);
+                if (errInsert) throw errInsert;
             }
             
             if(statusBadge) { 
-                statusBadge.className = 'badge bg-success badge-nube ms-2'; statusBadge.innerText = '✅ Guardado'; 
-                setTimeout(()=> { statusBadge.className = 'badge bg-primary badge-nube ms-2'; statusBadge.innerText = '☁️ Sincronizado'; }, 3000); 
+                statusBadge.className = 'badge bg-success badge-nube'; statusBadge.innerText = '✅ Sincronizado'; 
             }
+            return true; // Retorna true si todo fue perfecto
         } catch (e) {
             console.error("Error crítico al guardar:", e);
-            if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube ms-2'; statusBadge.innerText = '❌ Error Nube'; }
+            if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube'; statusBadge.innerText = '❌ Error Nube'; }
+            return false; // Retorna false si el internet falla o la base rechaza
         }
     }
 
@@ -474,10 +496,10 @@
         supabaseClient.channel('custom-all-channel')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'finca_data', filter: `finca_id=eq.${miFincaInfo.id}` }, async (payload) => {
                 
-                // Descarga automática en segundo plano cuando otro dispositivo hace un cambio
-                const { data: datosCargados } = await supabaseClient.from('finca_data').select('data').eq('finca_id', miFincaInfo.id).single();
-                if(datosCargados && datosCargados.data) {
-                    const rawData = datosCargados.data;
+                // Descarga automática en segundo plano (Blindada)
+                const { data: fetchArray } = await supabaseClient.from('finca_data').select('data').eq('finca_id', miFincaInfo.id).limit(1);
+                if(fetchArray && fetchArray.length > 0 && fetchArray[0].data) {
+                    const rawData = fetchArray[0].data;
                     animales = rawData.animales || []; vacunas = rawData.vacunas || []; productos = rawData.productos || []; lotes = rawData.lotes || ['Ordeño', 'Horro', 'Mautes', 'Becerros']; 
                     const extraInfo = rawData.fincaExtra || {};
                     telefono_tienda = extraInfo.telefono || rawData.telefono_tienda || ''; ubicacion_finca = extraInfo.ubicacion || '';
@@ -568,7 +590,7 @@
         new bootstrap.Modal(document.getElementById('modalAnimal')).show(); 
     }
     
-    function guardarAnimal(e) { 
+    async function guardarAnimal(e) { 
         e.preventDefault(); 
         const editId = document.getElementById('ani-id-interno-edit').value; 
         const inputIdAnimal = document.getElementById('ani-id-animal').value.trim();
@@ -619,7 +641,7 @@
             }); 
         } 
         
-        guardarDatos(); 
+        await guardarDatos(); 
         const modalEl = document.getElementById('modalAnimal');
         const modalInstance = bootstrap.Modal.getInstance(modalEl);
         if(modalInstance) modalInstance.hide();
@@ -671,7 +693,7 @@
     function abrirModalLeche(id_interno) { document.getElementById('leche-id-interno').value = id_interno; document.getElementById('leche-fecha').valueAsDate = new Date(); document.getElementById('leche-litros').value = ''; document.getElementById('leche-personal').value = ''; new bootstrap.Modal(document.getElementById('modalLeche')).show(); }
     function guardarLeche(e) { e.preventDefault(); const id = document.getElementById('leche-id-interno').value; const vaca = animales.find(a => a.id_interno === id || a.id === id); if(vaca) { vaca.historialLeche = vaca.historialLeche || []; vaca.historialLeche.push({ fecha: document.getElementById('leche-fecha').value, litros: parseFloat(document.getElementById('leche-litros').value), personal: document.getElementById('leche-personal').value.trim() }); vaca.historialLeche.sort((a,b) => new Date(a.fecha) - new Date(b.fecha)); guardarDatos(); } bootstrap.Modal.getInstance(document.getElementById('modalLeche')).hide(); reiniciarYRenderOrdeno(); }
     function ejecutarBorradoLote(e) { e.preventDefault(); const lote = document.getElementById('borrar-lote-select').value; const confirmacion = document.getElementById('borrar-lote-confirmacion').value; if (confirmacion !== 'ELIMINAR') { alert('Escribe ELIMINAR.'); return; } animales = animales.filter(a => a.lote !== lote); guardarDatos(); bootstrap.Modal.getInstance(document.getElementById('modalBorrarLote')).hide(); document.getElementById('form-borrar-lote').reset(); reiniciarYRenderAnimales(); renderDashboard(); }
-    function aplicarVacuna(e) { e.preventDefault(); vacunas.push({ lote: document.getElementById('vacuna-lote').value, tipo: document.getElementById('vacuna-tipo').value.trim(), personal: document.getElementById('vacuna-personal').value.trim(), fecha: document.getElementById('vacuna-fecha').value }); guardarDatos(); e.target.reset(); renderVacunas(); alert('Vacuna registrada con éxito.'); }
+    function aplicarVacuna(e) { e.preventDefault(); vacunas.push({ lote: document.getElementById('vacuna-lote').value, tipo: document.getElementById('vacuna-tipo').value.trim(), personal: document.getElementById('vacuna-personal').value.trim(), fecha: document.getElementById('vacuna-fecha').value }); guardarDatos(); e.target.reset(); renderVacunas(); }
     function renderVacunas() { const lista = document.getElementById('lista-vacunas'); lista.innerHTML = ''; const ultimasVacunas = vacunas.slice().reverse().slice(0, 50); ultimasVacunas.forEach(v => { lista.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-start border-0 border-bottom mb-1"><div><h6 class="mb-1 fw-bold text-dark">${v.tipo}</h6><small class="text-muted">Lote aplicado: ${v.lote}</small><br><small class="text-primary">🧑‍⚕️ Por: ${v.personal || 'N/A'}</small></div><span class="badge bg-secondary rounded-pill mt-2">${v.fecha}</span></li>`; }); }
 
     function renderDashboard() { 
@@ -683,7 +705,7 @@
         if(destetesPendientes === 0) alertasBox.innerHTML = '<li class="list-group-item text-muted border-0">Sin alertas.</li>';
     }
 
-    // EXCEL ACTUALIZADO (SINCRONIZACIÓN AUTOMÁTICA)
+    // EXCEL ACTUALIZADO (SINCRONIZACIÓN BLINDADA)
     function exportarExcel() { 
         const wb = XLSX.utils.book_new();
         const animalesData = animales.map(a => ({ "ID Por Animal": a.id_animal || a.id || '', "Nombre": a.nombre !== 'undefined' ? a.nombre : '', "Especie": a.especie || 'Bovino', "Raza": a.raza || 'No definida', "Genética": a.genetica || 'Puro', "PROVENIENTE": a.proveniente !== 'undefined' ? a.proveniente : '', "Sexo": a.sexo || '', "Lote": a.lote, "Potrero": a.potrero || 'No asignado', "Nacimiento": a.nacimiento !== 'undefined' ? a.nacimiento : '', "Madre": a.madre !== 'undefined' ? a.madre : '', "Foto": a.foto })); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(animalesData, {header: ["ID Por Animal", "Nombre", "Especie", "Raza", "Genética", "PROVENIENTE", "Sexo", "Lote", "Potrero", "Nacimiento", "Madre", "Foto"]}), "Animales");
@@ -723,7 +745,7 @@
                 });
                 
                 if(nuevosAnimales.length === 0) {
-                    alert("⚠️ No se encontraron animales en tu documento Excel. Por favor revisa que la primera columna se llame 'ID Por Animal' o 'Chapa'.");
+                    alert("⚠️ No se encontraron animales en el Excel. Revisa que la primera columna se llame 'ID Por Animal' o 'Chapa'.");
                     fileInput.value = ''; return;
                 }
 
@@ -733,10 +755,18 @@
                 let nuevosProductos = []; productosSheet.forEach(row => { if(row.Nombre) nuevosProductos.push({ id: row.ID ? String(row.ID) : Date.now().toString() + Math.random().toString(36).substr(2, 5), nombre: String(row.Nombre).trim(), categoria: row["Categoría"] ? String(row["Categoría"]).trim() : 'Otros', precio: parseFloat(row.Precio) || 0, stock: parseInt(row.Stock) || 0, descripcion: row["Descripción"] ? String(row["Descripción"]).trim() : '', foto: row.Foto ? String(row.Foto).trim() : 'https://placehold.co/400x400/2e7d32/ffffff?text=Producto' }); });
 
                 animales = nuevosAnimales; vacunas = nuevasVacunas; productos = nuevosProductos;
-                await guardarDatos(); actualizarSelectsLotes(); 
                 
-                alert(`¡Éxito! Los animales se han procesado y subido a la nube automáticamente.`); 
-                fileInput.value = ''; showView('dashboard'); 
+                // ESPERAMOS LA CONFIRMACIÓN REAL DE LA NUBE
+                const guardadoExitoso = await guardarDatos(); 
+                
+                if (guardadoExitoso) {
+                    actualizarSelectsLotes(); 
+                    alert(`¡Éxito total! Se cargaron y sincronizaron ${nuevosAnimales.length} animales a la Nube. Tu información está 100% segura.`); 
+                    fileInput.value = ''; showView('dashboard'); 
+                } else {
+                    alert("⚠️ Ocurrió un error al enviar el Excel a la nube. Por favor intenta de nuevo.");
+                }
+
             } catch (error) { alert("Hubo un error interpretando el archivo. Asegúrate de que es un archivo .xlsx válido."); console.error(error); }
         };
         reader.readAsArrayBuffer(file);
