@@ -126,7 +126,7 @@
         <div class="mb-3 text-center">
             <img id="auth-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='90' fill='%23efebe9' stroke='%23795548' stroke-width='8'/><path d='M50 70 C40 50 30 40 20 40 C40 50 60 55 75 60 C85 85 115 85 125 60 C140 55 160 50 180 40 C170 40 160 50 150 70 C140 90 120 120 100 135 C80 120 60 90 50 70 Z' fill='%23795548'/><path d='M45 80 C25 80 15 90 20 100 C30 100 50 90 60 85 Z' fill='%23a1887f'/><path d='M155 80 C175 80 185 90 180 100 C170 100 150 90 140 85 Z' fill='%23a1887f'/><path d='M100 125 C120 150 130 125 100 170 C70 125 80 150 100 125 Z' fill='%234caf50'/></svg>" style="width: 80px; height: 80px; border-radius:50%; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
             <h3 class="fw-bold text-primary mb-1">AgroSystems</h3>
-            <p class="text-muted mb-0 small fw-bold">Plataforma de Gestión Administrativa <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V26</span></p>
+            <p class="text-muted mb-0 small fw-bold">Plataforma de Gestión Administrativa <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V27</span></p>
         </div>
         
         <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
@@ -196,7 +196,6 @@
             </div>
         </div>
         <div class="sidebar-menu px-3 w-100">
-            <!-- Cambio de Dashboard por Inicio -->
             <a href="#" onclick="showView('dashboard')" class="nav-btn-dashboard active">Inicio</a>
             <a href="#" onclick="showView('calendario')" class="nav-btn-calendario">Agenda de Actividades</a>
             <a href="#" onclick="showView('animales')" class="nav-btn-animales">Inventario Ganadero</a>
@@ -215,11 +214,9 @@
     <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="sidebarOffcanvas">
         <div class="offcanvas-header border-bottom" style="background-color: var(--dark) !important; border-color: var(--accent) !important;">
             <h6 class="offcanvas-title text-white fw-bold m-0">Navegación</h6>
-            <!-- Botón de cierre para menú móvil -->
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" id="btn-close-offcanvas"></button>
         </div>
         <div class="offcanvas-body sidebar-menu flex-column p-3">
-            <!-- Cambio de Dashboard por Inicio -->
             <a href="#" onclick="showView('dashboard')" class="nav-btn-dashboard active">Inicio</a>
             <a href="#" onclick="showView('calendario')" class="nav-btn-calendario">Agenda de Actividades</a>
             <a href="#" onclick="showView('animales')" class="nav-btn-animales">Inventario Ganadero</a>
@@ -381,8 +378,8 @@
                         <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Base de Datos en la Nube</h6>
                         <p class="small text-muted mb-4">Sincronice el dispositivo actual con el servidor central para compartir la información con el resto de la organización.</p>
                         <div class="d-flex flex-column gap-2 mt-auto">
-                            <button class="btn btn-primary btn-sm fw-bold shadow-sm py-2" onclick="forzarSubidaNube()">Transmitir Información a Servidor</button>
-                            <button class="btn btn-outline-dark btn-sm fw-bold py-2" onclick="forzarDescargaNube()">Recibir Información del Servidor</button>
+                            <button class="btn btn-primary btn-sm fw-bold shadow-sm py-2" onclick="forzarSubidaNube()">Transmitir Información a Servidor (Subir)</button>
+                            <button class="btn btn-outline-dark btn-sm fw-bold py-2" onclick="forzarDescargaNube()">Recibir Información del Servidor (Descargar)</button>
                         </div>
                     </div>
                     
@@ -648,7 +645,7 @@
         const extraInfo = dataFinal.fincaExtra || {}; telefono_tienda = extraInfo.telefono || ''; ubicacion_finca = extraInfo.ubicacion || ''; logo_finca = extraInfo.logo || '';
         document.getElementById('display-finca-info').innerText = `${ubicacion_finca || 'Sede Principal'} | Móvil: ${telefono_tienda || 'N/A'}`; document.getElementById('display-wa-num').innerText = telefono_tienda || 'N/A'; document.getElementById('input-wa-numero').value = telefono_tienda;
         
-        const logoDisplay = logo_finca || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='90' fill='%23efebe9' stroke='%23795548' stroke-width='8'/><path d='M50 70 C40 50 30 40 20 40 C40 50 60 55 75 60 C85 85 115 85 125 60 C140 55 160 50 180 40 C170 40 160 50 150 70 C140 90 120 120 100 135 C80 120 60 90 50 70 Z' fill='%23795548'/><path d='M45 80 C25 80 15 90 20 100 C30 100 50 90 60 85 Z' fill='%23a1887f'/><path d='M155 80 C175 80 185 90 180 100 C170 100 150 90 140 85 Z' fill='%23a1887f'/><path d='M100 125 C120 150 130 125 100 170 C70 125 80 150 100 125 Z' fill='%234caf50'/></svg>"; document.getElementById('sidebar-logo').src = logoDisplay; document.getElementById('sidebar-logo').style.display = 'block'; document.getElementById('dashboard-logo').src = logoDisplay; document.getElementById('dashboard-logo').style.display = 'block';
+        const logoDisplay = logo_finca || DEFAULT_LOGO; document.getElementById('sidebar-logo').src = logoDisplay; document.getElementById('sidebar-logo').style.display = 'block'; document.getElementById('dashboard-logo').src = logoDisplay; document.getElementById('dashboard-logo').style.display = 'block';
         
         try { const { data: miembros } = await supabaseClient.from('miembros').select('correo').eq('finca_id', miFincaInfo.id); if(miembros) correosAdmins = miembros.map(m => m.correo); } catch(e) {}
         
@@ -667,9 +664,9 @@
             if(statusBadge) { statusBadge.className = 'badge bg-success badge-nube'; statusBadge.innerText = 'Servidor Actualizado'; }
             if(!silencioso) alert("Procedimiento satisfactorio. Nube Corporativa actualizada.");
         } catch (e) {
-            console.error(e);
-            if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube'; statusBadge.innerText = 'Desconexión'; }
-            if(!silencioso) alert("Interrupción de Red: " + (e.message || "Contacte soporte."));
+            console.error("Error exacto subida:", e);
+            if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube'; statusBadge.innerText = 'Error de Red'; }
+            if(!silencioso) alert("Fallo al Subir: " + (e.message || JSON.stringify(e)));
         }
     }
 
@@ -685,12 +682,16 @@
                 animales = Array.isArray(dataFinal.animales) ? dataFinal.animales : []; vacunas = Array.isArray(dataFinal.vacunas) ? dataFinal.vacunas : []; productos = Array.isArray(dataFinal.productos) ? dataFinal.productos : []; bajas = Array.isArray(dataFinal.bajas) ? dataFinal.bajas : []; trabajadores = Array.isArray(dataFinal.trabajadores) ? dataFinal.trabajadores : []; contactos = Array.isArray(dataFinal.contactos) ? dataFinal.contactos : []; tareas = Array.isArray(dataFinal.tareas) ? dataFinal.tareas : []; lotes = Array.isArray(dataFinal.lotes) && dataFinal.lotes.length > 0 ? dataFinal.lotes : ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
                 const extraInfo = dataFinal.fincaExtra || {}; telefono_tienda = extraInfo.telefono || ''; ubicacion_finca = extraInfo.ubicacion || ''; logo_finca = extraInfo.logo || '';
                 document.getElementById('display-finca-info').innerText = `${ubicacion_finca || 'Sede Principal'} | Móvil: ${telefono_tienda || 'N/A'}`;
-                const logoDisplay = logo_finca || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='90' fill='%23efebe9' stroke='%23795548' stroke-width='8'/><path d='M50 70 C40 50 30 40 20 40 C40 50 60 55 75 60 C85 85 115 85 125 60 C140 55 160 50 180 40 C170 40 160 50 150 70 C140 90 120 120 100 135 C80 120 60 90 50 70 Z' fill='%23795548'/><path d='M45 80 C25 80 15 90 20 100 C30 100 50 90 60 85 Z' fill='%23a1887f'/><path d='M155 80 C175 80 185 90 180 100 C170 100 150 90 140 85 Z' fill='%23a1887f'/><path d='M100 125 C120 150 130 125 100 170 C70 125 80 150 100 125 Z' fill='%234caf50'/></svg>"; document.getElementById('sidebar-logo').src = logoDisplay; document.getElementById('sidebar-logo').style.display = 'block'; document.getElementById('dashboard-logo').src = logoDisplay; document.getElementById('dashboard-logo').style.display = 'block'; 
+                const logoDisplay = logo_finca || DEFAULT_LOGO; document.getElementById('sidebar-logo').src = logoDisplay; document.getElementById('sidebar-logo').style.display = 'block'; document.getElementById('dashboard-logo').src = logoDisplay; document.getElementById('dashboard-logo').style.display = 'block'; 
                 guardarLocal(); actualizarSelectsLotes(); actualizarSelectsResponsables(); showView('dashboard');
                 if(statusBadge) { statusBadge.className = 'badge bg-success badge-nube'; statusBadge.innerText = 'Servidor Sincronizado'; }
                 alert("Transferencia ejecutada sin anomalías.");
             } else { alert("Ausencia de base de datos en nube matriz."); if(statusBadge) { statusBadge.className = 'badge bg-secondary badge-nube'; statusBadge.innerText = 'Estado: Local'; } }
-        } catch (e) { if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube'; statusBadge.innerText = 'Desconexión'; } alert("Ruptura del protocolo de red."); console.error(e); }
+        } catch (e) { 
+            console.error("Error exacto descarga:", e);
+            if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube'; statusBadge.innerText = 'Error de Red'; } 
+            alert("Fallo al Descargar: " + (e.message || JSON.stringify(e))); 
+        }
     }
 
     function procesarLogoFinca() {
@@ -845,6 +846,7 @@
         let nombre = document.getElementById('nuevo-lote-nombre').value.trim(); 
         if(!nombre) return;
         nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase(); 
+        
         if (lotes.includes(nombre)) {
             alert("Este lote ya está registrado en la base operativa.");
         } else { 
