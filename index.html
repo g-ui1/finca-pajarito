@@ -126,7 +126,7 @@
         <div class="mb-3 text-center">
             <img id="auth-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='90' fill='%23efebe9' stroke='%23795548' stroke-width='8'/><path d='M50 70 C40 50 30 40 20 40 C40 50 60 55 75 60 C85 85 115 85 125 60 C140 55 160 50 180 40 C170 40 160 50 150 70 C140 90 120 120 100 135 C80 120 60 90 50 70 Z' fill='%23795548'/><path d='M45 80 C25 80 15 90 20 100 C30 100 50 90 60 85 Z' fill='%23a1887f'/><path d='M155 80 C175 80 185 90 180 100 C170 100 150 90 140 85 Z' fill='%23a1887f'/><path d='M100 125 C120 150 130 125 100 170 C70 125 80 150 100 125 Z' fill='%234caf50'/></svg>" style="width: 80px; height: 80px; border-radius:50%; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
             <h3 class="fw-bold text-primary mb-1">AgroSystems</h3>
-            <p class="text-muted mb-0 small fw-bold">Plataforma de Gestión Administrativa <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V29</span></p>
+            <p class="text-muted mb-0 small fw-bold">Plataforma de Gestión Administrativa <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V30</span></p>
         </div>
         
         <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
@@ -246,8 +246,8 @@
             
             <div class="row mb-3 g-3">
                 <div class="col-md-4 col-12"><div class="card card-stat p-3 h-100"><h6 class="text-muted mb-1 small">Inventario Activo (Cabezas)</h6><h3 id="stat-total" class="fw-bold m-0 text-dark">0</h3></div></div>
-                <div class="col-md-4 col-12"><div class="card card-stat p-3 h-100 border-primary"><h6 class="text-muted mb-1 small">Producción Láctea Semanal (Lts)</h6><h3 id="stat-leche" class="text-primary fw-bold m-0">0.0</h3></div></div>
-                <div class="col-md-4 col-12"><div class="card card-stat p-3 h-100 border-success"><h6 class="text-muted mb-1 small">Proyección de Queso (Kg)</h6><h3 id="stat-queso" class="text-success fw-bold m-0">0.0</h3></div></div>
+                <div class="col-md-4 col-12"><div class="card card-stat p-3 h-100 border-primary"><h6 class="text-muted mb-1 small">Leche · últimos 7 días (Lts)</h6><h3 id="stat-leche" class="text-primary fw-bold m-0">0.0</h3></div></div>
+                <div class="col-md-4 col-12"><div class="card card-stat p-3 h-100 border-success"><h6 class="text-muted mb-1 small">Queso estimado · 8,5 L/kg</h6><h3 id="stat-queso" class="text-success fw-bold m-0">0.0</h3></div></div>
             </div>
 
             <div class="card p-3 shadow-sm border bg-white mb-4">
@@ -864,6 +864,56 @@
 
     function guardarWhatsApp(e) { e.preventDefault(); telefono_tienda = document.getElementById('input-wa-numero').value.trim(); document.getElementById('display-wa-num').innerText = telefono_tienda; document.getElementById('display-finca-info').innerText = `${ubicacion_finca || 'Sede Principal'} | Móvil: ${telefono_tienda || 'No asig.'}`; cerrarModal('modalConfigWA'); guardarLocal(); renderTienda(); }
     
+
+    function resumenPorLotes() {
+        const resumen = new Map();
+        (Array.isArray(lotes) ? lotes : []).forEach(nombre => {
+            if (typeof nombre === 'string' && nombre.trim()) resumen.set(nombre.trim(), 0);
+        });
+        animales.forEach(animal => {
+            const nombre = typeof animal.lote === 'string' && animal.lote.trim() ? animal.lote.trim() : 'Sin lote asignado';
+            resumen.set(nombre, (resumen.get(nombre) || 0) + 1);
+        });
+        return Array.from(resumen, ([nombre, cantidad]) => ({ nombre, cantidad }));
+    }
+
+    function renderDashboard() {
+        const contenedor = document.getElementById('dashboard-lotes-container');
+        if (!contenedor) return;
+        actualizarSelectsLotes();
+        document.getElementById('stat-total').textContent = animales.length;
+        const hoy = new Date();
+        const inicio = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - 6);
+        const fechaLocal = fecha => fecha.getFullYear() + '-' + String(fecha.getMonth()+1).padStart(2,'0') + '-' + String(fecha.getDate()).padStart(2,'0');
+        const desde = fechaLocal(inicio), hasta = fechaLocal(hoy);
+        let leche = 0;
+        animales.forEach(animal => (Array.isArray(animal.historialLeche) ? animal.historialLeche : []).forEach(registro => {
+            const litros = Number(registro.litros);
+            if (registro.fecha >= desde && registro.fecha <= hasta && Number.isFinite(litros) && litros >= 0) leche += litros;
+        }));
+        document.getElementById('stat-leche').textContent = leche.toFixed(1);
+        document.getElementById('stat-queso').textContent = (leche / 8.5).toFixed(1);
+        contenedor.replaceChildren();
+        resumenPorLotes().forEach(({nombre, cantidad}) => {
+            const columna = document.createElement('div');
+            columna.className = 'col-6 col-md-4 col-xl-3';
+            const tarjeta = document.createElement('div');
+            tarjeta.className = 'card card-lote p-3 h-100 bg-white';
+            const titulo = document.createElement('h6');
+            titulo.className = 'text-muted mb-2';
+            titulo.textContent = nombre;
+            const numero = document.createElement('div');
+            numero.className = 'display-6 fw-bold text-primary';
+            numero.textContent = cantidad;
+            const etiqueta = document.createElement('small');
+            etiqueta.className = 'text-muted';
+            etiqueta.textContent = cantidad === 1 ? 'animal activo' : 'animales activos';
+            tarjeta.append(titulo, numero, etiqueta);
+            columna.appendChild(tarjeta);
+            contenedor.appendChild(columna);
+        });
+    }
+
     function actualizarSelectsLotes() {
         const nombres = (Array.isArray(lotes) ? lotes : [])
             .filter(lote => typeof lote === 'string')
