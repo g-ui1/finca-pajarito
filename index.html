@@ -38,7 +38,6 @@
 
         #init-loader { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: white; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
-        /* FONDO INMERSIVO GANADERO PARA LOGIN */
         #auth-screen { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10000; 
             display: none; align-items: center; justify-content: center; overflow-y: auto; padding: 20px 0; 
@@ -103,7 +102,11 @@
         .cal-day-num { font-size: 0.9rem; font-weight: bold; text-align: center; margin-bottom: 5px; color: #555;}
         .cal-event-pill { font-size: 0.75rem; font-weight: 600; padding: 3px 6px; border-radius: 4px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.1);}
         .cal-scroll-wrapper { overflow-x: auto; scrollbar-width: thin; }
-        .cal-min-width { min-width: 800px; } /* Fuerza el scroll en móviles para no aplastar los días */
+        .cal-min-width { min-width: 800px; }
+        
+        /* BOTÓN MOSTRAR CONTRASEÑA */
+        .password-toggle-btn { border-color: #dee2e6; background-color: #f8f9fa; color: #6c757d; }
+        .password-toggle-btn:hover { background-color: #e9ecef; color: #495057; }
     </style>
 </head>
 <body>
@@ -118,14 +121,19 @@
         <div class="mb-3 text-center">
             <img id="auth-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='90' fill='%23efebe9' stroke='%23795548' stroke-width='8'/><path d='M50 70 C40 50 30 40 20 40 C40 50 60 55 75 60 C85 85 115 85 125 60 C140 55 160 50 180 40 C170 40 160 50 150 70 C140 90 120 120 100 135 C80 120 60 90 50 70 Z' fill='%23795548'/><path d='M45 80 C25 80 15 90 20 100 C30 100 50 90 60 85 Z' fill='%23a1887f'/><path d='M155 80 C175 80 185 90 180 100 C170 100 150 90 140 85 Z' fill='%23a1887f'/><path d='M100 125 C120 150 130 125 100 170 C70 125 80 150 100 125 Z' fill='%234caf50'/></svg>" style="width: 90px; height: 90px; border-radius:50%; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
             <h2 class="fw-bold text-primary mb-1">AgroSystems</h2>
-            <p class="text-muted mb-0 small fw-bold">Software de Gestión <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V22</span></p>
+            <p class="text-muted mb-0 small fw-bold">Software de Gestión <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V23</span></p>
         </div>
         
         <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
 
         <div id="auth-login-view">
-            <input type="email" id="auth-email" class="form-control mb-3" placeholder="Correo Electrónico">
-            <input type="password" id="auth-pass" class="form-control mb-3" placeholder="Contraseña">
+            <input type="email" id="auth-email" class="form-control mb-3 shadow-sm" placeholder="Correo Electrónico">
+            
+            <div class="input-group mb-3 shadow-sm">
+                <input type="password" id="auth-pass" class="form-control" placeholder="Contraseña">
+                <button class="btn password-toggle-btn border" type="button" onclick="togglePassword('auth-pass', this)" title="Mostrar contraseña">👁️</button>
+            </div>
+            
             <button type="button" class="btn btn-primary w-100 fw-bold mb-2 shadow-sm" onclick="login()">Iniciar Sesión</button>
             <button type="button" class="btn btn-outline-secondary w-100 btn-sm" onclick="showAuthView('register')">Crear cuenta corporativa</button>
         </div>
@@ -137,8 +145,13 @@
                 <div class="col-6"><input type="text" id="reg-apellido" class="form-control form-control-sm" placeholder="Apellido"></div>
             </div>
             <input type="email" id="reg-email" class="form-control form-control-sm mb-2" placeholder="Correo Electrónico">
-            <input type="password" id="reg-pass" class="form-control form-control-sm mb-3" placeholder="Contraseña (Min. 6 letras)">
-            <button type="button" id="btn-registrar" class="btn btn-primary w-100 fw-bold mb-2" onclick="registrarUsuario()">Crear Cuenta</button>
+            
+            <div class="input-group input-group-sm mb-3">
+                <input type="password" id="reg-pass" class="form-control" placeholder="Contraseña (Min. 6 letras)">
+                <button class="btn password-toggle-btn border" type="button" onclick="togglePassword('reg-pass', this)" title="Mostrar contraseña">👁️</button>
+            </div>
+            
+            <button type="button" id="btn-registrar" class="btn btn-primary w-100 fw-bold mb-2 shadow-sm" onclick="registrarUsuario()">Crear Cuenta</button>
             <button type="button" class="btn btn-link text-muted w-100 btn-sm" onclick="showAuthView('login')">Volver al inicio</button>
         </div>
 
@@ -230,7 +243,6 @@
                 <div class="col-md-4 col-12"><div class="card card-stat p-3 h-100 border-success"><h6 class="text-muted mb-1 small">Queso Est. (Kg)</h6><h3 id="stat-queso" class="text-success fw-bold m-0">0.0</h3></div></div>
             </div>
 
-            <!-- MINI AGENDA -->
             <div class="card p-3 shadow-sm border bg-white mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="fw-bold m-0 text-primary">Próximas Actividades</h6>
@@ -249,7 +261,6 @@
             <ul class="list-group shadow-sm border-0" id="alertas-destete"></ul>
         </div>
 
-        <!-- CALENDARIO FULL -->
         <div id="view-calendario" class="view-section hidden">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3 class="fw-bold m-0">Agenda General</h3>
@@ -266,9 +277,7 @@
                     <div class="calendar-header-row">
                         <div>DOM</div><div>LUN</div><div>MAR</div><div>MIÉ</div><div>JUE</div><div>VIE</div><div>SÁB</div>
                     </div>
-                    <div class="calendar-grid-days" id="cal-grid-days">
-                        <!-- Generado por JS -->
-                    </div>
+                    <div class="calendar-grid-days" id="cal-grid-days"></div>
                 </div>
             </div>
             <div class="mt-3 d-flex gap-3 small text-muted">
@@ -341,7 +350,6 @@
             <ul class="list-group shadow-sm border" id="lista-vacunas"></ul>
         </div>
         
-        <!-- VISTA DE PERFIL Y AJUSTES -->
         <div id="view-perfil" class="view-section hidden">
             <h3 class="fw-bold mb-4">Perfil y Ajustes</h3>
             <div class="row g-4">
@@ -399,23 +407,14 @@
                     <tbody id="tabla-trabajadores"></tbody>
                 </table>
             </div>
-            
-            <div class="fab-container">
-                <button class="btn-fab" onclick="abrirModalTrabajador()" title="Agregar Personal">+</button>
-            </div>
+            <div class="fab-container"><button class="btn-fab" onclick="abrirModalTrabajador()" title="Agregar Personal">+</button></div>
         </div>
 
         <div id="view-directorio" class="view-section hidden admin-only position-relative" style="min-height: 80vh;">
             <h3 class="fw-bold mb-3">Directorio de Contactos</h3>
             <p class="text-muted small mb-4">Contratistas, mantenimiento, veterinarios y servicios externos.</p>
-            
-            <div class="row g-3" id="lista-contactos">
-                <!-- Se llena con JS -->
-            </div>
-            
-            <div class="fab-container">
-                <button class="btn-fab" onclick="abrirModalContacto()" title="Agregar Contacto">+</button>
-            </div>
+            <div class="row g-3" id="lista-contactos"></div>
+            <div class="fab-container"><button class="btn-fab" onclick="abrirModalContacto()" title="Agregar Contacto">+</button></div>
         </div>
 
         <div id="view-datos" class="view-section hidden admin-only">
@@ -442,7 +441,7 @@
 </div>
 
 <!-- ============================================== -->
-<!-- MODALES -->
+<!-- MODALES Y FORMULARIOS -->
 <!-- ============================================== -->
 <div class="modal fade" id="modalConfigWA" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h6 class="modal-title fw-bold m-0">Línea de Ventas</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-config-wa" onsubmit="guardarWhatsApp(event)"><label class="fw-bold text-muted mb-2 small">Número (Ej: +584141234567):</label><input type="text" id="input-wa-numero" class="form-control form-control-sm" required></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-config-wa" class="btn btn-primary btn-sm w-100 fw-bold">Actualizar</button></div></div></div></div>
 <div class="modal fade" id="modalProducto" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h6 class="modal-title fw-bold m-0" id="modalProductoTitle">Ficha de Producto</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-producto" onsubmit="guardarProducto(event)"><input type="hidden" id="prod-id-edit"> <div class="row g-2"><div class="col-12 mb-1"><label class="fw-bold small text-muted">Nombre</label><input type="text" id="prod-nombre" class="form-control form-control-sm" required></div><div class="col-12 mb-1"><label class="fw-bold small text-muted">Categoría</label><select id="prod-categoria" class="form-select form-select-sm" required><option value="Medicamentos">Medicamentos</option><option value="Accesorios">Accesorios</option><option value="Utensilios">Utensilios</option><option value="Otros">Otros</option></select></div><div class="col-6 mb-1"><label class="fw-bold small text-muted">Precio ($)</label><input type="number" step="0.01" id="prod-precio" class="form-control form-control-sm" required></div><div class="col-6 mb-1"><label class="fw-bold small text-muted">Stock</label><input type="number" id="prod-stock" class="form-control form-control-sm" required></div><div class="col-12 mb-1"><label class="fw-bold small text-muted">Descripción</label><textarea id="prod-descripcion" class="form-control form-control-sm" rows="2"></textarea></div><div class="col-12 mb-1"><label class="fw-bold small text-muted">Fotografía</label><input type="file" id="prod-foto-file" class="form-control form-control-sm" accept="image/*" capture="environment"><input type="hidden" id="prod-foto-base64"><div class="text-center mt-2"><img id="prod-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-producto" class="btn btn-primary btn-sm w-100 fw-bold">Guardar Cambios</button></div></div></div></div>
@@ -475,10 +474,21 @@
 <script>
     window.onerror = function(msg, url, line) { console.error("Error Interno:", msg, line); return false; };
 
+    function togglePassword(inputId, btnEl) {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            btnEl.innerText = '🙈';
+        } else {
+            input.type = 'password';
+            btnEl.innerText = '👁️';
+        }
+    }
+
     const SUPABASE_URL = 'https://pznaumhcnpotlarvrcjl.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_3Upyqun-W_H5F7KdOQpMpQ_HuHHtJXp';
     let supabaseClient = null; let session = null; let miFincaInfo = null; 
-    let currentDateCal = new Date(); // Para el calendario
+    let currentDateCal = new Date(); 
 
     let animales = []; let vacunas = []; let productos = []; let lotes = []; let bajas = []; 
     let trabajadores = []; let contactos = []; let tareas = []; let correosAdmins = [];
@@ -695,99 +705,46 @@
         cerrarMenuCelular(); window.scrollTo(0, 0); 
     }
 
-    // ==========================================
-    // AGENDA Y CALENDARIO FULL
-    // ==========================================
     function abrirModalTareaNueva(fechaStr) {
-        document.getElementById('form-tarea').reset();
-        document.getElementById('tarea-id').value = '';
-        document.getElementById('tarea-fecha').value = fechaStr;
-        document.getElementById('tituloModalTarea').innerText = 'Nueva Actividad';
-        new bootstrap.Modal(document.getElementById('modalTarea')).show();
+        document.getElementById('form-tarea').reset(); document.getElementById('tarea-id').value = ''; document.getElementById('tarea-fecha').value = fechaStr; document.getElementById('tituloModalTarea').innerText = 'Nueva Actividad'; new bootstrap.Modal(document.getElementById('modalTarea')).show();
     }
-
     function abrirModalTarea(id) {
-        const t = tareas.find(x => x.id === id);
-        if(!t) return;
-        document.getElementById('form-tarea').reset();
-        document.getElementById('tarea-id').value = t.id;
-        document.getElementById('tarea-titulo').value = t.titulo;
-        document.getElementById('tarea-fecha').value = t.fecha;
-        document.getElementById('tarea-estado').value = t.estado;
-        document.getElementById('tituloModalTarea').innerText = 'Editar Actividad';
-        new bootstrap.Modal(document.getElementById('modalTarea')).show();
+        const t = tareas.find(x => x.id === id); if(!t) return;
+        document.getElementById('form-tarea').reset(); document.getElementById('tarea-id').value = t.id; document.getElementById('tarea-titulo').value = t.titulo; document.getElementById('tarea-fecha').value = t.fecha; document.getElementById('tarea-estado').value = t.estado; document.getElementById('tituloModalTarea').innerText = 'Editar Actividad'; new bootstrap.Modal(document.getElementById('modalTarea')).show();
     }
-
     function guardarTarea(e) {
-        e.preventDefault();
-        const id = document.getElementById('tarea-id').value; const titulo = document.getElementById('tarea-titulo').value.trim(); const fecha = document.getElementById('tarea-fecha').value; const estado = document.getElementById('tarea-estado').value;
-        if(id) { const i = tareas.findIndex(t => t.id === id); if(i!==-1) { tareas[i].titulo = titulo; tareas[i].fecha = fecha; tareas[i].estado = estado; } } 
-        else { tareas.push({ id: Date.now().toString(), titulo, fecha, estado }); }
-        guardarLocal(); bootstrap.Modal.getInstance(document.getElementById('modalTarea')).hide(); 
-        renderFullCalendar(); renderMiniAgenda();
+        e.preventDefault(); const id = document.getElementById('tarea-id').value; const titulo = document.getElementById('tarea-titulo').value.trim(); const fecha = document.getElementById('tarea-fecha').value; const estado = document.getElementById('tarea-estado').value;
+        if(id) { const i = tareas.findIndex(t => t.id === id); if(i!==-1) { tareas[i].titulo = titulo; tareas[i].fecha = fecha; tareas[i].estado = estado; } } else { tareas.push({ id: Date.now().toString(), titulo, fecha, estado }); }
+        guardarLocal(); bootstrap.Modal.getInstance(document.getElementById('modalTarea')).hide(); renderFullCalendar(); renderMiniAgenda();
     }
+    function eliminarTarea(id) { if(confirm("¿Eliminar actividad de la agenda?")) { tareas = tareas.filter(t => t.id !== id); guardarLocal(); renderFullCalendar(); renderMiniAgenda(); } }
 
-    function cambiarMesCalendario(dir) {
-        currentDateCal.setMonth(currentDateCal.getMonth() + dir);
-        renderFullCalendar();
-    }
+    function cambiarMesCalendario(dir) { currentDateCal.setMonth(currentDateCal.getMonth() + dir); renderFullCalendar(); }
 
     function renderFullCalendar() {
-        const year = currentDateCal.getFullYear();
-        const month = currentDateCal.getMonth();
-        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        const year = currentDateCal.getFullYear(); const month = currentDateCal.getMonth(); const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
         document.getElementById('cal-month-year').innerText = `${monthNames[month]} ${year}`;
-
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-        const grid = document.getElementById('cal-grid-days');
-        grid.innerHTML = '';
-
+        const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const grid = document.getElementById('cal-grid-days'); grid.innerHTML = '';
         for(let i = 0; i < firstDay; i++) { grid.innerHTML += `<div class="calendar-day disabled"></div>`; }
-
         const hoyStr = new Date().toISOString().split('T')[0];
-
         for(let i = 1; i <= daysInMonth; i++) {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
             const dayTareas = tareas.filter(t => t.fecha === dateStr);
-            
             let pillsHtml = '';
-            dayTareas.forEach(t => {
-                let bg = 'bg-warning text-dark';
-                if(t.estado === 'Realizado') bg = 'bg-success text-white';
-                if(t.estado === 'Suspendido') bg = 'bg-danger text-white text-decoration-line-through';
-                pillsHtml += `<div class="cal-event-pill ${bg}" onclick="event.stopPropagation(); abrirModalTarea('${t.id}')">${t.titulo}</div>`;
-            });
-
+            dayTareas.forEach(t => { let bg = 'bg-warning text-dark'; if(t.estado === 'Realizado') bg = 'bg-success text-white'; if(t.estado === 'Suspendido') bg = 'bg-danger text-white text-decoration-line-through'; pillsHtml += `<div class="cal-event-pill ${bg}" onclick="event.stopPropagation(); abrirModalTarea('${t.id}')">${t.titulo}</div>`; });
             const isToday = (dateStr === hoyStr) ? 'today' : '';
-
-            grid.innerHTML += `
-            <div class="calendar-day ${isToday}" onclick="abrirModalTareaNueva('${dateStr}')">
-                <div class="cal-day-num">${i}</div>
-                <div>${pillsHtml}</div>
-            </div>`;
+            grid.innerHTML += `<div class="calendar-day ${isToday}" onclick="abrirModalTareaNueva('${dateStr}')"><div class="cal-day-num">${i}</div><div>${pillsHtml}</div></div>`;
         }
     }
 
     function renderMiniAgenda() {
-        const contenedor = document.getElementById('mini-agenda'); contenedor.innerHTML = '';
-        const hoyStr = new Date().toISOString().split('T')[0];
+        const contenedor = document.getElementById('mini-agenda'); contenedor.innerHTML = ''; const hoyStr = new Date().toISOString().split('T')[0];
         let tareasFuturas = tareas.filter(t => t.fecha >= hoyStr).sort((a,b) => new Date(a.fecha) - new Date(b.fecha)).slice(0, 5);
-        
         if(tareasFuturas.length === 0) { contenedor.innerHTML = '<div class="list-group-item text-muted small border-0 px-2 py-3">No hay actividades próximas programadas.</div>'; return; }
-        
-        tareasFuturas.forEach(t => {
-            let classColor = 'status-pendiente';
-            if(t.estado === 'Realizado') classColor = 'status-realizado';
-            if(t.estado === 'Suspendido') classColor = 'status-suspendido';
-            contenedor.innerHTML += `<div class="list-group-item d-flex justify-content-between align-items-center border-0 px-3 py-2 mb-1 rounded bg-light shadow-sm ${classColor}"><div style="flex-grow:1;"><h6 class="m-0 fw-bold text-dark" style="font-size:0.85rem;">${t.titulo}</h6><small class="text-muted" style="font-size:0.75rem;">${t.fecha}</small></div></div>`;
-        });
+        tareasFuturas.forEach(t => { let classColor = 'status-pendiente'; if(t.estado === 'Realizado') classColor = 'status-realizado'; if(t.estado === 'Suspendido') classColor = 'status-suspendido'; contenedor.innerHTML += `<div class="list-group-item d-flex justify-content-between align-items-center border-0 px-3 py-2 mb-1 rounded bg-light shadow-sm ${classColor}"><div style="flex-grow:1;"><h6 class="m-0 fw-bold text-dark" style="font-size:0.85rem;">${t.titulo}</h6><small class="text-muted" style="font-size:0.75rem;">${t.fecha}</small></div></div>`; });
     }
 
-    // ==========================================
-    // EQUIPO Y TRABAJADORES (Sin App)
-    // ==========================================
     async function renderEquipo() {
         if(miFincaInfo.rol !== 'admin') return;
         document.getElementById('display-codigo-equipo').innerText = miFincaInfo.codigo;
@@ -804,9 +761,7 @@
         
         const tablaTrab = document.getElementById('tabla-trabajadores'); tablaTrab.innerHTML = '';
         if(trabajadores.length === 0) { tablaTrab.innerHTML = '<tr><td colspan="4" class="text-center text-muted small py-3">No hay personal de campo registrado. Usa el botón (+) inferior.</td></tr>'; }
-        trabajadores.forEach(t => {
-            tablaTrab.innerHTML += `<tr><td class="fw-bold">${t.nombre}</td><td>${t.cedula}</td><td>${t.origen || 'N/A'}</td><td class="text-end"><button class="btn btn-sm btn-outline-primary py-0 me-1" onclick="abrirModalTrabajador('${t.id}')">Ver</button><button class="btn btn-sm btn-outline-danger py-0" onclick="eliminarTrabajador('${t.id}')">X</button></td></tr>`;
-        });
+        trabajadores.forEach(t => { tablaTrab.innerHTML += `<tr><td class="fw-bold">${t.nombre}</td><td>${t.cedula}</td><td>${t.origen || 'N/A'}</td><td class="text-end"><button class="btn btn-sm btn-outline-primary py-0 me-1" onclick="abrirModalTrabajador('${t.id}')">Ver</button><button class="btn btn-sm btn-outline-danger py-0" onclick="eliminarTrabajador('${t.id}')">X</button></td></tr>`; });
     }
 
     async function eliminarMiembro(idMiembro) { if(!confirm("Se revocarán los accesos de este usuario. ¿Confirmar?")) return; await supabaseClient.from('miembros').delete().eq('id', idMiembro); renderEquipo(); }
@@ -825,14 +780,10 @@
     function eliminarTrabajador(id) { if(confirm("¿Eliminar trabajador de campo?")) { trabajadores = trabajadores.filter(x => x.id !== id); guardarLocal(); actualizarSelectsResponsables(); renderEquipo(); } }
 
     function actualizarSelectsResponsables() {
-        const selects = document.querySelectorAll('.select-responsable');
-        const opciones = [...correosAdmins, ...trabajadores.map(t => t.nombre)];
+        const selects = document.querySelectorAll('.select-responsable'); const opciones = [...correosAdmins, ...trabajadores.map(t => t.nombre)];
         selects.forEach(el => { el.innerHTML = '<option value="No registrado">Responsable...</option>'; opciones.forEach(op => { if(op) el.innerHTML += `<option value="${op}">${op}</option>`; }); });
     }
 
-    // ==========================================
-    // DIRECTORIO DE CONTACTOS
-    // ==========================================
     function verificarEspecialidad() { const val = document.getElementById('contacto-especialidad').value; const divOtro = document.getElementById('contacto-especialidad-otro'); if(val === 'Otro') { divOtro.classList.remove('hidden'); divOtro.required = true; } else { divOtro.classList.add('hidden'); divOtro.required = false; } }
 
     function abrirModalContacto(id = null) {
@@ -937,15 +888,6 @@
     function aplicarVacuna(e) { e.preventDefault(); vacunas.push({ lote: document.getElementById('vacuna-lote').value, tipo: document.getElementById('vacuna-tipo').value.trim(), personal: document.getElementById('vacuna-personal') ? document.getElementById('vacuna-personal').value : 'No registrado', fecha: document.getElementById('vacuna-fecha').value }); guardarLocal(); e.target.reset(); renderVacunas(); }
     function renderVacunas() { const lista = document.getElementById('lista-vacunas'); lista.innerHTML = ''; const ultimasVacunas = vacunas.slice().reverse().slice(0, 50); ultimasVacunas.forEach(v => { lista.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-start border-0 border-bottom mb-1"><div><h6 class="mb-1 fw-bold text-dark">${v.tipo}</h6><small class="text-muted">Grupo: ${v.lote} | Por: <span class="text-primary">${v.personal}</span></small></div><span class="badge bg-secondary text-dark rounded mt-2">${v.fecha}</span></li>`; }); }
 
-    function renderDashboard() { 
-        document.getElementById('stat-total').innerText = animales.length; let lecheTotal = 0; const vacasOrdeno = animales.filter(a => a.lote === 'Ordeño'); vacasOrdeno.forEach(v => { if(v.historialLeche && v.historialLeche.length > 0) lecheTotal += v.historialLeche[v.historialLeche.length - 1].litros; }); document.getElementById('stat-leche').innerText = lecheTotal.toFixed(1); document.getElementById('stat-queso').innerText = (lecheTotal / 8.5).toFixed(1);
-        const containerLotes = document.getElementById('dashboard-lotes-container'); containerLotes.innerHTML = '';
-        lotes.forEach(loteNombre => { const cantidad = animales.filter(a => a.lote === loteNombre).length; containerLotes.innerHTML += `<div class="col-6 col-md-3 mb-2"><div class="card card-lote p-2 text-center bg-white border-bottom border-primary border-3 h-100"><h6 class="text-muted text-uppercase fw-bold m-0 mt-2 mb-1" style="font-size: 0.75rem;">${loteNombre}</h6><h3 class="text-dark m-0 pb-1">${cantidad}</h3></div></div>`; });
-        const alertasBox = document.getElementById('alertas-destete'); alertasBox.innerHTML = ''; let destetesPendientes = 0; const becerros = animales.filter(a => a.lote === 'Becerros');
-        becerros.forEach(b => { if(b.nacimiento && b.nacimiento !== 'undefined') { const dias = Math.floor((new Date() - new Date(b.nacimiento)) / (1000 * 60 * 60 * 24)); if(dias >= 210) { destetesPendientes++; const idMostrar = b.id_animal || b.id || ''; const nomMostrar = b.nombre && b.nombre !== 'undefined' ? b.nombre : ''; alertasBox.innerHTML += `<li class="list-group-item list-group-item-danger d-flex justify-content-between border flex-wrap mb-1 rounded small"><span><strong>${idMostrar} - ${nomMostrar}</strong></span><span>Evaluar reubicación (${Math.floor(dias/30)} meses)</span></li>`; } } });
-        if(destetesPendientes === 0) alertasBox.innerHTML = '<li class="list-group-item text-muted border-0 small">Operatividad normal. Ningún caso detectado.</li>';
-    }
-
     function exportarExcelSimple() { 
         const wb = XLSX.utils.book_new();
         const animalesData = animales.map(a => ({ "ID Animal": a.id_animal || a.id || '', "Nombre": a.nombre !== 'undefined' ? a.nombre : '', "Especie": a.especie || 'Bovino', "Raza": a.raza || 'S/D', "Genética": a.genetica || 'Puro', "Sexo": a.sexo || '', "Lote": a.lote, "Potrero": a.potrero || 'S/A', "Nacimiento": a.nacimiento !== 'undefined' ? a.nacimiento : '', "Madre": a.madre !== 'undefined' ? a.madre : '' })); 
@@ -967,21 +909,13 @@
                 const wb = XLSX.read(new Uint8Array(e.target.result), {type: 'array', cellDates: true});
                 const animalesSheet = XLSX.utils.sheet_to_json(wb.Sheets["Rebaño General"] || wb.Sheets["Animales Activos"] || wb.Sheets["Animales"] || wb.Sheets[wb.SheetNames[0]] || []);
                 let procesados = 0;
-                
                 animalesSheet.forEach(row => {
                     let idLeido = row["ID Animal"] || row["ID Por Animal"] || row["Chapa"];
                     if(!idLeido || String(idLeido).trim() === '') return;
                     let loteLeido = String(row.Lote || 'Becerros').trim(); loteLeido = loteLeido.charAt(0).toUpperCase() + loteLeido.slice(1).toLowerCase();
                     if(!lotes.includes(loteLeido)) lotes.push(loteLeido);
-                    
                     const vacaIndex = animales.findIndex(a => a.id_animal === String(idLeido).trim());
-                    if(vacaIndex !== -1) {
-                        animales[vacaIndex].nombre = row.Nombre ? String(row.Nombre).trim() : animales[vacaIndex].nombre;
-                        animales[vacaIndex].lote = loteLeido;
-                        animales[vacaIndex].potrero = row.Potrero ? String(row.Potrero).trim() : animales[vacaIndex].potrero;
-                    } else {
-                        animales.push({ id_interno: Date.now().toString() + Math.random().toString(36).substr(2, 5), id_animal: String(idLeido).trim(), nombre: row.Nombre ? String(row.Nombre).trim() : '', especie: row.Especie ? String(row.Especie).trim() : 'Bovino', raza: row.Raza ? String(row.Raza).trim() : 'S/D', genetica: row.Genética ? String(row.Genética).trim() : 'Puro', potrero: row.Potrero ? String(row.Potrero).trim() : 'N/A', proveniente: 'S/D', sexo: row.Sexo ? String(row.Sexo).trim() : 'Hembra', lote: loteLeido, nacimiento: procesarFechaExcel(row.Nacimiento), madre: row.Madre ? String(row.Madre).trim() : 'S/D', foto: 'https://placehold.co/400x400/795548/ffffff?text=Sin+Foto', historialLeche: [], historialPeso: [], vacunas: [] });
-                    }
+                    if(vacaIndex !== -1) { animales[vacaIndex].nombre = row.Nombre ? String(row.Nombre).trim() : animales[vacaIndex].nombre; animales[vacaIndex].lote = loteLeido; animales[vacaIndex].potrero = row.Potrero ? String(row.Potrero).trim() : animales[vacaIndex].potrero; } else { animales.push({ id_interno: Date.now().toString() + Math.random().toString(36).substr(2, 5), id_animal: String(idLeido).trim(), nombre: row.Nombre ? String(row.Nombre).trim() : '', especie: row.Especie ? String(row.Especie).trim() : 'Bovino', raza: row.Raza ? String(row.Raza).trim() : 'S/D', genetica: row.Genética ? String(row.Genética).trim() : 'Puro', potrero: row.Potrero ? String(row.Potrero).trim() : 'N/A', proveniente: 'S/D', sexo: row.Sexo ? String(row.Sexo).trim() : 'Hembra', lote: loteLeido, nacimiento: procesarFechaExcel(row.Nacimiento), madre: row.Madre ? String(row.Madre).trim() : 'S/D', foto: 'https://placehold.co/400x400/795548/ffffff?text=Sin+Foto', historialLeche: [], historialPeso: [], vacunas: [] }); }
                     procesados++;
                 });
                 if(procesados === 0) { alert("No se encontraron animales. Verifique que la columna se llame 'ID Animal'."); fileInput.value = ''; return; }
