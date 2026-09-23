@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#2e7d32">
-    <title>AgroSystems - Gestión Integral V15</title>
+    <title>AgroSystems - Gestión Integral V16</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -66,7 +66,7 @@
 
 <div id="auth-screen">
     <div class="auth-box">
-        <h2 class="fw-bold text-success mb-0">🌿 AgroSystems <span class="badge" style="background-color: #000000; font-size: 0.8rem; vertical-align: middle;">V15</span></h2>
+        <h2 class="fw-bold text-success mb-0">🌿 AgroSystems <span class="badge" style="background-color: #1a237e; font-size: 0.8rem; vertical-align: middle;">V16</span></h2>
         <p class="text-muted mb-4">Gestión Inteligente de Fincas</p>
         
         <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
@@ -255,11 +255,8 @@
             <h2 class="mb-4 fw-bold">Respaldo Excel</h2>
             <div class="row g-3">
                 <div class="col-12 col-md-6"><div class="card p-4 text-center h-100 shadow-sm border-success"><h4 class="text-success mb-3 fw-bold">📤 Exportar Datos</h4><button class="btn btn-success btn-lg mt-auto shadow" onclick="exportarExcel()">Descargar Archivo Excel</button></div></div>
-                <div class="col-12 col-md-6"><div class="card p-4 text-center h-100 shadow-sm border-primary"><h4 class="text-primary mb-3 fw-bold">📥 Importar Nube</h4><input type="file" id="input-importar" class="form-control mb-3" accept=".xlsx, .xls"><button class="btn btn-primary btn-lg mt-auto shadow" onclick="importarExcel()">Subir Archivo</button></div></div>
-                <!-- BOTÓN DE EMERGENCIA -->
-                <div class="col-12 mt-4">
-                    <button class="btn btn-outline-danger w-100 fw-bold" onclick="resetearNube()">🚨 Borrar mi base de datos para arreglar errores de corrupción</button>
-                </div>
+                <div class="col-12 col-md-6"><div class="card p-4 text-center h-100 shadow-sm border-primary"><h4 class="text-primary mb-3 fw-bold">📥 Importar Excel</h4><input type="file" id="input-importar" class="form-control mb-3" accept=".xlsx, .xls"><button class="btn btn-primary btn-lg mt-auto shadow" onclick="importarExcel()">Subir Archivo</button></div></div>
+                
             </div>
         </div>
     </div>
@@ -291,11 +288,9 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // MANEJADOR DE ERRORES GLOBAL PARA EVITAR CONGELAMIENTO
+    // MANEJADOR GLOBAL DE ERRORES (Evita pantallas blancas)
     window.onerror = function(msg, url, line) {
-        const eb = document.getElementById('auth-error');
-        if(eb) eb.innerHTML = "❌ Fallo del Sistema: " + msg + ". Usa el botón de reset en 'Respaldo Excel'.";
-        console.error(msg, line);
+        console.error("Error del Sistema:", msg, "Línea:", line);
         return false;
     };
 
@@ -384,7 +379,6 @@
             if (miembroData && miembroData.finca_id) {
                 const { data: fincaDataArray } = await supabaseClient.from('fincas').select('id, nombre, codigo_invitacion').eq('id', miembroData.finca_id).limit(1);
                 const fincaData = fincaDataArray && fincaDataArray.length > 0 ? fincaDataArray[0] : null;
-                
                 if(!fincaData) throw new Error("Finca no encontrada");
                 
                 miFincaInfo = { id: fincaData.id, nombre: fincaData.nombre, rol: miembroData.rol, codigo: fincaData.codigo_invitacion };
@@ -427,6 +421,17 @@
         } catch(e) { errorBox.innerText = "❌ " + e.message; }
     }
 
+    // ==========================================
+    // SISTEMA BLINDADO: ESTRATEGIA DEL GAVETERO Y MEMORIA LOCAL (V16)
+    // ==========================================
+    
+    // GUARDA EN LA MEMORIA DEL NAVEGADOR
+    function guardarLocal() {
+        if(!miFincaInfo) return;
+        const estadoCompleto = { animales, vacunas, productos, lotes, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda } };
+        localStorage.setItem('agro_data_' + miFincaInfo.id, JSON.stringify(estadoCompleto));
+    }
+
     async function arrancarAplicacion() {
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('app-screen').style.display = 'block';
@@ -438,106 +443,140 @@
         document.getElementById('display-finca-nombre').innerHTML = `${miFincaInfo.nombre}`;
         document.getElementById('badge-rol').innerText = miFincaInfo.rol === 'admin' ? '👑 Admin / Dueño' : '🧑‍🌾 Empleado';
         document.getElementById('badge-codigo').innerText = `Código Invite: ${miFincaInfo.codigo}`;
-
         if(miFincaInfo.rol !== 'admin') document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
 
+        let nubeData = { animales: [], vacunas: [], productos: [], lotes: ['Ordeño', 'Horro', 'Mautes', 'Becerros'], fincaExtra: {} };
+        let maxAnimales = -1;
+        let idParaActualizar = null;
+
         try {
-            const { data: fetchArray, error: fetchErr } = await supabaseClient.from('finca_data').select('data').eq('finca_id', miFincaInfo.id).limit(1);
-            let rawData = {};
-            if(fetchArray && fetchArray.length > 0 && fetchArray[0].data) {
-                rawData = fetchArray[0].data;
+            // ESTRATEGIA DEL GAVETERO: Leer todos los cajones, ignorar los vacíos y quedarnos con el mejor.
+            const { data: todosLosCajones } = await supabaseClient.from('finca_data').select('id, data').eq('finca_id', miFincaInfo.id);
+            
+            if (todosLosCajones && todosLosCajones.length > 0) {
+                todosLosCajones.forEach(cajon => {
+                    let cantidad = (cajon.data && cajon.data.animales) ? cajon.data.animales.length : 0;
+                    if(cantidad > maxAnimales) {
+                        maxAnimales = cantidad;
+                        nubeData = cajon.data;
+                        idParaActualizar = cajon.id;
+                    }
+                });
+                
+                // LIMPIEZA DE FANTASMAS (Borra los cajones inútiles para no estorbar más a la base de datos)
+                if (todosLosCajones.length > 1 && idParaActualizar) {
+                    const idsBorrables = todosLosCajones.filter(c => c.id !== idParaActualizar).map(c => c.id);
+                    supabaseClient.from('finca_data').delete().in('id', idsBorrables).then();
+                }
             }
-            
-            // FILTRO ANTI-CORRUPCIÓN V15: Garantizamos que todo sea un Array válido
-            animales = Array.isArray(rawData.animales) ? rawData.animales : [];
-            vacunas = Array.isArray(rawData.vacunas) ? rawData.vacunas : [];
-            productos = Array.isArray(rawData.productos) ? rawData.productos : [];
-            
-            // Garantizamos que los lotes no vengan destruidos o nulos
-            if (Array.isArray(rawData.lotes) && rawData.lotes.length > 0) {
-                lotes = rawData.lotes;
-            } else {
-                lotes = ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
-            }
-            
-            const extraInfo = rawData.fincaExtra || {};
-            telefono_tienda = extraInfo.telefono || rawData.telefono_tienda || '';
-            ubicacion_finca = extraInfo.ubicacion || '';
-            
-            document.getElementById('display-finca-info').innerText = `📍 ${ubicacion_finca || 'Sin ubicación'} | 📞 ${telefono_tienda || 'Sin teléfono'}`;
-            document.getElementById('display-wa-num').innerText = telefono_tienda || 'No configurado';
-            document.getElementById('input-wa-numero').value = telefono_tienda;
-            
-            actualizarSelectsLotes(); 
-            showView('dashboard'); 
-            iniciarSincronizacionEnTiempoReal();
-        } catch(e) {
-            console.error("Error al arrancar:", e);
-            alert("No se pudo cargar correctamente tu información desde la nube.");
+        } catch(e) { console.error("Error nube:", e); }
+
+        // PLAN B: MEMORIA LOCAL (Comparamos el teléfono con la nube)
+        const localRaw = localStorage.getItem('agro_data_' + miFincaInfo.id);
+        let localData = localRaw ? JSON.parse(localRaw) : { animales: [] };
+        
+        let dataFinal = nubeData;
+        const cantidadLocal = Array.isArray(localData.animales) ? localData.animales.length : 0;
+        const cantidadNube = Array.isArray(nubeData.animales) ? nubeData.animales.length : 0;
+
+        // Si la computadora tiene más animales que la nube (porque falló el internet al guardar), la computadora GANA.
+        if (cantidadLocal > cantidadNube) {
+            dataFinal = localData; 
+        }
+
+        animales = Array.isArray(dataFinal.animales) ? dataFinal.animales : [];
+        vacunas = Array.isArray(dataFinal.vacunas) ? dataFinal.vacunas : [];
+        productos = Array.isArray(dataFinal.productos) ? dataFinal.productos : [];
+        lotes = Array.isArray(dataFinal.lotes) && dataFinal.lotes.length > 0 ? dataFinal.lotes : ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
+        
+        const extraInfo = dataFinal.fincaExtra || {};
+        telefono_tienda = extraInfo.telefono || '';
+        ubicacion_finca = extraInfo.ubicacion || '';
+        
+        document.getElementById('display-finca-info').innerText = `📍 ${ubicacion_finca || 'Sin ubicación'} | 📞 ${telefono_tienda || 'Sin teléfono'}`;
+        document.getElementById('display-wa-num').innerText = telefono_tienda || 'No configurado';
+        document.getElementById('input-wa-numero').value = telefono_tienda;
+        
+        // Carga la pantalla visual
+        actualizarSelectsLotes(); 
+        showView('dashboard'); 
+        
+        // Activamos los receptores
+        guardarLocal();
+        iniciarSincronizacionEnTiempoReal();
+
+        // Si el teléfono ganó (y la nube estaba vacía), forzamos la actualización a la nube en 2 segundos
+        if (cantidadLocal > cantidadNube) {
+            setTimeout(guardarDatos, 2000);
         }
     }
 
     async function guardarDatos() {
         if(!miFincaInfo) return { success: false, error: "No hay finca registrada" };
+        
+        // 1. ANTES DE NADA, GUARDAMOS EN LA MEMORIA DEL NAVEGADOR PARA GARANTIZAR CERO PÉRDIDAS
+        guardarLocal();
+
         const statusBadge = document.getElementById('nube-status');
         if(statusBadge) { statusBadge.className = 'badge bg-warning text-dark badge-nube'; statusBadge.innerText = '⏳ Sincronizando...'; }
         
         try {
             const estadoCompleto = { animales, vacunas, productos, lotes, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda } };
             
-            // Eliminamos la basura y guardamos la información limpia
-            const { error: errDel } = await supabaseClient.from('finca_data').delete().eq('finca_id', miFincaInfo.id);
-            if (errDel) throw errDel;
-
-            const { error: errInsert } = await supabaseClient.from('finca_data').insert([{ finca_id: miFincaInfo.id, data: estadoCompleto }]);
-            if (errInsert) throw errInsert;
+            // 2. ENVIAMOS A SUPABASE
+            const { data: filasBusqueda } = await supabaseClient.from('finca_data').select('id').eq('finca_id', miFincaInfo.id).limit(1);
+            
+            if (filasBusqueda && filasBusqueda.length > 0) {
+                const { error: errUpdate } = await supabaseClient.from('finca_data').update({ data: estadoCompleto }).eq('id', filasBusqueda[0].id);
+                if (errUpdate) throw errUpdate;
+            } else {
+                const { error: errInsert } = await supabaseClient.from('finca_data').insert([{ finca_id: miFincaInfo.id, data: estadoCompleto }]);
+                if (errInsert) throw errInsert;
+            }
             
             if(statusBadge) { 
-                statusBadge.className = 'badge bg-success badge-nube'; statusBadge.innerText = '✅ Sincronizado'; 
+                statusBadge.className = 'badge bg-success badge-nube'; statusBadge.innerText = '✅ Nube Segura'; 
             }
             return { success: true }; 
         } catch (e) {
-            console.error("Error crítico al guardar:", e);
-            if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube'; statusBadge.innerText = '❌ Error Nube'; }
+            console.error("Error al guardar en nube:", e);
+            if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube'; statusBadge.innerText = '💾 Guardado Local (Fallo Nube)'; }
             return { success: false, error: e.message || JSON.stringify(e) }; 
-        }
-    }
-
-    // BOTÓN DE EMERGENCIA PARA DESTRUIR DATOS CORRUPTOS
-    async function resetearNube() {
-        if(confirm("⚠️ PELIGRO EXTREMO: Esto borrará permanentemente todos los animales y datos de la base de datos de tu finca para reparar errores graves. ¿Estás absolutamente seguro de continuar?")) {
-            if(confirm("¿Última advertencia, borrar todo?")) {
-                try {
-                    await supabaseClient.from('finca_data').delete().eq('finca_id', miFincaInfo.id);
-                    alert("✅ Base de datos reseteada con éxito. La página se va a recargar limpia.");
-                    window.location.reload();
-                } catch(e) {
-                    alert("Error intentando borrar: " + e.message);
-                }
-            }
         }
     }
 
     function iniciarSincronizacionEnTiempoReal() {
         supabaseClient.channel('custom-all-channel')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'finca_data', filter: `finca_id=eq.${miFincaInfo.id}` }, async (payload) => {
-                const { data: fetchArray } = await supabaseClient.from('finca_data').select('data').eq('finca_id', miFincaInfo.id).limit(1);
-                if(fetchArray && fetchArray.length > 0 && fetchArray[0].data && Object.keys(fetchArray[0].data).length > 0) {
-                    const rawData = fetchArray[0].data;
-                    animales = Array.isArray(rawData.animales) ? rawData.animales : animales;
-                    vacunas = Array.isArray(rawData.vacunas) ? rawData.vacunas : vacunas; 
-                    productos = Array.isArray(rawData.productos) ? rawData.productos : productos; 
-                    lotes = Array.isArray(rawData.lotes) && rawData.lotes.length > 0 ? rawData.lotes : lotes; 
+                
+                // RE-APLICAR LÓGICA DEL GAVETERO PARA ACTUALIZACIONES
+                const { data: todosLosCajones } = await supabaseClient.from('finca_data').select('data').eq('finca_id', miFincaInfo.id);
+                if(todosLosCajones && todosLosCajones.length > 0) {
+                    let maxAnimales = -1;
+                    let nubeData = null;
+                    todosLosCajones.forEach(c => {
+                        let canti = (c.data && c.data.animales) ? c.data.animales.length : 0;
+                        if(canti > maxAnimales) { maxAnimales = canti; nubeData = c.data; }
+                    });
                     
-                    const extraInfo = rawData.fincaExtra || {};
-                    telefono_tienda = extraInfo.telefono || rawData.telefono_tienda || ''; ubicacion_finca = extraInfo.ubicacion || '';
-                    document.getElementById('display-finca-info').innerText = `📍 ${ubicacion_finca || 'Sin ubicación'} | 📞 ${telefono_tienda || 'Sin teléfono'}`;
-                    
-                    actualizarSelectsLotes(); renderDashboard();
-                    if(!document.getElementById('view-animales').classList.contains('hidden')) renderAnimales();
-                    if(!document.getElementById('view-ordeño').classList.contains('hidden')) renderOrdeno();
-                    if(!document.getElementById('view-tienda').classList.contains('hidden')) renderTienda();
-                    if(!document.getElementById('view-sanidad').classList.contains('hidden')) renderVacunas();
+                    // Solo actualiza la pantalla si la nube trae MÁS o IGUAL cantidad de datos que los que yo tengo localmente
+                    if (nubeData && maxAnimales >= animales.length) {
+                        animales = Array.isArray(nubeData.animales) ? nubeData.animales : animales;
+                        vacunas = Array.isArray(nubeData.vacunas) ? nubeData.vacunas : vacunas; 
+                        productos = Array.isArray(nubeData.productos) ? nubeData.productos : productos; 
+                        lotes = Array.isArray(nubeData.lotes) && nubeData.lotes.length > 0 ? nubeData.lotes : lotes; 
+                        
+                        const extraInfo = nubeData.fincaExtra || {};
+                        telefono_tienda = extraInfo.telefono || ''; ubicacion_finca = extraInfo.ubicacion || '';
+                        document.getElementById('display-finca-info').innerText = `📍 ${ubicacion_finca || 'Sin ubicación'} | 📞 ${telefono_tienda || 'Sin teléfono'}`;
+                        
+                        guardarLocal(); // La nube gana, así que actualizamos el local.
+                        actualizarSelectsLotes(); renderDashboard();
+                        if(!document.getElementById('view-animales').classList.contains('hidden')) renderAnimales();
+                        if(!document.getElementById('view-ordeño').classList.contains('hidden')) renderOrdeno();
+                        if(!document.getElementById('view-tienda').classList.contains('hidden')) renderTienda();
+                        if(!document.getElementById('view-sanidad').classList.contains('hidden')) renderVacunas();
+                    }
                 }
             }).subscribe();
     }
@@ -587,7 +626,7 @@
                     safeLotes.forEach(lote => { el.innerHTML += `<option value="${lote}">${lote}</option>`; }); 
                     if(id === 'vacuna-lote') el.innerHTML += `<option value="Todos">Todos</option>`; 
                 } 
-            } catch(error) { console.error("Error en actualizarSelectsLotes", id); }
+            } catch(error) {}
         }); 
     }
     
@@ -686,16 +725,13 @@
             }); 
         } 
         
-        const guardadoExitoso = await guardarDatos(); 
-        if(guardadoExitoso.success) {
-            const modalEl = document.getElementById('modalAnimal');
-            const modalInstance = bootstrap.Modal.getInstance(modalEl);
-            if(modalInstance) modalInstance.hide();
-            reiniciarYRenderAnimales(); 
-            renderDashboard(); 
-        } else {
-            alert("No se pudo guardar el animal en la nube. Revisa tu conexión.");
-        }
+        await guardarDatos(); 
+        const modalEl = document.getElementById('modalAnimal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if(modalInstance) modalInstance.hide();
+        
+        reiniciarYRenderAnimales(); 
+        renderDashboard(); 
     }
     
     function eliminarAnimal(id_interno) { if(confirm("⚠️ ¿Eliminar este animal?")) { animales = animales.filter(a => a.id_interno !== id_interno && a.id !== id_interno); guardarDatos(); reiniciarYRenderAnimales(); renderDashboard(); } }
@@ -811,7 +847,7 @@
                     alert(`¡Éxito total! Se cargaron y sincronizaron ${nuevosAnimales.length} animales a la Nube. Tu información está 100% segura.`); 
                     fileInput.value = ''; showView('dashboard'); 
                 } else {
-                    alert("⚠️ SUPABASE RECHAZÓ EL ARCHIVO.\n\nMotivo técnico:\n" + resultado.error + "\n\nPor favor envíame captura de este error para resolverlo.");
+                    alert("⚠️ SUPABASE RECHAZÓ EL ARCHIVO.\n\nMotivo técnico:\n" + resultado.error);
                 }
 
             } catch (error) { alert("Hubo un error interpretando el archivo. Asegúrate de que es un archivo .xlsx válido."); console.error(error); }
