@@ -126,7 +126,7 @@
         <div class="mb-3 text-center">
             <img id="auth-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='90' fill='%23efebe9' stroke='%23795548' stroke-width='8'/><path d='M50 70 C40 50 30 40 20 40 C40 50 60 55 75 60 C85 85 115 85 125 60 C140 55 160 50 180 40 C170 40 160 50 150 70 C140 90 120 120 100 135 C80 120 60 90 50 70 Z' fill='%23795548'/><path d='M45 80 C25 80 15 90 20 100 C30 100 50 90 60 85 Z' fill='%23a1887f'/><path d='M155 80 C175 80 185 90 180 100 C170 100 150 90 140 85 Z' fill='%23a1887f'/><path d='M100 125 C120 150 130 125 100 170 C70 125 80 150 100 125 Z' fill='%234caf50'/></svg>" style="width: 80px; height: 80px; border-radius:50%; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
             <h3 class="fw-bold text-primary mb-1">AgroSystems</h3>
-            <p class="text-muted mb-0 small fw-bold">Plataforma de Gestión Administrativa <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V27</span></p>
+            <p class="text-muted mb-0 small fw-bold">Plataforma de Gestión Administrativa <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V28</span></p>
         </div>
         
         <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
@@ -562,8 +562,17 @@
     }
 
     async function intentarCerrarSesion() {
-        if(confirm("Se recomienda respaldar la memoria local hacia el servidor antes de desconectarse. ¿Ejecutar respaldo?")) { await forzarSubidaNube(true); }
-        await supabaseClient.auth.signOut(); window.location.reload();
+        if (confirm('¿Quieres guardar los datos en Supabase antes de cerrar sesión?')) {
+            const guardado = await forzarSubidaNube(true);
+            if (!guardado) return;
+        }
+        try {
+            const { error } = await supabaseClient.auth.signOut();
+            if (error) throw error;
+            window.location.reload();
+        } catch (error) {
+            alert('No se pudo cerrar sesión: ' + error.message);
+        }
     }
 
     async function verificarFincaUsuario() {
@@ -652,22 +661,42 @@
         guardarLocal(); actualizarSelectsLotes(); actualizarSelectsResponsables(); showView('dashboard'); 
     }
 
+    let subidaEnCurso = false;
+    function describirErrorNube(error) {
+        return [error.message || 'No se pudo completar la operación.',
+            error.code ? 'Código: ' + error.code : '',
+            error.details ? 'Detalle: ' + error.details : '',
+            error.hint ? 'Sugerencia: ' + error.hint : ''].filter(Boolean).join('\n');
+    }
     async function forzarSubidaNube(silencioso = false) {
-        if(!miFincaInfo) return; const statusBadge = document.getElementById('nube-status');
-        if(statusBadge && !silencioso) { statusBadge.className = 'badge bg-primary text-white badge-nube'; statusBadge.innerText = 'Enlace Activo...'; }
+        if (subidaEnCurso) { alert('Ya hay un guardado en curso. Espera a que termine.'); return false; }
+        const statusBadge = document.getElementById('nube-status');
+        subidaEnCurso = true;
         try {
-            const estadoCompleto = { animales, vacunas, productos, lotes, bajas, trabajadores, contactos, tareas, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } };
-            await supabaseClient.from('finca_data').delete().eq('finca_id', miFincaInfo.id);
-            const { error: errInsert } = await supabaseClient.from('finca_data').insert([{ finca_id: miFincaInfo.id, data: estadoCompleto }]);
-            if (errInsert) throw errInsert;
-            
-            if(statusBadge) { statusBadge.className = 'badge bg-success badge-nube'; statusBadge.innerText = 'Servidor Actualizado'; }
-            if(!silencioso) alert("Procedimiento satisfactorio. Nube Corporativa actualizada.");
-        } catch (e) {
-            console.error("Error exacto subida:", e);
-            if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube'; statusBadge.innerText = 'Error de Red'; }
-            if(!silencioso) alert("Fallo al Subir: " + (e.message || JSON.stringify(e)));
-        }
+            if (!miFincaInfo || !supabaseClient) throw new Error('No hay una finca activa. Inicia sesión y selecciona tu finca.');
+            const { data: authData, error: authError } = await supabaseClient.auth.getSession();
+            if (authError) throw authError;
+            if (!authData.session) throw new Error('La sesión ha caducado. Inicia sesión de nuevo antes de guardar.');
+            if(statusBadge) { statusBadge.className = 'badge bg-primary text-white badge-nube'; statusBadge.innerText = 'Guardando en Supabase...'; }
+            const estadoCompleto = JSON.parse(JSON.stringify({ animales, vacunas, productos, lotes, bajas, trabajadores, contactos, tareas, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } }));
+            const { data: guardado, error } = await supabaseClient.from('finca_data')
+                .upsert({ finca_id: miFincaInfo.id, data: estadoCompleto }, { onConflict: 'finca_id' })
+                .select('finca_id').single();
+            if (error) throw error;
+            if (!guardado || guardado.finca_id !== miFincaInfo.id) throw new Error('Supabase no confirmó el registro guardado.');
+            const estadoActual = JSON.stringify({ animales, vacunas, productos, lotes, bajas, trabajadores, contactos, tareas, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } });
+            const hayCambiosNuevos = estadoActual !== JSON.stringify(estadoCompleto);
+            if(statusBadge) { statusBadge.className = 'badge bg-success badge-nube'; statusBadge.innerText = hayCambiosNuevos ? 'Copia guardada; hay cambios nuevos pendientes' : 'Guardado confirmado en Supabase'; }
+            if (hayCambiosNuevos) { alert('Se guardó la copia enviada, pero hiciste cambios durante la subida. Vuelve a guardar para incluirlos.'); return false; }
+            if(!silencioso) alert('Datos guardados correctamente en Supabase.');
+            return true;
+        } catch (error) {
+            const detalle = describirErrorNube(error);
+            console.error('AgroSystems: fallo al guardar en finca_data', detalle);
+            if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube'; statusBadge.innerText = 'Guardado no confirmado'; }
+            alert('No se pudo confirmar el guardado. Conserva esta ventana abierta.\n\n' + detalle);
+            return false;
+        } finally { subidaEnCurso = false; }
     }
 
     async function forzarDescargaNube() {
