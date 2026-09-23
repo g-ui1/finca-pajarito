@@ -12,15 +12,17 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
+        /* PALETA DE COLORES TIERRA/PASTEL FORMAL */
         :root { 
-            --primary: #795548; 
-            --secondary: #efebe9; 
-            --dark: #4e342e; 
-            --accent: #a1887f; 
+            --primary: #795548; /* Marrón principal */
+            --secondary: #efebe9; /* Fondo claro pastel */
+            --dark: #4e342e; /* Marrón oscuro para hover y header */
+            --accent: #a1887f; /* Marrón suave */
         }
         body { background-color: var(--secondary); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; color: #333; }
         input, select, textarea { font-size: 15px !important; }
 
+        /* UTILIDADES Y BOTONES */
         .btn-primary, .bg-primary { background-color: var(--primary) !important; border-color: var(--primary) !important; color: white !important;}
         .btn-success, .bg-success { background-color: #6d4c41 !important; border-color: #6d4c41 !important; color: white !important;}
         .btn-outline-primary { border-color: var(--primary) !important; color: var(--primary) !important; }
@@ -68,12 +70,12 @@
         .btn-depto { white-space: nowrap; border-radius: 20px; font-weight: 600; padding: 6px 16px; font-size: 0.9rem; }
         .card-producto-img { height: 180px; object-fit: contain; background-color: white; padding: 10px; border-bottom: 1px solid #eee; }
         
-        #sidebar-logo { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin: 0 auto 15px auto; display: none; border: 2px solid var(--accent); background-color: white; }
-        .logo-text-finca { font-size: 1.3rem; font-weight: 600; color: white; letter-spacing: 0.5px; margin-bottom: 5px; text-align: center;}
+        #sidebar-logo { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; margin: 0 auto 15px auto; display: none; border: 3px solid var(--accent); background-color: #f4f1f0; padding: 5px; }
+        .logo-text-finca { font-size: 1.4rem; font-weight: 700; color: white; letter-spacing: 0.5px; margin-bottom: 5px; text-align: center;}
         .user-info-text { font-size: 0.85rem; color: #bcaaa4; text-align: center; margin-bottom: 20px; border-bottom: 1px solid #5d4037; padding-bottom: 15px; }
-        .badge-nube { font-size: 0.7rem; font-weight: 500; vertical-align: middle; padding: 4px 8px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .badge-nube { font-size: 0.75rem; font-weight: 500; vertical-align: middle; padding: 5px 10px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         
-        #dashboard-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: none; }
+        #dashboard-logo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: none; background-color: #f4f1f0; padding: 3px;}
     </style>
 </head>
 <body>
@@ -85,8 +87,12 @@
 
 <div id="auth-screen">
     <div class="auth-box">
-        <h3 class="fw-bold text-primary mb-1">AgroSystems <span class="badge" style="background-color: #3e2723; font-size: 0.6rem; vertical-align: middle;">V19</span></h3>
-        <p class="text-muted mb-4 small">Gestión Administrativa</p>
+        <div class="mb-3 text-center">
+            <!-- Logo SVG Incrustado en el Login -->
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='90' fill='%23efebe9' stroke='%23795548' stroke-width='8'/><path d='M50 70 C40 50 30 40 20 40 C40 50 60 55 75 60 C85 85 115 85 125 60 C140 55 160 50 180 40 C170 40 160 50 150 70 C140 90 120 120 100 135 C80 120 60 90 50 70 Z' fill='%23795548'/><path d='M45 80 C25 80 15 90 20 100 C30 100 50 90 60 85 Z' fill='%23a1887f'/><path d='M155 80 C175 80 185 90 180 100 C170 100 150 90 140 85 Z' fill='%23a1887f'/><path d='M100 125 C120 150 130 125 100 170 C70 125 80 150 100 125 Z' fill='%234caf50'/></svg>" style="width: 80px; height: 80px; border-radius:50%; margin-bottom: 10px;">
+            <h3 class="fw-bold text-primary mb-1">AgroSystems</h3>
+            <p class="text-muted mb-0 small">Gestión Administrativa <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V20</span></p>
+        </div>
         
         <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
 
@@ -110,16 +116,17 @@
         </div>
 
         <div id="auth-setup-finca-view" class="hidden">
-            <h6 class="fw-bold text-primary mb-3">Configuración de Finca</h6>
+            <h5 class="fw-bold text-success mb-3">¡Bienvenido!</h5>
+            <p class="text-muted small">Registra tu Finca o únete a una existente.</p>
             <hr>
-            <p class="fw-bold text-start small mb-1">Administrador (Crear Finca):</p>
-            <input type="text" id="nueva-finca-nombre" class="form-control form-control-sm mb-2" placeholder="Nombre de la Finca / Hato">
-            <input type="text" id="nueva-finca-ubicacion" class="form-control form-control-sm mb-2" placeholder="Ubicación">
-            <input type="text" id="nueva-finca-telefono" class="form-control form-control-sm mb-3" placeholder="Teléfono de contacto">
+            <h6 class="fw-bold text-start">Soy Dueño (Crear Finca/Hato):</h6>
+            <input type="text" id="nueva-finca-nombre" class="form-control mb-2" placeholder="Nombre de Finca o Hato">
+            <input type="text" id="nueva-finca-ubicacion" class="form-control mb-2" placeholder="Ubicación (Ej: Barinas, Sector X)">
+            <input type="text" id="nueva-finca-telefono" class="form-control mb-3" placeholder="Teléfono de contacto">
             <button type="button" id="btn-crear-finca" class="btn btn-primary w-100 fw-bold mb-4 btn-sm" onclick="crearNuevaFinca()">Registrar Finca</button>
             
-            <p class="fw-bold text-start small mb-1">Personal (Unirse a Finca):</p>
-            <input type="text" id="unirme-codigo" class="form-control form-control-sm mb-2" placeholder="Código de Invitación">
+            <h6 class="fw-bold text-start">Soy Empleado:</h6>
+            <input type="text" id="unirme-codigo" class="form-control mb-2" placeholder="Código de Invitación">
             <button type="button" id="btn-unirme-finca" class="btn btn-outline-primary w-100 fw-bold btn-sm" onclick="unirmeAFinca()">Vincular</button>
         </div>
     </div>
@@ -133,7 +140,7 @@
     </div>
 
     <div class="sidebar-desktop d-none d-md-flex flex-column">
-        <div class="px-3">
+        <div class="px-3 text-center">
             <img id="sidebar-logo" src="" alt="Logo Finca">
             <div class="logo-text-finca" id="finca-titulo-desk">AgroSystems</div>
             <div class="user-info-text">
@@ -177,7 +184,7 @@
     <div class="main-content">
         
         <div id="view-dashboard" class="view-section">
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <div class="d-flex align-items-center gap-3">
                     <img id="dashboard-logo" src="" alt="Logo">
                     <h3 class="fw-bold text-dark m-0" id="display-finca-nombre">Panel Principal</h3>
@@ -265,10 +272,10 @@
         
         <!-- VISTA DE PERFIL Y AJUSTES -->
         <div id="view-perfil" class="view-section hidden">
-            <h3 class="fw-bold mb-3">Perfil y Ajustes</h3>
-            <div class="row g-3">
+            <h3 class="fw-bold mb-4">Perfil y Ajustes</h3>
+            <div class="row g-4">
                 <div class="col-md-6">
-                    <div class="card p-3 shadow-sm border h-100 bg-white">
+                    <div class="card p-4 shadow-sm border h-100 bg-white">
                         <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Información del Administrador</h6>
                         <p class="mb-1 small text-muted">Nombre Registrado</p>
                         <p class="fw-bold mb-3" id="info-admin-nombre">-</p>
@@ -277,16 +284,16 @@
                         <hr>
                         <p class="fw-bold text-dark small mb-2">Logo de la Finca</p>
                         <input type="file" id="input-logo-finca" class="form-control form-control-sm mb-2" accept="image/*">
-                        <button class="btn btn-outline-primary btn-sm w-100" onclick="procesarLogoFinca()">Actualizar Logo</button>
+                        <button class="btn btn-outline-primary btn-sm w-100" onclick="procesarLogoFinca()">Actualizar Logo Oficial</button>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="card p-3 shadow-sm border bg-white mb-3">
+                    <div class="card p-4 shadow-sm border bg-white mb-3">
                         <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Sincronización de Datos</h6>
-                        <p class="small text-muted mb-4">El sistema guarda la información automáticamente en este dispositivo. Para compartir la información con otros dispositivos o respaldarla de forma segura, utilice las opciones de sincronización.</p>
+                        <p class="small text-muted mb-4">El sistema guarda la información automáticamente en este dispositivo. Para compartir la información con otros dispositivos o respaldarla de forma segura en el servidor central, utilice estas opciones.</p>
                         <div class="d-flex flex-column gap-2 mt-auto">
-                            <button class="btn btn-primary btn-sm fw-bold shadow-sm" onclick="forzarSubidaNube()">Respaldar en la Nube</button>
-                            <button class="btn btn-outline-dark btn-sm fw-bold" onclick="forzarDescargaNube()">Recuperar datos de la Nube</button>
+                            <button class="btn btn-primary btn-sm fw-bold shadow-sm py-2" onclick="forzarSubidaNube()">Respaldar en la Nube (Subir)</button>
+                            <button class="btn btn-outline-dark btn-sm fw-bold py-2" onclick="forzarDescargaNube()">Recuperar datos de la Nube (Bajar)</button>
                         </div>
                     </div>
                     
@@ -319,16 +326,16 @@
                 <div class="col-12 col-md-6">
                     <div class="card p-4 text-center h-100 shadow-sm border border-success bg-white">
                         <h6 class="text-success mb-2 fw-bold">Exportar Base de Datos</h6>
-                        <p class="small text-muted mb-3">Descarga un archivo Excel con todo el inventario activo y de bajas.</p>
-                        <button class="btn btn-success btn-sm mt-auto shadow-sm fw-bold" onclick="exportarExcel()">Descargar Excel</button>
+                        <p class="small text-muted mb-3">Descarga un archivo Excel con todo el inventario activo y el registro histórico de Bajas.</p>
+                        <button class="btn btn-success btn-sm mt-auto shadow-sm fw-bold py-2" onclick="exportarExcel()">Descargar Excel</button>
                     </div>
                 </div>
                 <div class="col-12 col-md-6">
                     <div class="card p-4 text-center h-100 shadow-sm border border-primary bg-white">
                         <h6 class="text-primary mb-2 fw-bold">Importar Base de Datos</h6>
-                        <p class="small text-muted mb-3">Las imágenes pesadas serán omitidas automáticamente.</p>
+                        <p class="small text-muted mb-3">Las imágenes demasiado pesadas serán omitidas automáticamente para evitar saturación de memoria.</p>
                         <input type="file" id="input-importar" class="form-control form-control-sm mb-3" accept=".xlsx, .xls">
-                        <button class="btn btn-primary btn-sm mt-auto shadow-sm fw-bold" onclick="importarExcel()">Procesar Archivo</button>
+                        <button class="btn btn-primary btn-sm mt-auto shadow-sm fw-bold py-2" onclick="importarExcel()">Procesar Archivo</button>
                     </div>
                 </div>
             </div>
@@ -352,7 +359,7 @@
 <div class="col-6 mb-1"><label class="fw-bold text-muted small">Ubicación (Lote)</label><select id="ani-lote" class="form-select form-select-sm" required></select></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Potrero Específico</label><input type="text" id="ani-potrero" class="form-control form-control-sm"></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Origen</label><input type="text" id="ani-proveniente" class="form-control form-control-sm"></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Fecha Nacimiento</label><input type="date" id="ani-fecha" class="form-control form-control-sm"></div><div class="col-12 mb-1"><label class="fw-bold text-muted small">ID de la Madre</label><input type="text" id="ani-madre" class="form-control form-control-sm"><div class="form-check mt-1"><input class="form-check-input" type="checkbox" id="ani-madre-desc" onchange="toggleMadre()"><label class="form-check-label text-muted small">Desconocida</label></div></div><div class="col-12 mb-1"><label class="fw-bold text-muted small">Fotografía</label><input type="file" id="ani-foto-file" class="form-control form-control-sm" accept="image/*" capture="environment"><input type="hidden" id="ani-foto-base64"><div class="text-center mt-2"><img id="ani-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-animal" class="btn btn-primary btn-sm w-100 fw-bold">Guardar Información</button></div></div></div></div>
 
 <!-- MODAL BAJA ANIMAL -->
-<div class="modal fade" id="modalBaja" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-danger text-white"><h6 class="modal-title fw-bold m-0">Dar de Baja al Animal</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-baja" onsubmit="ejecutarBaja(event)"><input type="hidden" id="baja-id-interno"><div class="mb-3"><label class="fw-bold text-muted small">Motivo de Baja</label><select id="baja-motivo" class="form-select form-select-sm" required onchange="cambiarCamposBaja()"><option value="">Seleccione un motivo...</option><option value="Venta">Venta</option><option value="Muerte">Muerte</option><option value="Matadero">Enviado al Matadero</option></select></div><div class="mb-2 hidden" id="baja-peso-container"><label class="fw-bold text-muted small">Peso (Kg)</label><input type="number" step="0.1" id="baja-peso" class="form-control form-control-sm"></div><div class="mb-2 hidden" id="baja-precio-container"><label class="fw-bold text-muted small">Precio de Venta ($)</label><input type="number" step="0.01" id="baja-precio" class="form-control form-control-sm"></div><div class="mb-2 hidden" id="baja-causa-container"><label class="fw-bold text-muted small">Causa de Muerte</label><input type="text" id="baja-causa" class="form-control form-control-sm" placeholder="Ej: Enfermedad, Picadura..."></div><div class="mb-2"><label class="fw-bold text-muted small">Observación (Opcional)</label><textarea id="baja-obs" class="form-control form-control-sm" rows="2"></textarea></div></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-baja" class="btn btn-danger btn-sm w-100 fw-bold">Confirmar Baja</button></div></div></div></div>
+<div class="modal fade" id="modalBaja" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-danger text-white"><h6 class="modal-title fw-bold m-0">Dar de Baja al Animal</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-baja" onsubmit="ejecutarBaja(event)"><input type="hidden" id="baja-id-interno"><div class="mb-3"><label class="fw-bold text-muted small">Motivo de la Baja</label><select id="baja-motivo" class="form-select form-select-sm" required onchange="cambiarCamposBaja()"><option value="">Seleccione un motivo...</option><option value="Venta">Venta</option><option value="Muerte">Muerte</option><option value="Matadero">Enviado al Matadero</option></select></div><div class="mb-2 hidden" id="baja-peso-container"><label class="fw-bold text-muted small">Peso al salir (Kg)</label><input type="number" step="0.1" id="baja-peso" class="form-control form-control-sm"></div><div class="mb-2 hidden" id="baja-precio-container"><label class="fw-bold text-muted small">Precio de Venta ($)</label><input type="number" step="0.01" id="baja-precio" class="form-control form-control-sm"></div><div class="mb-2 hidden" id="baja-causa-container"><label class="fw-bold text-muted small">Causa de Muerte</label><input type="text" id="baja-causa" class="form-control form-control-sm" placeholder="Ej: Enfermedad, Accidente..."></div><div class="mb-2"><label class="fw-bold text-muted small">Observaciones Adicionales (Opcional)</label><textarea id="baja-obs" class="form-control form-control-sm" rows="2"></textarea></div></form></div><div class="modal-footer border-0 p-2"><button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button><button type="submit" form="form-baja" class="btn btn-danger btn-sm px-4 fw-bold">Procesar Baja</button></div></div></div></div>
 
 <div class="modal fade" id="modalTrasladoLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h6 class="modal-title fw-bold m-0">Reubicación</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-traslado" onsubmit="ejecutarTraslado(event)"><input type="hidden" id="traslado-id-interno"><label class="fw-bold text-muted mb-2 small">Seleccionar destino:</label><select id="traslado-nuevo-lote" class="form-select form-select-sm" required></select></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-traslado" class="btn btn-primary btn-sm w-100 fw-bold">Confirmar Traslado</button></div></div></div></div>
 <div class="modal fade" id="modalRegistroPeso" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-secondary text-dark border-bottom"><h6 class="modal-title fw-bold m-0">Control de Peso</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-peso" onsubmit="guardarPeso(event)"><input type="hidden" id="peso-id-interno"><div class="mb-2"><label class="fw-bold text-muted small">Fecha de Medición</label><input type="date" id="peso-fecha" class="form-control form-control-sm" required></div><div class="mb-2"><label class="fw-bold text-muted small">Resultado (Kg)</label><input type="number" step="0.1" id="peso-kilos" class="form-control form-control-sm" required></div></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-peso" class="btn btn-dark btn-sm w-100 fw-bold">Registrar Peso</button></div></div></div></div>
@@ -372,6 +379,15 @@
     let supabaseClient = null;
     let session = null;
     let miFincaInfo = null; 
+    
+    // SVG Matemático del Logo por Defecto
+    const DEFAULT_LOGO = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='90' fill='%23efebe9' stroke='%23795548' stroke-width='8'/><path d='M50 70 C40 50 30 40 20 40 C40 50 60 55 75 60 C85 85 115 85 125 60 C140 55 160 50 180 40 C170 40 160 50 150 70 C140 90 120 120 100 135 C80 120 60 90 50 70 Z' fill='%23795548'/><path d='M45 80 C25 80 15 90 20 100 C30 100 50 90 60 85 Z' fill='%23a1887f'/><path d='M155 80 C175 80 185 90 180 100 C170 100 150 90 140 85 Z' fill='%23a1887f'/><path d='M100 125 C120 150 130 125 100 170 C70 125 80 150 100 125 Z' fill='%234caf50'/></svg>";
+
+    // Inyectar Favicon a la pestaña del navegador
+    const favLink = document.createElement('link');
+    favLink.rel = 'icon';
+    favLink.href = DEFAULT_LOGO;
+    document.head.appendChild(favLink);
 
     let animales = []; let vacunas = []; let productos = []; let lotes = []; let bajas = []; let telefono_tienda = ''; let ubicacion_finca = ''; let logo_finca = '';
     let limiteAnimalesMostrados = 50; let limiteOrdenoMostrados = 50; let temporizadorBusqueda; let chartModalUnico = null; let categoriaTiendaActual = 'Todos';
@@ -495,6 +511,10 @@
         } catch(e) { errorBox.innerText = "Error: " + e.message; }
     }
 
+    // ==========================================
+    // SISTEMA LOCAL-FIRST PROTEGIDO
+    // ==========================================
+    
     function guardarLocal() {
         if(!miFincaInfo) return;
         if (!lotes || lotes.length === 0) lotes = ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
@@ -508,7 +528,9 @@
                 statusBadge.innerText = 'Almacenamiento Local';
             }
         } catch (e) {
-            alert("LÍMITE DE MEMORIA ALCANZADO: Por favor respalde en la nube inmediatamente.");
+            if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+                alert("LÍMITE DE MEMORIA ALCANZADO: El navegador no puede almacenar más información. Por favor respalde en la nube inmediatamente y purgue datos antiguos.");
+            }
         }
     }
 
@@ -562,21 +584,21 @@
         document.getElementById('display-wa-num').innerText = telefono_tienda || 'No asig.';
         document.getElementById('input-wa-numero').value = telefono_tienda;
         
-        if(logo_finca) {
-            const elLogoSidebar = document.getElementById('sidebar-logo');
-            elLogoSidebar.src = logo_finca;
-            elLogoSidebar.style.display = 'block';
-            
-            const elLogoDashboard = document.getElementById('dashboard-logo');
-            elLogoDashboard.src = logo_finca;
-            elLogoDashboard.style.display = 'block';
-        }
+        // Asignación Inteligente de Logo
+        const logoDisplay = logo_finca || DEFAULT_LOGO;
+        document.getElementById('sidebar-logo').src = logoDisplay;
+        document.getElementById('sidebar-logo').style.display = 'block';
+        document.getElementById('dashboard-logo').src = logoDisplay;
+        document.getElementById('dashboard-logo').style.display = 'block';
         
         guardarLocal();
         actualizarSelectsLotes(); 
         showView('dashboard'); 
     }
 
+    // ==========================================
+    // SINCRONIZACIÓN MANUAL
+    // ==========================================
     async function forzarSubidaNube(silencioso = false) {
         if(!miFincaInfo) return;
         const statusBadge = document.getElementById('nube-status');
@@ -633,10 +655,10 @@
                 telefono_tienda = extraInfo.telefono || ''; ubicacion_finca = extraInfo.ubicacion || ''; logo_finca = extraInfo.logo || '';
                 
                 document.getElementById('display-finca-info').innerText = `${ubicacion_finca || 'Sede Principal'} | Cel: ${telefono_tienda || 'No asig.'}`;
-                if(logo_finca) { 
-                    document.getElementById('sidebar-logo').src = logo_finca; document.getElementById('sidebar-logo').style.display = 'block'; 
-                    document.getElementById('dashboard-logo').src = logo_finca; document.getElementById('dashboard-logo').style.display = 'block'; 
-                }
+                
+                const logoDisplay = logo_finca || DEFAULT_LOGO;
+                document.getElementById('sidebar-logo').src = logoDisplay; document.getElementById('sidebar-logo').style.display = 'block'; 
+                document.getElementById('dashboard-logo').src = logoDisplay; document.getElementById('dashboard-logo').style.display = 'block'; 
                 
                 guardarLocal(); actualizarSelectsLotes(); showView('dashboard');
                 
@@ -743,7 +765,7 @@
     function abrirModalEditarProducto(id) { const prod = productos.find(p => p.id === id); if(!prod) return; document.getElementById('modalProductoTitle').innerText = 'Revisión de Ficha'; document.getElementById('prod-id-edit').value = prod.id; document.getElementById('prod-nombre').value = prod.nombre; document.getElementById('prod-categoria').value = prod.categoria; document.getElementById('prod-precio').value = prod.precio; document.getElementById('prod-stock').value = prod.stock; document.getElementById('prod-descripcion').value = prod.descripcion; if (prod.foto && !prod.foto.includes('placehold')) { document.getElementById('prod-foto-base64').value = prod.foto; document.getElementById('prod-foto-preview').src = prod.foto; document.getElementById('prod-foto-preview').style.display = 'block'; } else { document.getElementById('prod-foto-base64').value = ''; document.getElementById('prod-foto-preview').style.display = 'none'; } new bootstrap.Modal(document.getElementById('modalProducto')).show(); }
     function eliminarProducto(id) { if(confirm("Se eliminará este ítem del inventario. Proceder?")) { productos = productos.filter(p => p.id !== id); guardarLocal(); renderTienda(); } }
     function guardarProducto(e) { e.preventDefault(); const editId = document.getElementById('prod-id-edit').value; const fotoGuardada = document.getElementById('prod-foto-base64').value || 'https://placehold.co/400x400/795548/ffffff?text=Producto'; if (editId) { const indice = productos.findIndex(p => p.id === editId); if(indice !== -1) { productos[indice].nombre = document.getElementById('prod-nombre').value.trim(); productos[indice].categoria = document.getElementById('prod-categoria').value; productos[indice].precio = parseFloat(document.getElementById('prod-precio').value); productos[indice].stock = parseInt(document.getElementById('prod-stock').value); productos[indice].descripcion = document.getElementById('prod-descripcion').value.trim(); productos[indice].foto = fotoGuardada; } } else { productos.push({ id: Date.now().toString() + Math.random().toString(36).substr(2, 5), nombre: document.getElementById('prod-nombre').value.trim(), categoria: document.getElementById('prod-categoria').value, precio: parseFloat(document.getElementById('prod-precio').value), stock: parseInt(document.getElementById('prod-stock').value), descripcion: document.getElementById('prod-descripcion').value.trim(), foto: fotoGuardada }); } guardarLocal(); bootstrap.Modal.getInstance(document.getElementById('modalProducto')).hide(); setCategoriaTienda(document.getElementById('prod-categoria').value); }
-    function renderTienda() { const busqueda = document.getElementById('busqueda-producto').value.toLowerCase(); const lista = document.getElementById('lista-productos'); lista.innerHTML = ''; let filtrados = productos; if(categoriaTiendaActual !== 'Todos') filtrados = filtrados.filter(p => p.categoria === categoriaTiendaActual); if(busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda) || p.descripcion.toLowerCase().includes(busqueda)); filtrados.forEach(p => { const telLimpio = telefono_tienda.replace(/\D/g,''); const mensajeWa = encodeURIComponent(`Saludos. Me interesa el producto: *${p.nombre}*. Valor referencial: $${p.precio.toFixed(2)}`); const urlWhatsapp = `https://api.whatsapp.com/send?phone=${telLimpio}&text=${mensajeWa}`; const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<div class="d-flex gap-2 justify-content-between border-top pt-2 mt-2"><button class="btn btn-sm btn-outline-primary w-50 fw-bold" onclick="abrirModalEditarProducto('${p.id}')">Gestión</button><button class="btn btn-sm btn-outline-danger w-50 fw-bold" onclick="eliminarProducto('${p.id}')">Baja</button></div>` : ''; lista.innerHTML += `<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3"><div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;"><img src="${p.foto}" onclick="verImagen('${p.foto}')" class="card-img-top card-producto-img" alt="Producto"><div class="card-body d-flex flex-column p-3 bg-white"><span class="badge bg-secondary text-dark mb-2 align-self-start">${p.categoria}</span><h6 class="fw-bold text-dark mb-1">${p.nombre}</h6><p class="precio-tag mb-2">$${p.precio.toFixed(2)}</p><p class="text-muted small mb-2" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.5em;">${p.descripcion}</p><p class="mb-3 text-dark small fw-bold">Stock actual: ${p.stock}</p><div class="mt-auto"><a href="${urlWhatsapp}" target="_blank" class="btn btn-whatsapp btn-sm w-100 fw-bold mb-2 shadow-sm d-flex align-items-center justify-content-center">💬 WhatsApp</a>${botonesAdmin}</div></div></div></div>`; }); if(filtrados.length === 0) lista.innerHTML = `<div class="col-12 text-center text-muted mt-5 small">Ausencia de registros en esta categoría.</div>`; }
+    function renderTienda() { const busqueda = document.getElementById('busqueda-producto').value.toLowerCase(); const lista = document.getElementById('lista-productos'); lista.innerHTML = ''; let filtrados = productos; if(categoriaTiendaActual !== 'Todos') filtrados = filtrados.filter(p => p.categoria === categoriaTiendaActual); if(busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda) || p.descripcion.toLowerCase().includes(busqueda)); filtrados.forEach(p => { const telLimpio = telefono_tienda.replace(/\D/g,''); const mensajeWa = encodeURIComponent(`Saludos. Me interesa el producto: *${p.nombre}*. Valor referencial: $${p.precio.toFixed(2)}`); const urlWhatsapp = `https://api.whatsapp.com/send?phone=${telLimpio}&text=${mensajeWa}`; const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<div class="d-flex gap-2 justify-content-between border-top pt-2 mt-2"><button class="btn btn-sm btn-outline-primary w-50 fw-bold" onclick="abrirModalEditarProducto('${p.id}')">Gestión</button><button class="btn btn-sm btn-outline-danger w-50 fw-bold" onclick="eliminarProducto('${p.id}')">Eliminar</button></div>` : ''; lista.innerHTML += `<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3"><div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;"><img src="${p.foto}" onclick="verImagen('${p.foto}')" class="card-img-top card-producto-img" alt="Producto"><div class="card-body d-flex flex-column p-3 bg-white"><span class="badge bg-secondary text-dark mb-2 align-self-start">${p.categoria}</span><h6 class="fw-bold text-dark mb-1">${p.nombre}</h6><p class="precio-tag mb-2">$${p.precio.toFixed(2)}</p><p class="text-muted small mb-2" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.5em;">${p.descripcion}</p><p class="mb-3 text-dark small fw-bold">Stock actual: ${p.stock}</p><div class="mt-auto"><a href="${urlWhatsapp}" target="_blank" class="btn btn-whatsapp btn-sm w-100 fw-bold mb-2 shadow-sm d-flex align-items-center justify-content-center">💬 WhatsApp</a>${botonesAdmin}</div></div></div></div>`; }); if(filtrados.length === 0) lista.innerHTML = `<div class="col-12 text-center text-muted mt-5 small">Ausencia de registros en esta categoría.</div>`; }
 
     function toggleMadre() { const check = document.getElementById('ani-madre-desc').checked; const input = document.getElementById('ani-madre'); input.disabled = check; if(check) input.value = 'No Aplica'; else input.value = ''; }
     
