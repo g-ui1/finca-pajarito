@@ -126,7 +126,7 @@
         <div class="mb-3 text-center">
             <img id="auth-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='90' fill='%23efebe9' stroke='%23795548' stroke-width='8'/><path d='M50 70 C40 50 30 40 20 40 C40 50 60 55 75 60 C85 85 115 85 125 60 C140 55 160 50 180 40 C170 40 160 50 150 70 C140 90 120 120 100 135 C80 120 60 90 50 70 Z' fill='%23795548'/><path d='M45 80 C25 80 15 90 20 100 C30 100 50 90 60 85 Z' fill='%23a1887f'/><path d='M155 80 C175 80 185 90 180 100 C170 100 150 90 140 85 Z' fill='%23a1887f'/><path d='M100 125 C120 150 130 125 100 170 C70 125 80 150 100 125 Z' fill='%234caf50'/></svg>" style="width: 80px; height: 80px; border-radius:50%; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
             <h3 class="fw-bold text-primary mb-1">AgroSystems</h3>
-            <p class="text-muted mb-0 small fw-bold">Plataforma de Gestión Administrativa <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V25</span></p>
+            <p class="text-muted mb-0 small fw-bold">Plataforma de Gestión Administrativa <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V26</span></p>
         </div>
         
         <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
@@ -196,7 +196,8 @@
             </div>
         </div>
         <div class="sidebar-menu px-3 w-100">
-            <a href="#" onclick="showView('dashboard')" class="nav-btn-dashboard active">Dashboard</a>
+            <!-- Cambio de Dashboard por Inicio -->
+            <a href="#" onclick="showView('dashboard')" class="nav-btn-dashboard active">Inicio</a>
             <a href="#" onclick="showView('calendario')" class="nav-btn-calendario">Agenda de Actividades</a>
             <a href="#" onclick="showView('animales')" class="nav-btn-animales">Inventario Ganadero</a>
             <a href="#" onclick="showView('ordeño')" class="nav-btn-ordeño">Control de Producción</a>
@@ -214,10 +215,12 @@
     <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="sidebarOffcanvas">
         <div class="offcanvas-header border-bottom" style="background-color: var(--dark) !important; border-color: var(--accent) !important;">
             <h6 class="offcanvas-title text-white fw-bold m-0">Navegación</h6>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+            <!-- Botón de cierre para menú móvil -->
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" id="btn-close-offcanvas"></button>
         </div>
         <div class="offcanvas-body sidebar-menu flex-column p-3">
-            <a href="#" onclick="showView('dashboard')" class="nav-btn-dashboard active">Dashboard</a>
+            <!-- Cambio de Dashboard por Inicio -->
+            <a href="#" onclick="showView('dashboard')" class="nav-btn-dashboard active">Inicio</a>
             <a href="#" onclick="showView('calendario')" class="nav-btn-calendario">Agenda de Actividades</a>
             <a href="#" onclick="showView('animales')" class="nav-btn-animales">Inventario Ganadero</a>
             <a href="#" onclick="showView('ordeño')" class="nav-btn-ordeño">Control de Producción</a>
@@ -238,7 +241,7 @@
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 <div class="d-flex align-items-center gap-3">
                     <img id="dashboard-logo" src="" alt="Logo">
-                    <h3 class="fw-bold text-dark m-0" id="display-finca-nombre">Panel Principal</h3>
+                    <h3 class="fw-bold text-dark m-0" id="display-finca-nombre">Inicio</h3>
                 </div>
                 <span id="nube-status" class="badge bg-secondary badge-nube">Estado: Local</span>
             </div>
@@ -467,7 +470,7 @@
 <div class="modal fade" id="modalTrasladoLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h6 class="modal-title fw-bold m-0">Reasignación de Lote</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="cerrarModal('modalTrasladoLote')"></button></div><div class="modal-body"><form id="form-traslado" onsubmit="ejecutarTraslado(event)"><input type="hidden" id="traslado-id-interno"><label class="fw-bold text-muted mb-2 small">Seleccione Destino:</label><select id="traslado-nuevo-lote" class="form-select form-select-sm" required></select></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-traslado" class="btn btn-primary btn-sm w-100 fw-bold">Aplicar Reubicación</button></div></div></div></div>
 <div class="modal fade" id="modalRegistroPeso" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-secondary text-dark border-bottom"><h6 class="modal-title fw-bold m-0">Evaluación Biométrica</h6><button type="button" class="btn-close" data-bs-dismiss="modal" onclick="cerrarModal('modalRegistroPeso')"></button></div><div class="modal-body"><form id="form-peso" onsubmit="guardarPeso(event)"><input type="hidden" id="peso-id-interno"><div class="mb-2"><label class="fw-bold text-muted small">Fecha Operativa</label><input type="date" id="peso-fecha" class="form-control form-control-sm" required></div><div class="mb-2"><label class="fw-bold text-muted small">Registro (Kg)</label><input type="number" step="0.1" id="peso-kilos" class="form-control form-control-sm" required></div></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-peso" class="btn btn-dark btn-sm w-100 fw-bold">Almacenar</button></div></div></div></div>
 <div class="modal fade" id="modalGraficoHistorial" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-light text-dark border-bottom" id="headerModalGrafico"><h6 class="modal-title fw-bold m-0" id="tituloModalGrafico">Reporte de Evolución</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-1 p-md-3"><div class="chart-container-modal"><canvas id="canvas-grafico-unico"></canvas></div></div></div></div></div>
-<div class="modal fade" id="modalNuevoLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h6 class="modal-title fw-bold m-0">Parámetros de Lote</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="cerrarModal('modalNuevoLote')"></button></div><div class="modal-body"><form id="form-lote-manual" onsubmit="guardarNuevoLote(event)"><label class="fw-bold text-muted small">Identificación del Grupo:</label><input type="text" id="nuevo-lote-nombre" class="form-control form-control-sm mt-1"></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-lote-manual" class="btn btn-primary btn-sm w-100 fw-bold">Registrar</button></div></div></div></div>
+<div class="modal fade" id="modalNuevoLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h6 class="modal-title fw-bold m-0">Parámetros de Lote</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="cerrarModal('modalNuevoLote')"></button></div><div class="modal-body"><form id="form-lote-manual" onsubmit="guardarNuevoLote(event)"><label class="fw-bold text-muted small">Identificación del Grupo:</label><input type="text" id="nuevo-lote-nombre" class="form-control form-control-sm mt-1" required></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-lote-manual" class="btn btn-primary btn-sm w-100 fw-bold">Registrar</button></div></div></div></div>
 <div class="modal fade" id="modalLeche" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-light border-bottom text-dark"><h6 class="modal-title fw-bold m-0">Control Diario</h6><button type="button" class="btn-close" data-bs-dismiss="modal" onclick="cerrarModal('modalLeche')"></button></div><div class="modal-body"><form id="form-leche" onsubmit="guardarLeche(event)"><input type="hidden" id="leche-id-interno"><div class="mb-2"><label class="fw-bold text-muted small">Fecha</label><input type="date" id="leche-fecha" class="form-control form-control-sm" required></div><div class="mb-2"><label class="fw-bold text-muted small">Extracción (Litros)</label><input type="number" step="0.1" id="leche-litros" class="form-control form-control-sm" required></div><div class="mb-2"><label class="fw-bold text-muted small">Personal Responsable</label><select id="leche-personal" class="form-select form-select-sm select-responsable" required></select></div></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-leche" class="btn btn-primary btn-sm w-100 fw-bold">Archivar Datos</button></div></div></div></div>
 <div class="modal fade" id="modalBorrarLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-danger shadow-lg"><div class="modal-header bg-danger text-white"><h6 class="modal-title fw-bold m-0">Autorización Crítica</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="cerrarModal('modalBorrarLote')"></button></div><div class="modal-body"><form id="form-borrar-lote" onsubmit="ejecutarBorradoLote(event)"><p class="small text-muted">La eliminación sistemática de un lote purgará de la base de datos a todos los individuos adscritos. Operación no reversible.</p><label class="fw-bold small">Directorio Objetivo:</label><select id="borrar-lote-select" class="form-select form-select-sm mb-3" required></select><label class="fw-bold text-danger small">Clave de Autorización (Escriba ELIMINAR):</label><input type="text" id="borrar-lote-confirmacion" class="form-control form-control-sm border-danger" placeholder="..." required></form></div><div class="modal-footer border-0 p-2"><button type="button" class="btn btn-light btn-sm" onclick="cerrarModal('modalBorrarLote')">Abortar</button><button type="submit" form="form-borrar-lote" class="btn btn-danger btn-sm fw-bold">Ejecutar Purga</button></div></div></div></div>
 <div class="modal fade" id="modalImagenGrande" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content bg-transparent border-0"><div class="modal-body text-center position-relative p-0"><button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 shadow" data-bs-dismiss="modal" style="background-color: rgba(255,255,255,0.8); padding: 12px; border-radius: 50%; z-index: 1055;"></button><img id="img-zoom" src="" class="img-fluid rounded shadow-lg w-100" style="max-height: 85vh; border: 4px solid white; object-fit: contain;" alt="Evidencia Visual"></div></div></div></div>
@@ -481,20 +484,12 @@
 <script>
     window.onerror = function(msg, url, line) { console.error("Excepción Interna:", msg, line); return false; };
 
-    // FUNCIÓN DE CIERRE SEGURO DE MODALES
     function cerrarModal(modalId) {
         const modalEl = document.getElementById(modalId);
         if(modalEl) {
-            const modalInst = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-            modalInst.hide();
+            const btnClose = modalEl.querySelector('.btn-close');
+            if(btnClose) btnClose.click();
         }
-        // Desbloqueo forzado de pantalla en caso de fallo visual de Bootstrap
-        setTimeout(() => {
-            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-            document.body.classList.remove('modal-open');
-            document.body.style.overflow = '';
-            document.body.style.paddingRight = '';
-        }, 300);
     }
 
     function togglePassword(inputId, iconId) {
@@ -636,7 +631,7 @@
         const localRaw = localStorage.getItem('agro_data_' + miFincaInfo.id);
         let dataFinal = localRaw ? JSON.parse(localRaw) : null;
         
-        if(!dataFinal || !dataFinal.animales || dataFinal.animales.length === 0) {
+        if(!dataFinal || !Array.isArray(dataFinal.animales) || dataFinal.animales.length === 0) {
             try {
                 const { data: todosLosCajones } = await supabaseClient.from('finca_data').select('data').eq('finca_id', miFincaInfo.id);
                 if (todosLosCajones && todosLosCajones.length > 0) {
@@ -653,8 +648,7 @@
         const extraInfo = dataFinal.fincaExtra || {}; telefono_tienda = extraInfo.telefono || ''; ubicacion_finca = extraInfo.ubicacion || ''; logo_finca = extraInfo.logo || '';
         document.getElementById('display-finca-info').innerText = `${ubicacion_finca || 'Sede Principal'} | Móvil: ${telefono_tienda || 'N/A'}`; document.getElementById('display-wa-num').innerText = telefono_tienda || 'N/A'; document.getElementById('input-wa-numero').value = telefono_tienda;
         
-        const logoDisplay = logo_finca || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='90' fill='%23efebe9' stroke='%23795548' stroke-width='8'/><path d='M50 70 C40 50 30 40 20 40 C40 50 60 55 75 60 C85 85 115 85 125 60 C140 55 160 50 180 40 C170 40 160 50 150 70 C140 90 120 120 100 135 C80 120 60 90 50 70 Z' fill='%23795548'/><path d='M45 80 C25 80 15 90 20 100 C30 100 50 90 60 85 Z' fill='%23a1887f'/><path d='M155 80 C175 80 185 90 180 100 C170 100 150 90 140 85 Z' fill='%23a1887f'/><path d='M100 125 C120 150 130 125 100 170 C70 125 80 150 100 125 Z' fill='%234caf50'/></svg>";
-        document.getElementById('sidebar-logo').src = logoDisplay; document.getElementById('sidebar-logo').style.display = 'block'; document.getElementById('dashboard-logo').src = logoDisplay; document.getElementById('dashboard-logo').style.display = 'block';
+        const logoDisplay = logo_finca || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='90' fill='%23efebe9' stroke='%23795548' stroke-width='8'/><path d='M50 70 C40 50 30 40 20 40 C40 50 60 55 75 60 C85 85 115 85 125 60 C140 55 160 50 180 40 C170 40 160 50 150 70 C140 90 120 120 100 135 C80 120 60 90 50 70 Z' fill='%23795548'/><path d='M45 80 C25 80 15 90 20 100 C30 100 50 90 60 85 Z' fill='%23a1887f'/><path d='M155 80 C175 80 185 90 180 100 C170 100 150 90 140 85 Z' fill='%23a1887f'/><path d='M100 125 C120 150 130 125 100 170 C70 125 80 150 100 125 Z' fill='%234caf50'/></svg>"; document.getElementById('sidebar-logo').src = logoDisplay; document.getElementById('sidebar-logo').style.display = 'block'; document.getElementById('dashboard-logo').src = logoDisplay; document.getElementById('dashboard-logo').style.display = 'block';
         
         try { const { data: miembros } = await supabaseClient.from('miembros').select('correo').eq('finca_id', miFincaInfo.id); if(miembros) correosAdmins = miembros.map(m => m.correo); } catch(e) {}
         
@@ -717,7 +711,13 @@
         reader.readAsDataURL(file);
     }
 
-    function cerrarMenuCelular() { if(window.innerWidth < 768) { const offcanvasEl = document.getElementById('sidebarOffcanvas'); if(offcanvasEl && offcanvasEl.classList.contains('show')) { const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl); if(bsOffcanvas) bsOffcanvas.hide(); } } }
+    function cerrarMenuCelular() { 
+        const offcanvasEl = document.getElementById('sidebarOffcanvas'); 
+        if(offcanvasEl && offcanvasEl.classList.contains('show')) { 
+            const btnClose = document.getElementById('btn-close-offcanvas');
+            if(btnClose) btnClose.click();
+        } 
+    }
     
     function showView(viewId) { 
         document.querySelectorAll('.view-section').forEach(v => v.classList.add('hidden')); 
@@ -832,7 +832,7 @@
         contactos.forEach(c => { const telLimpio = c.telefono.replace(/\D/g,''); const urlWa = telLimpio ? `https://api.whatsapp.com/send?phone=${telLimpio}` : '#'; contenedor.innerHTML += `<div class="col-12 col-md-6 col-lg-4"><div class="card p-3 shadow-sm border h-100 bg-white"><div class="d-flex justify-content-between align-items-start mb-2"><span class="badge bg-dark text-white">${c.especialidad}</span><button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="eliminarContacto('${c.id}')">X</button></div><h6 class="fw-bold mb-1">${c.nombre}</h6><p class="text-muted small mb-3">Línea: ${c.telefono}</p><div class="mt-auto d-flex gap-2"><a href="${urlWa}" target="_blank" class="btn btn-whatsapp btn-sm w-100 fw-bold">Gestión</a><button class="btn btn-outline-primary btn-sm w-100 fw-bold" onclick="abrirModalContacto('${c.id}')">Actualizar</button></div></div></div>`; });
     }
 
-    function guardarWhatsApp(e) { e.preventDefault(); telefono_tienda = document.getElementById('input-wa-numero').value.trim(); document.getElementById('display-wa-num').innerText = telefono_tienda; document.getElementById('display-finca-info').innerText = `${ubicacion_finca || 'Sede Principal'} | Cel: ${telefono_tienda || 'No asig.'}`; cerrarModal('modalConfigWA'); guardarLocal(); renderTienda(); }
+    function guardarWhatsApp(e) { e.preventDefault(); telefono_tienda = document.getElementById('input-wa-numero').value.trim(); document.getElementById('display-wa-num').innerText = telefono_tienda; document.getElementById('display-finca-info').innerText = `${ubicacion_finca || 'Sede Principal'} | Móvil: ${telefono_tienda || 'No asig.'}`; cerrarModal('modalConfigWA'); guardarLocal(); renderTienda(); }
     
     function actualizarSelectsLotes() { 
         const selects = ['filtro-lote', 'ani-lote', 'vacuna-lote', 'borrar-lote-select', 'traslado-nuevo-lote']; 
@@ -845,17 +845,12 @@
         let nombre = document.getElementById('nuevo-lote-nombre').value.trim(); 
         if(!nombre) return;
         nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase(); 
-        
         if (lotes.includes(nombre)) {
-            alert("Este lote ya está registrado en tu finca.");
+            alert("Este lote ya está registrado en la base operativa.");
         } else { 
-            lotes.push(nombre); 
-            guardarLocal(); 
-            actualizarSelectsLotes(); 
-            renderDashboard(); 
+            lotes.push(nombre); guardarLocal(); actualizarSelectsLotes(); renderDashboard(); 
         } 
-        cerrarModal('modalNuevoLote'); 
-        e.target.reset(); 
+        cerrarModal('modalNuevoLote'); e.target.reset(); 
     }
 
     function verImagen(url) { document.getElementById('img-zoom').src = url; new bootstrap.Modal(document.getElementById('modalImagenGrande')).show(); }
@@ -914,9 +909,9 @@
             const idInternoReal = a.id_interno || a.id; const pesos = a.historialPeso || []; const ultimoPeso = pesos.length > 0 ? pesos[pesos.length-1].peso + ' Kg' : 'S/R'; 
             let imgSrc = a.foto; if(imgSrc.includes('placehold')) imgSrc = 'https://placehold.co/400x400/795548/ffffff?text=Sin+Foto'; 
 
-            const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<button class="btn btn-sm btn-outline-danger btn-card-action" onclick="prepararBaja('${idInternoReal}')">Baja</button>` : ''; 
+            const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<button class="btn btn-sm btn-outline-danger btn-card-action" onclick="prepararBaja('${idInternoReal}')">Cesar Registro</button>` : ''; 
             
-            lista.innerHTML += `<div class="col-md-6 col-lg-4 mb-3"><div class="card h-100 shadow-sm border"><div class="card-body bg-white d-flex flex-column justify-content-between p-3"><div class="d-flex flex-md-row flex-column align-items-center align-items-md-start animal-card-body"><img src="${imgSrc}" onclick="verImagen('${imgSrc}')" class="img-thumbnail-animal me-md-3 mb-2 mb-md-0" alt="Foto"><div class="flex-grow-1 w-100"><div class="d-flex justify-content-between align-items-start border-bottom pb-2 mb-2"><h6 class="fw-bold text-dark mb-0">${tituloVaca}</h6><div class="d-flex"><button class="btn btn-sm btn-outline-primary btn-card-action" onclick="abrirModalEditar('${idInternoReal}')">Ver</button>${botonesAdmin}</div></div><div class="row text-start animal-info-col" style="font-size: 0.8rem;"><div class="col-6"><span class="text-muted">Lote:</span> <span class="fw-bold">${a.lote}</span><br><span class="text-muted">Ubic:</span> ${a.potrero || 'N/A'}<br><span class="text-muted">Sexo:</span> ${sexMostrar}<br><span class="text-muted">Origen:</span> ${provMostrar}</div><div class="col-6 border-start"><span class="text-muted">G.:</span> ${a.raza || ''} (${a.genetica || 'Puro'})<br><span class="text-muted">Peso:</span> <span class="text-primary fw-bold">${ultimoPeso}</span><br><span class="text-muted">Nac.:</span> ${a.nacimiento}<br><span class="text-muted">Madre:</span> ${a.madre}</div></div></div></div><div class="mt-3 d-flex gap-2 justify-content-end flex-wrap border-top pt-2 btn-action-mobile-group"><button class="btn btn-sm btn-outline-dark fw-bold flex-grow-1 flex-md-grow-0" onclick="abrirModalTraslado('${idInternoReal}', '${a.lote}')">Mover</button><button class="btn btn-sm btn-outline-primary fw-bold flex-grow-1 flex-md-grow-0" onclick="abrirModalPeso('${idInternoReal}')">Pesar</button><button class="btn btn-sm btn-outline-success fw-bold w-100 w-md-auto mt-2 mt-md-0" onclick="abrirGraficoIndividual('${idInternoReal}', '${idMostrar}', '${nomMostrar}', 'peso')">Reportes</button></div></div></div></div>`; 
+            lista.innerHTML += `<div class="col-md-6 col-lg-4 mb-3"><div class="card h-100 shadow-sm border"><div class="card-body bg-white d-flex flex-column justify-content-between p-3"><div class="d-flex flex-md-row flex-column align-items-center align-items-md-start animal-card-body"><img src="${imgSrc}" onclick="verImagen('${imgSrc}')" class="img-thumbnail-animal me-md-3 mb-2 mb-md-0" alt="Foto"><div class="flex-grow-1 w-100"><div class="d-flex justify-content-between align-items-start border-bottom pb-2 mb-2"><h6 class="fw-bold text-dark mb-0">${tituloVaca}</h6><div class="d-flex"><button class="btn btn-sm btn-outline-primary btn-card-action" onclick="abrirModalEditar('${idInternoReal}')">Analizar</button>${botonesAdmin}</div></div><div class="row text-start animal-info-col" style="font-size: 0.8rem;"><div class="col-6"><span class="text-muted">Grupo:</span> <span class="fw-bold">${a.lote}</span><br><span class="text-muted">Coord.:</span> ${a.potrero || 'N/A'}<br><span class="text-muted">Tipología:</span> ${sexMostrar}<br><span class="text-muted">Historial:</span> ${provMostrar}</div><div class="col-6 border-start"><span class="text-muted">ADN:</span> ${a.raza || ''} (${a.genetica || 'Puro'})<br><span class="text-muted">Masa:</span> <span class="text-primary fw-bold">${ultimoPeso}</span><br><span class="text-muted">Aparición:</span> ${a.nacimiento}<br><span class="text-muted">Registro M.:</span> ${a.madre}</div></div></div></div><div class="mt-3 d-flex gap-2 justify-content-end flex-wrap border-top pt-2 btn-action-mobile-group"><button class="btn btn-sm btn-outline-dark fw-bold flex-grow-1 flex-md-grow-0" onclick="abrirModalTraslado('${idInternoReal}', '${a.lote}')">Desplazar</button><button class="btn btn-sm btn-outline-primary fw-bold flex-grow-1 flex-md-grow-0" onclick="abrirModalPeso('${idInternoReal}')">Biometría</button><button class="btn btn-sm btn-outline-success fw-bold w-100 w-md-auto mt-2 mt-md-0" onclick="abrirGraficoIndividual('${idInternoReal}', '${idMostrar}', '${nomMostrar}', 'peso')">Estadística</button></div></div></div></div>`; 
         }); 
         if (filtrados.length > limiteAnimalesMostrados) btnCargarMas.classList.remove('hidden'); else btnCargarMas.classList.add('hidden'); 
     }
@@ -953,7 +948,6 @@
                 const animalesSheet = XLSX.utils.sheet_to_json(wb.Sheets["Inventario Consolidado"] || wb.Sheets["Rebaño General"] || wb.Sheets["Animales Activos"] || wb.Sheets["Animales"] || wb.Sheets[wb.SheetNames[0]] || []);
                 let procesados = 0;
                 
-                // BULLETPROOF Lotes check pre-import
                 if (!Array.isArray(lotes) || lotes.length === 0) lotes = ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
 
                 animalesSheet.forEach(row => {
