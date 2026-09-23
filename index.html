@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#2e7d32">
-    <title>AgroSystems - Gestión Integral V16</title>
+    <title>AgroSystems - Gestión Integral V17</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -53,20 +53,19 @@
         .btn-depto { white-space: nowrap; border-radius: 25px; font-weight: 700; padding: 8px 20px; transition: all 0.2s; }
         .card-producto-img { height: 200px; object-fit: contain; background-color: white; padding: 10px; border-bottom: 1px solid #f0f0f0; }
         #badge-rol { font-size: 0.75rem; margin-top: 5px; display: inline-block; padding: 4px 10px; border-radius: 15px; background: rgba(255,255,255,0.2); }
-        .badge-nube { font-size: 0.8rem; font-weight: bold; vertical-align: middle; padding: 6px 12px; border-radius: 20px; transition: all 0.4s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .badge-nube { font-size: 0.8rem; font-weight: bold; vertical-align: middle; padding: 6px 12px; border-radius: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
 <div id="init-loader">
     <h3 class="text-success fw-bold">🌿 Cargando AgroSystems...</h3>
-    <p class="text-muted">Conectando a la nube</p>
     <div class="spinner-border text-success" role="status"></div>
 </div>
 
 <div id="auth-screen">
     <div class="auth-box">
-        <h2 class="fw-bold text-success mb-0">🌿 AgroSystems <span class="badge" style="background-color: #1a237e; font-size: 0.8rem; vertical-align: middle;">V16</span></h2>
+        <h2 class="fw-bold text-success mb-0">🌿 AgroSystems <span class="badge" style="background-color: #000000; font-size: 0.8rem; vertical-align: middle;">V17</span></h2>
         <p class="text-muted mb-4">Gestión Inteligente de Fincas</p>
         
         <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
@@ -127,9 +126,10 @@
             <a href="#" onclick="showView('sanidad')" class="nav-btn-sanidad">💉 Sanidad</a>
             <a href="#" onclick="showView('tienda')" class="nav-btn-tienda">🛒 Tienda</a>
             <hr class="border-light opacity-50 w-100 my-3">
+            <a href="#" onclick="showView('ajustes')" class="nav-btn-ajustes">⚙️ Ajustes</a>
             <a href="#" onclick="showView('equipo')" class="nav-btn-equipo admin-only">👥 Mi Equipo</a>
             <a href="#" onclick="showView('datos')" class="nav-btn-datos admin-only">💾 Respaldo Excel</a>
-            <a href="#" onclick="cerrarSesion()" class="text-danger mt-4">🚪 Cerrar Sesión</a>
+            <a href="#" onclick="intentarCerrarSesion()" class="text-danger mt-4">🚪 Cerrar Sesión</a>
         </div>
     </div>
 
@@ -145,9 +145,10 @@
             <a href="#" onclick="showView('sanidad')" class="nav-btn-sanidad">💉 Sanidad</a>
             <a href="#" onclick="showView('tienda')" class="nav-btn-tienda">🛒 Tienda</a>
             <hr class="border-light opacity-50 w-100 my-3">
+            <a href="#" onclick="showView('ajustes')" class="nav-btn-ajustes">⚙️ Ajustes</a>
             <a href="#" onclick="showView('equipo')" class="nav-btn-equipo admin-only">👥 Mi Equipo</a>
             <a href="#" onclick="showView('datos')" class="nav-btn-datos admin-only">💾 Respaldo Excel</a>
-            <a href="#" onclick="cerrarSesion()" class="text-warning mt-4">🚪 Cerrar Sesión</a>
+            <a href="#" onclick="intentarCerrarSesion()" class="text-warning mt-4">🚪 Cerrar Sesión</a>
         </div>
     </div>
 
@@ -156,7 +157,7 @@
         <div id="view-dashboard" class="view-section">
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <h2 class="fw-bold text-dark m-0" id="display-finca-nombre">Mi Finca </h2>
-                <span id="nube-status" class="badge bg-success badge-nube">☁️ Sincronizado</span>
+                <span id="nube-status" class="badge bg-secondary badge-nube">📱 Guardado en Teléfono</span>
             </div>
             <p class="text-muted mb-4" id="display-finca-info">📍 Ubicación | 📞 Teléfono</p>
             
@@ -237,6 +238,19 @@
             <ul class="list-group shadow-sm border-0" id="lista-vacunas"></ul>
         </div>
         
+        <!-- NUEVA VISTA: AJUSTES -->
+        <div id="view-ajustes" class="view-section hidden">
+            <h2 class="fw-bold mb-4">⚙️ Ajustes de Sincronización</h2>
+            <div class="card p-4 shadow-sm border-0 mb-4 bg-white">
+                <h4 class="fw-bold text-dark">Almacenamiento Local (Modo Fuera de Línea)</h4>
+                <p class="text-muted">Tu aplicación guarda los datos automáticamente en la memoria de este dispositivo, permitiéndote trabajar rápido y sin internet. Usa estos botones para coordinar tu información con la nube cuando tengas buena señal.</p>
+                <div class="d-flex flex-column gap-3 mt-3">
+                    <button class="btn btn-success btn-lg fw-bold shadow-sm" onclick="forzarSubidaNube()">☁️ Subir mi progreso a la Nube (Guardar)</button>
+                    <button class="btn btn-outline-primary btn-lg fw-bold" onclick="forzarDescargaNube()">⬇️ Descargar datos de la Nube (Sincronizar)</button>
+                </div>
+            </div>
+        </div>
+
         <div id="view-equipo" class="view-section hidden admin-only">
             <h2 class="fw-bold mb-3">👥 Equipo de Trabajo</h2>
             <div class="alert alert-info border-0 shadow-sm">
@@ -256,7 +270,6 @@
             <div class="row g-3">
                 <div class="col-12 col-md-6"><div class="card p-4 text-center h-100 shadow-sm border-success"><h4 class="text-success mb-3 fw-bold">📤 Exportar Datos</h4><button class="btn btn-success btn-lg mt-auto shadow" onclick="exportarExcel()">Descargar Archivo Excel</button></div></div>
                 <div class="col-12 col-md-6"><div class="card p-4 text-center h-100 shadow-sm border-primary"><h4 class="text-primary mb-3 fw-bold">📥 Importar Excel</h4><input type="file" id="input-importar" class="form-control mb-3" accept=".xlsx, .xls"><button class="btn btn-primary btn-lg mt-auto shadow" onclick="importarExcel()">Subir Archivo</button></div></div>
-                
             </div>
         </div>
     </div>
@@ -275,7 +288,7 @@
 <div class="col-6 mb-2"><label class="fw-bold">Sexo</label><select id="ani-sexo" class="form-select" required><option value="Hembra">Hembra</option><option value="Macho">Macho</option></select></div>
 <div class="col-6 mb-2"><label class="fw-bold text-success">Raza</label><input type="text" id="ani-raza" class="form-control" placeholder="Ej: Brahman, Holstein"></div>
 <div class="col-6 mb-2"><label class="fw-bold text-success">Genética</label><select id="ani-genetica" class="form-select" required><option value="Puro">Puro</option><option value="Mestizo">Mestizo / Criollo</option><option value="F1">F1 (50% - 50%)</option><option value="F2">F2 (75% - 25%)</option><option value="F3">F3 (87.5% - 12.5%)</option></select></div>
-<div class="col-6 mb-2"><label class="fw-bold">Lote / Grupo</label><select id="ani-lote" class="form-select" required></select></div><div class="col-6 mb-2"><label class="fw-bold">Potrero / Galpón</label><input type="text" id="ani-potrero" class="form-control" placeholder="Ej. Potrero 1"></div><div class="col-6 mb-2"><label class="fw-bold">Origen</label><input type="text" id="ani-proveniente" class="form-control"></div><div class="col-6 mb-2"><label class="fw-bold">Nacimiento</label><input type="date" id="ani-fecha" class="form-control"></div><div class="col-12 mb-2"><label class="fw-bold">Madre</label><input type="text" id="ani-madre" class="form-control"><div class="form-check mt-1"><input class="form-check-input" type="checkbox" id="ani-madre-desc" onchange="toggleMadre()"><label class="form-check-label text-muted">Madre desconocida</label></div></div><div class="col-12 mb-2"><label class="fw-bold">Foto (Cámara)</label><input type="file" id="ani-foto-file" class="form-control" accept="image/*" capture="environment"><input type="hidden" id="ani-foto-base64"><div class="text-center mt-2"><img id="ani-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-animal" class="btn btn-success w-100 fw-bold">Guardar Perfil</button></div></div></div></div>
+<div class="col-6 mb-2"><label class="fw-bold">Lote / Grupo</label><select id="ani-lote" class="form-select" required></select></div><div class="col-6 mb-2"><label class="fw-bold">Potrero / Galpón</label><input type="text" id="ani-potrero" class="form-control" placeholder="Ej. Potrero 1"></div><div class="col-6 mb-2"><label class="fw-bold">Origen</label><input type="text" id="ani-proveniente" class="form-control"></div><div class="col-6 mb-2"><label class="fw-bold">Nacimiento</label><input type="date" id="ani-fecha" class="form-control"></div><div class="col-12 mb-2"><label class="fw-bold">Madre</label><input type="text" id="ani-madre" class="form-control"><div class="form-check mt-1"><input class="form-check-input" type="checkbox" id="ani-madre-desc" onchange="toggleMadre()"><label class="form-check-label text-muted">Madre desconocida</label></div></div><div class="col-12 mb-2"><label class="fw-bold">Foto (Cámara)</label><input type="file" id="ani-foto-file" class="form-control" accept="image/*" capture="environment"><input type="hidden" id="ani-foto-base64"><div class="text-center mt-2"><img id="ani-foto-preview" class="preview-img mx-auto" alt="Vista previa"></div></div></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-animal" class="btn btn-success w-100 fw-bold">Guardar Localmente</button></div></div></div></div>
 
 <div class="modal fade" id="modalTrasladoLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-success text-white"><h5 class="modal-title fw-bold">🔄 Trasladar</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-traslado" onsubmit="ejecutarTraslado(event)"><input type="hidden" id="traslado-id-interno"><label class="fw-bold mb-2">Nuevo Lote:</label><select id="traslado-nuevo-lote" class="form-select" required></select></form></div><div class="modal-footer border-0"><button type="submit" form="form-traslado" class="btn btn-success w-100">Confirmar</button></div></div></div></div>
 <div class="modal fade" id="modalRegistroPeso" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-warning text-dark"><h5 class="modal-title fw-bold">⚖️ Registrar Peso</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-peso" onsubmit="guardarPeso(event)"><input type="hidden" id="peso-id-interno"><div class="mb-3"><label class="fw-bold">Fecha</label><input type="date" id="peso-fecha" class="form-control" required></div><div class="mb-3"><label class="fw-bold">Peso (Kg)</label><input type="number" step="0.1" id="peso-kilos" class="form-control" required></div></form></div><div class="modal-footer border-0"><button type="submit" form="form-peso" class="btn btn-warning w-100 fw-bold">Guardar</button></div></div></div></div>
@@ -288,11 +301,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // MANEJADOR GLOBAL DE ERRORES (Evita pantallas blancas)
-    window.onerror = function(msg, url, line) {
-        console.error("Error del Sistema:", msg, "Línea:", line);
-        return false;
-    };
+    // MANEJADOR GLOBAL DE ERRORES 
+    window.onerror = function(msg, url, line) { console.error("Error del Sistema:", msg, "Línea:", line); return false; };
 
     const SUPABASE_URL = 'https://pznaumhcnpotlarvrcjl.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_3Upyqun-W_H5F7KdOQpMpQ_HuHHtJXp';
@@ -310,9 +320,7 @@
             document.getElementById('init-loader').style.display = 'none';
             document.getElementById('auth-screen').style.display = 'flex';
             
-            const { data: { session: currentSession }, error } = await supabaseClient.auth.getSession();
-            if(error) throw error;
-            
+            const { data: { session: currentSession } } = await supabaseClient.auth.getSession();
             session = currentSession;
             if (session) await verificarFincaUsuario(); 
         } catch (e) {
@@ -358,22 +366,29 @@
             const { data, error } = await supabaseClient.auth.signUp({ email, password: pass, options: { data: { nombre: nombre, apellido: apellido } } });
             if (error) throw error;
             if (!data.session) {
-                const { data: loginData, error: loginError } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
-                if(loginError) throw new Error("Registrado. Vuelve a iniciar sesión.");
+                const { data: loginData } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
                 session = loginData.session;
             } else { session = data.session; }
             showAuthView('setup-finca');
         } catch(e) { errorBox.innerText = "❌ " + e.message; }
     }
 
-    async function cerrarSesion() { await supabaseClient.auth.signOut(); window.location.reload(); }
+    // ==========================================
+    // CIERRE DE SESIÓN CON AVISO DE GUARDADO
+    // ==========================================
+    async function intentarCerrarSesion() {
+        if(confirm("¿Deseas GUARDAR tu progreso actual en la Nube antes de salir?\n\n[Aceptar] = Guardar en la Nube y salir\n[Cancelar] = Salir rápido (Los datos quedan en tu teléfono)")) {
+            await forzarSubidaNube(true); // Guarda de forma silenciosa
+        }
+        await supabaseClient.auth.signOut(); 
+        window.location.reload();
+    }
 
     async function verificarFincaUsuario() {
         document.getElementById('auth-screen').style.display = 'flex';
         document.getElementById('auth-error').innerText = 'Cargando perfil...';
         try {
-            const { data: miembroDataArray, error } = await supabaseClient.from('miembros').select('finca_id, rol').eq('user_id', session.user.id).limit(1);
-            if(error) throw error;
+            const { data: miembroDataArray } = await supabaseClient.from('miembros').select('finca_id, rol').eq('user_id', session.user.id).limit(1);
             const miembroData = miembroDataArray && miembroDataArray.length > 0 ? miembroDataArray[0] : null;
 
             if (miembroData && miembroData.finca_id) {
@@ -392,7 +407,6 @@
         const ubicacion = document.getElementById('nueva-finca-ubicacion').value.trim();
         const telefono = document.getElementById('nueva-finca-telefono').value.trim();
         const errorBox = document.getElementById('auth-error');
-        
         if(!nombre) return errorBox.innerText = '⚠️ Escribe el nombre de Finca o Hato.';
         errorBox.innerText = "Registrando Finca..."; 
         const codigo = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -422,14 +436,22 @@
     }
 
     // ==========================================
-    // SISTEMA BLINDADO: ESTRATEGIA DEL GAVETERO Y MEMORIA LOCAL (V16)
+    // SISTEMA LOCAL-FIRST (V17): EL TELÉFONO MANDA
     // ==========================================
     
-    // GUARDA EN LA MEMORIA DEL NAVEGADOR
     function guardarLocal() {
         if(!miFincaInfo) return;
+        // Se asegura que los lotes existan
+        if (!lotes || lotes.length === 0) lotes = ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
         const estadoCompleto = { animales, vacunas, productos, lotes, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda } };
         localStorage.setItem('agro_data_' + miFincaInfo.id, JSON.stringify(estadoCompleto));
+        
+        // Actualizamos el status de la app
+        const statusBadge = document.getElementById('nube-status');
+        if(statusBadge) {
+            statusBadge.className = 'badge bg-secondary badge-nube'; 
+            statusBadge.innerText = '📱 Guardado en Teléfono';
+        }
     }
 
     async function arrancarAplicacion() {
@@ -445,45 +467,28 @@
         document.getElementById('badge-codigo').innerText = `Código Invite: ${miFincaInfo.codigo}`;
         if(miFincaInfo.rol !== 'admin') document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
 
-        let nubeData = { animales: [], vacunas: [], productos: [], lotes: ['Ordeño', 'Horro', 'Mautes', 'Becerros'], fincaExtra: {} };
-        let maxAnimales = -1;
-        let idParaActualizar = null;
-
-        try {
-            // ESTRATEGIA DEL GAVETERO: Leer todos los cajones, ignorar los vacíos y quedarnos con el mejor.
-            const { data: todosLosCajones } = await supabaseClient.from('finca_data').select('id, data').eq('finca_id', miFincaInfo.id);
-            
-            if (todosLosCajones && todosLosCajones.length > 0) {
-                todosLosCajones.forEach(cajon => {
-                    let cantidad = (cajon.data && cajon.data.animales) ? cajon.data.animales.length : 0;
-                    if(cantidad > maxAnimales) {
-                        maxAnimales = cantidad;
-                        nubeData = cajon.data;
-                        idParaActualizar = cajon.id;
-                    }
-                });
-                
-                // LIMPIEZA DE FANTASMAS (Borra los cajones inútiles para no estorbar más a la base de datos)
-                if (todosLosCajones.length > 1 && idParaActualizar) {
-                    const idsBorrables = todosLosCajones.filter(c => c.id !== idParaActualizar).map(c => c.id);
-                    supabaseClient.from('finca_data').delete().in('id', idsBorrables).then();
-                }
-            }
-        } catch(e) { console.error("Error nube:", e); }
-
-        // PLAN B: MEMORIA LOCAL (Comparamos el teléfono con la nube)
+        // 1. LEER LOCALMENTE PRIMERO (Velocidad Inmediata y Offline)
         const localRaw = localStorage.getItem('agro_data_' + miFincaInfo.id);
-        let localData = localRaw ? JSON.parse(localRaw) : { animales: [] };
+        let dataFinal = localRaw ? JSON.parse(localRaw) : null;
         
-        let dataFinal = nubeData;
-        const cantidadLocal = Array.isArray(localData.animales) ? localData.animales.length : 0;
-        const cantidadNube = Array.isArray(nubeData.animales) ? nubeData.animales.length : 0;
-
-        // Si la computadora tiene más animales que la nube (porque falló el internet al guardar), la computadora GANA.
-        if (cantidadLocal > cantidadNube) {
-            dataFinal = localData; 
+        // 2. SI NO HAY NADA LOCAL, BUSCAR EN LA NUBE (LA ESTRATEGIA DEL GAVETERO)
+        if(!dataFinal || !dataFinal.animales || dataFinal.animales.length === 0) {
+            try {
+                const { data: todosLosCajones } = await supabaseClient.from('finca_data').select('id, data').eq('finca_id', miFincaInfo.id);
+                if (todosLosCajones && todosLosCajones.length > 0) {
+                    let maxAnimales = -1;
+                    todosLosCajones.forEach(cajon => {
+                        let cantidad = (cajon.data && cajon.data.animales) ? cajon.data.animales.length : 0;
+                        if(cantidad > maxAnimales) { maxAnimales = cantidad; dataFinal = cajon.data; }
+                    });
+                }
+            } catch(e) { console.error("Error conectando a la nube al arrancar:", e); }
         }
+        
+        // 3. SI TODAVIA NO HAY NADA, CREAMOS UN FORMATO VACIO
+        if(!dataFinal) dataFinal = { animales: [], vacunas: [], productos: [], lotes: ['Ordeño', 'Horro', 'Mautes', 'Becerros'], fincaExtra: {} };
 
+        // 4. CARGAMOS LA MEMORIA VIVA
         animales = Array.isArray(dataFinal.animales) ? dataFinal.animales : [];
         vacunas = Array.isArray(dataFinal.vacunas) ? dataFinal.vacunas : [];
         productos = Array.isArray(dataFinal.productos) ? dataFinal.productos : [];
@@ -497,88 +502,95 @@
         document.getElementById('display-wa-num').innerText = telefono_tienda || 'No configurado';
         document.getElementById('input-wa-numero').value = telefono_tienda;
         
-        // Carga la pantalla visual
+        guardarLocal();
         actualizarSelectsLotes(); 
         showView('dashboard'); 
-        
-        // Activamos los receptores
-        guardarLocal();
-        iniciarSincronizacionEnTiempoReal();
-
-        // Si el teléfono ganó (y la nube estaba vacía), forzamos la actualización a la nube en 2 segundos
-        if (cantidadLocal > cantidadNube) {
-            setTimeout(guardarDatos, 2000);
-        }
     }
 
-    async function guardarDatos() {
-        if(!miFincaInfo) return { success: false, error: "No hay finca registrada" };
-        
-        // 1. ANTES DE NADA, GUARDAMOS EN LA MEMORIA DEL NAVEGADOR PARA GARANTIZAR CERO PÉRDIDAS
-        guardarLocal();
-
+    // ==========================================
+    // SINCRONIZACIÓN MANUAL (UN SOLO CAJÓN DE VERDAD)
+    // ==========================================
+    async function forzarSubidaNube(silencioso = false) {
+        if(!miFincaInfo) return;
         const statusBadge = document.getElementById('nube-status');
-        if(statusBadge) { statusBadge.className = 'badge bg-warning text-dark badge-nube'; statusBadge.innerText = '⏳ Sincronizando...'; }
+        if(statusBadge && !silencioso) { statusBadge.className = 'badge bg-warning text-dark badge-nube'; statusBadge.innerText = '⏳ Subiendo a la Nube...'; }
         
         try {
             const estadoCompleto = { animales, vacunas, productos, lotes, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda } };
             
-            // 2. ENVIAMOS A SUPABASE
-            const { data: filasBusqueda } = await supabaseClient.from('finca_data').select('id').eq('finca_id', miFincaInfo.id).limit(1);
+            // Buscar gavetas
+            const { data: cajones } = await supabaseClient.from('finca_data').select('id').eq('finca_id', miFincaInfo.id);
             
-            if (filasBusqueda && filasBusqueda.length > 0) {
-                const { error: errUpdate } = await supabaseClient.from('finca_data').update({ data: estadoCompleto }).eq('id', filasBusqueda[0].id);
-                if (errUpdate) throw errUpdate;
+            if (cajones && cajones.length > 0) {
+                // Actualiza la primera gaveta (Maestra)
+                await supabaseClient.from('finca_data').update({ data: estadoCompleto }).eq('id', cajones[0].id);
+                
+                // Si hay gavetas duplicadas, bota la basura a la papelera
+                if (cajones.length > 1) {
+                    const idsExtra = cajones.slice(1).map(c => c.id);
+                    await supabaseClient.from('finca_data').delete().in('id', idsExtra);
+                }
             } else {
-                const { error: errInsert } = await supabaseClient.from('finca_data').insert([{ finca_id: miFincaInfo.id, data: estadoCompleto }]);
-                if (errInsert) throw errInsert;
+                // Si no había gaveta, crea una nueva
+                await supabaseClient.from('finca_data').insert([{ finca_id: miFincaInfo.id, data: estadoCompleto }]);
             }
             
-            if(statusBadge) { 
-                statusBadge.className = 'badge bg-success badge-nube'; statusBadge.innerText = '✅ Nube Segura'; 
-            }
-            return { success: true }; 
+            if(statusBadge) { statusBadge.className = 'badge bg-success badge-nube'; statusBadge.innerText = '✅ Nube Actualizada'; }
+            if(!silencioso) alert("¡Tus datos están respaldados de forma segura en la Nube de AgroSystems!");
+            
         } catch (e) {
-            console.error("Error al guardar en nube:", e);
-            if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube'; statusBadge.innerText = '💾 Guardado Local (Fallo Nube)'; }
-            return { success: false, error: e.message || JSON.stringify(e) }; 
+            console.error("Error al subir:", e);
+            if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube'; statusBadge.innerText = '❌ Error de Subida'; }
+            if(!silencioso) alert("⚠️ No se pudo guardar en la nube. Revisa tu internet.");
         }
     }
 
-    function iniciarSincronizacionEnTiempoReal() {
-        supabaseClient.channel('custom-all-channel')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'finca_data', filter: `finca_id=eq.${miFincaInfo.id}` }, async (payload) => {
+    async function forzarDescargaNube() {
+        if(!confirm("⚠️ ATENCIÓN: Esto reemplazará los datos de tu teléfono con los que están guardados en la Nube.\n\n¿Estás seguro de que quieres Sincronizar?")) return;
+        
+        const statusBadge = document.getElementById('nube-status');
+        if(statusBadge) { statusBadge.className = 'badge bg-warning text-dark badge-nube'; statusBadge.innerText = '⏳ Descargando...'; }
+        
+        try {
+            // ESTRATEGIA DEL GAVETERO PARA DESCARGAR EL MEJOR
+            const { data: todosLosCajones } = await supabaseClient.from('finca_data').select('data').eq('finca_id', miFincaInfo.id);
+            
+            let dataFinal = null;
+            let maxAnimales = -1;
+            
+            if (todosLosCajones && todosLosCajones.length > 0) {
+                todosLosCajones.forEach(cajon => {
+                    let cantidad = (cajon.data && cajon.data.animales) ? cajon.data.animales.length : 0;
+                    if(cantidad > maxAnimales) { maxAnimales = cantidad; dataFinal = cajon.data; }
+                });
+            }
+            
+            if(dataFinal) {
+                animales = Array.isArray(dataFinal.animales) ? dataFinal.animales : [];
+                vacunas = Array.isArray(dataFinal.vacunas) ? dataFinal.vacunas : [];
+                productos = Array.isArray(dataFinal.productos) ? dataFinal.productos : [];
+                lotes = Array.isArray(dataFinal.lotes) && dataFinal.lotes.length > 0 ? dataFinal.lotes : ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
                 
-                // RE-APLICAR LÓGICA DEL GAVETERO PARA ACTUALIZACIONES
-                const { data: todosLosCajones } = await supabaseClient.from('finca_data').select('data').eq('finca_id', miFincaInfo.id);
-                if(todosLosCajones && todosLosCajones.length > 0) {
-                    let maxAnimales = -1;
-                    let nubeData = null;
-                    todosLosCajones.forEach(c => {
-                        let canti = (c.data && c.data.animales) ? c.data.animales.length : 0;
-                        if(canti > maxAnimales) { maxAnimales = canti; nubeData = c.data; }
-                    });
-                    
-                    // Solo actualiza la pantalla si la nube trae MÁS o IGUAL cantidad de datos que los que yo tengo localmente
-                    if (nubeData && maxAnimales >= animales.length) {
-                        animales = Array.isArray(nubeData.animales) ? nubeData.animales : animales;
-                        vacunas = Array.isArray(nubeData.vacunas) ? nubeData.vacunas : vacunas; 
-                        productos = Array.isArray(nubeData.productos) ? nubeData.productos : productos; 
-                        lotes = Array.isArray(nubeData.lotes) && nubeData.lotes.length > 0 ? nubeData.lotes : lotes; 
-                        
-                        const extraInfo = nubeData.fincaExtra || {};
-                        telefono_tienda = extraInfo.telefono || ''; ubicacion_finca = extraInfo.ubicacion || '';
-                        document.getElementById('display-finca-info').innerText = `📍 ${ubicacion_finca || 'Sin ubicación'} | 📞 ${telefono_tienda || 'Sin teléfono'}`;
-                        
-                        guardarLocal(); // La nube gana, así que actualizamos el local.
-                        actualizarSelectsLotes(); renderDashboard();
-                        if(!document.getElementById('view-animales').classList.contains('hidden')) renderAnimales();
-                        if(!document.getElementById('view-ordeño').classList.contains('hidden')) renderOrdeno();
-                        if(!document.getElementById('view-tienda').classList.contains('hidden')) renderTienda();
-                        if(!document.getElementById('view-sanidad').classList.contains('hidden')) renderVacunas();
-                    }
-                }
-            }).subscribe();
+                const extraInfo = dataFinal.fincaExtra || {};
+                telefono_tienda = extraInfo.telefono || ''; ubicacion_finca = extraInfo.ubicacion || '';
+                
+                document.getElementById('display-finca-info').innerText = `📍 ${ubicacion_finca || 'Sin ubicación'} | 📞 ${telefono_tienda || 'Sin teléfono'}`;
+                
+                guardarLocal();
+                actualizarSelectsLotes(); 
+                showView('dashboard');
+                
+                if(statusBadge) { statusBadge.className = 'badge bg-success badge-nube'; statusBadge.innerText = '✅ Nube Descargada'; }
+                alert(`Sincronización Completa.\nSe descargaron ${animales.length} animales de la nube.`);
+            } else {
+                alert("La nube está vacía. No hay datos que descargar.");
+                if(statusBadge) { statusBadge.className = 'badge bg-secondary badge-nube'; statusBadge.innerText = '📱 Guardado en Teléfono'; }
+            }
+        } catch (e) {
+            console.error("Error al descargar:", e);
+            if(statusBadge) { statusBadge.className = 'badge bg-danger badge-nube'; statusBadge.innerText = '❌ Error de Descarga'; }
+            alert("⚠️ No se pudo descargar de la nube. Revisa tu internet.");
+        }
     }
 
     function cerrarMenuCelular() { if(window.innerWidth < 768) { const offcanvasEl = document.getElementById('sidebarOffcanvas'); if(offcanvasEl && offcanvasEl.classList.contains('show')) { const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl); if(bsOffcanvas) bsOffcanvas.hide(); } } }
@@ -611,7 +623,7 @@
         await supabaseClient.from('miembros').delete().eq('id', idMiembro); renderEquipo();
     }
 
-    function guardarWhatsApp(e) { e.preventDefault(); telefono_tienda = document.getElementById('input-wa-numero').value.trim(); document.getElementById('display-wa-num').innerText = telefono_tienda; document.getElementById('display-finca-info').innerText = `📍 ${ubicacion_finca || 'Sin ubicación'} | 📞 ${telefono_tienda || 'Sin teléfono'}`; bootstrap.Modal.getInstance(document.getElementById('modalConfigWA')).hide(); guardarDatos(); renderTienda(); }
+    function guardarWhatsApp(e) { e.preventDefault(); telefono_tienda = document.getElementById('input-wa-numero').value.trim(); document.getElementById('display-wa-num').innerText = telefono_tienda; document.getElementById('display-finca-info').innerText = `📍 ${ubicacion_finca || 'Sin ubicación'} | 📞 ${telefono_tienda || 'Sin teléfono'}`; bootstrap.Modal.getInstance(document.getElementById('modalConfigWA')).hide(); guardarLocal(); renderTienda(); }
     
     function actualizarSelectsLotes() { 
         const selects = ['filtro-lote', 'ani-lote', 'vacuna-lote', 'borrar-lote-select', 'traslado-nuevo-lote']; 
@@ -630,7 +642,7 @@
         }); 
     }
     
-    function guardarNuevoLote(e) { e.preventDefault(); let nombre = document.getElementById('nuevo-lote-nombre').value.trim(); nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase(); if (nombre && !lotes.includes(nombre)) { lotes.push(nombre); guardarDatos(); actualizarSelectsLotes(); renderDashboard(); } bootstrap.Modal.getInstance(document.getElementById('modalNuevoLote')).hide(); e.target.reset(); }
+    function guardarNuevoLote(e) { e.preventDefault(); let nombre = document.getElementById('nuevo-lote-nombre').value.trim(); nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase(); if (nombre && !lotes.includes(nombre)) { lotes.push(nombre); guardarLocal(); actualizarSelectsLotes(); renderDashboard(); } bootstrap.Modal.getInstance(document.getElementById('modalNuevoLote')).hide(); e.target.reset(); }
     function verImagen(url) { document.getElementById('img-zoom').src = url; new bootstrap.Modal(document.getElementById('modalImagenGrande')).show(); }
     function comprimirImagen(file, outputBase64Id, outputPreviewId) { const reader = new FileReader(); reader.onload = function(event) { const img = new Image(); img.onload = function() { const canvas = document.createElement('canvas'); const MAX_WIDTH = 400; const scaleSize = MAX_WIDTH / img.width; canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height); document.getElementById(outputBase64Id).value = canvas.toDataURL('image/jpeg', 0.6); document.getElementById(outputPreviewId).src = document.getElementById(outputBase64Id).value; document.getElementById(outputPreviewId).style.display = 'block'; }; img.src = event.target.result; }; reader.readAsDataURL(file); }
     document.getElementById('ani-foto-file').addEventListener('change', function(e) { if(e.target.files[0]) comprimirImagen(e.target.files[0], 'ani-foto-base64', 'ani-foto-preview'); });
@@ -639,8 +651,8 @@
     function setCategoriaTienda(categoria) { categoriaTiendaActual = categoria; const botones = document.querySelectorAll('.btn-depto'); botones.forEach(btn => { btn.classList.remove('btn-primary', 'active'); btn.classList.add('btn-outline-primary'); }); const btnActivo = document.getElementById(`btn-depto-${categoria}`); if(btnActivo) { btnActivo.classList.remove('btn-outline-primary'); btnActivo.classList.add('btn-primary', 'active'); } renderTienda(); }
     function abrirModalNuevoProducto() { document.getElementById('prod-id-edit').value = ''; document.getElementById('prod-foto-base64').value = ''; document.getElementById('prod-foto-preview').style.display = 'none'; document.getElementById('modalProductoTitle').innerText = 'Registrar Producto'; document.getElementById('form-producto').reset(); if(categoriaTiendaActual !== 'Todos') document.getElementById('prod-categoria').value = categoriaTiendaActual; new bootstrap.Modal(document.getElementById('modalProducto')).show(); }
     function abrirModalEditarProducto(id) { const prod = productos.find(p => p.id === id); if(!prod) return; document.getElementById('modalProductoTitle').innerText = '✏️ Editar Producto'; document.getElementById('prod-id-edit').value = prod.id; document.getElementById('prod-nombre').value = prod.nombre; document.getElementById('prod-categoria').value = prod.categoria; document.getElementById('prod-precio').value = prod.precio; document.getElementById('prod-stock').value = prod.stock; document.getElementById('prod-descripcion').value = prod.descripcion; if (prod.foto && !prod.foto.includes('placehold')) { document.getElementById('prod-foto-base64').value = prod.foto; document.getElementById('prod-foto-preview').src = prod.foto; document.getElementById('prod-foto-preview').style.display = 'block'; } else { document.getElementById('prod-foto-base64').value = ''; document.getElementById('prod-foto-preview').style.display = 'none'; } new bootstrap.Modal(document.getElementById('modalProducto')).show(); }
-    function eliminarProducto(id) { if(confirm("⚠️ ¿Eliminar producto?")) { productos = productos.filter(p => p.id !== id); guardarDatos(); renderTienda(); } }
-    function guardarProducto(e) { e.preventDefault(); const editId = document.getElementById('prod-id-edit').value; const fotoGuardada = document.getElementById('prod-foto-base64').value || 'https://placehold.co/400x400/2e7d32/ffffff?text=Producto'; if (editId) { const indice = productos.findIndex(p => p.id === editId); if(indice !== -1) { productos[indice].nombre = document.getElementById('prod-nombre').value.trim(); productos[indice].categoria = document.getElementById('prod-categoria').value; productos[indice].precio = parseFloat(document.getElementById('prod-precio').value); productos[indice].stock = parseInt(document.getElementById('prod-stock').value); productos[indice].descripcion = document.getElementById('prod-descripcion').value.trim(); productos[indice].foto = fotoGuardada; } } else { productos.push({ id: Date.now().toString() + Math.random().toString(36).substr(2, 5), nombre: document.getElementById('prod-nombre').value.trim(), categoria: document.getElementById('prod-categoria').value, precio: parseFloat(document.getElementById('prod-precio').value), stock: parseInt(document.getElementById('prod-stock').value), descripcion: document.getElementById('prod-descripcion').value.trim(), foto: fotoGuardada }); } guardarDatos(); bootstrap.Modal.getInstance(document.getElementById('modalProducto')).hide(); setCategoriaTienda(document.getElementById('prod-categoria').value); }
+    function eliminarProducto(id) { if(confirm("⚠️ ¿Eliminar producto?")) { productos = productos.filter(p => p.id !== id); guardarLocal(); renderTienda(); } }
+    function guardarProducto(e) { e.preventDefault(); const editId = document.getElementById('prod-id-edit').value; const fotoGuardada = document.getElementById('prod-foto-base64').value || 'https://placehold.co/400x400/2e7d32/ffffff?text=Producto'; if (editId) { const indice = productos.findIndex(p => p.id === editId); if(indice !== -1) { productos[indice].nombre = document.getElementById('prod-nombre').value.trim(); productos[indice].categoria = document.getElementById('prod-categoria').value; productos[indice].precio = parseFloat(document.getElementById('prod-precio').value); productos[indice].stock = parseInt(document.getElementById('prod-stock').value); productos[indice].descripcion = document.getElementById('prod-descripcion').value.trim(); productos[indice].foto = fotoGuardada; } } else { productos.push({ id: Date.now().toString() + Math.random().toString(36).substr(2, 5), nombre: document.getElementById('prod-nombre').value.trim(), categoria: document.getElementById('prod-categoria').value, precio: parseFloat(document.getElementById('prod-precio').value), stock: parseInt(document.getElementById('prod-stock').value), descripcion: document.getElementById('prod-descripcion').value.trim(), foto: fotoGuardada }); } guardarLocal(); bootstrap.Modal.getInstance(document.getElementById('modalProducto')).hide(); setCategoriaTienda(document.getElementById('prod-categoria').value); }
     function renderTienda() { const busqueda = document.getElementById('busqueda-producto').value.toLowerCase(); const lista = document.getElementById('lista-productos'); lista.innerHTML = ''; let filtrados = productos; if(categoriaTiendaActual !== 'Todos') filtrados = filtrados.filter(p => p.categoria === categoriaTiendaActual); if(busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda) || p.descripcion.toLowerCase().includes(busqueda)); filtrados.forEach(p => { const telLimpio = telefono_tienda.replace(/\D/g,''); const mensajeWa = encodeURIComponent(`Hola! 🌿 Me interesa comprar: *${p.nombre}*. Precio: $${p.precio.toFixed(2)}`); const urlWhatsapp = `https://api.whatsapp.com/send?phone=${telLimpio}&text=${mensajeWa}`; const botonesAdmin = miFincaInfo && miFincaInfo.rol === 'admin' ? `<div class="d-flex gap-2 justify-content-between border-top pt-2 mt-2"><button class="btn btn-sm btn-outline-primary w-50 fw-bold" onclick="abrirModalEditarProducto('${p.id}')">✏️ Editar</button><button class="btn btn-sm btn-outline-danger w-50 fw-bold" onclick="eliminarProducto('${p.id}')">🗑️</button></div>` : ''; lista.innerHTML += `<div class="col-12 col-md-6 col-lg-4 col-xl-3 mb-3"><div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;"><img src="${p.foto}" onclick="verImagen('${p.foto}')" class="card-img-top card-producto-img" alt="Producto"><div class="card-body d-flex flex-column p-3 bg-white"><span class="badge bg-secondary mb-2 align-self-start">${p.categoria}</span><h5 class="card-title fw-bold text-dark mb-1" style="font-size: 1.15rem;">${p.nombre}</h5><p class="precio-tag mb-2">$${p.precio.toFixed(2)}</p><p class="text-muted small mb-2" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.5em;">${p.descripcion}</p><p class="mb-3 text-dark small fw-bold">Stock: ${p.stock} und.</p><div class="mt-auto"><a href="${urlWhatsapp}" target="_blank" class="btn btn-whatsapp w-100 fw-bold mb-2 shadow-sm d-flex align-items-center justify-content-center">💬 WhatsApp</a>${botonesAdmin}</div></div></div></div>`; }); if(filtrados.length === 0) lista.innerHTML = `<div class="col-12 text-center text-muted mt-5"><h4>No hay productos.</h4></div>`; }
 
     function toggleMadre() { const check = document.getElementById('ani-madre-desc').checked; const input = document.getElementById('ani-madre'); input.disabled = check; if(check) input.value = 'Desconocida'; else input.value = ''; }
@@ -674,7 +686,7 @@
         new bootstrap.Modal(document.getElementById('modalAnimal')).show(); 
     }
     
-    async function guardarAnimal(e) { 
+    function guardarAnimal(e) { 
         e.preventDefault(); 
         const editId = document.getElementById('ani-id-interno-edit').value; 
         const inputIdAnimal = document.getElementById('ani-id-animal').value.trim();
@@ -725,7 +737,8 @@
             }); 
         } 
         
-        await guardarDatos(); 
+        guardarLocal(); // SOLO GUARDA LOCAL. RAPIDISIMO Y SIN ERRORES.
+        
         const modalEl = document.getElementById('modalAnimal');
         const modalInstance = bootstrap.Modal.getInstance(modalEl);
         if(modalInstance) modalInstance.hide();
@@ -734,11 +747,11 @@
         renderDashboard(); 
     }
     
-    function eliminarAnimal(id_interno) { if(confirm("⚠️ ¿Eliminar este animal?")) { animales = animales.filter(a => a.id_interno !== id_interno && a.id !== id_interno); guardarDatos(); reiniciarYRenderAnimales(); renderDashboard(); } }
+    function eliminarAnimal(id_interno) { if(confirm("⚠️ ¿Eliminar este animal?")) { animales = animales.filter(a => a.id_interno !== id_interno && a.id !== id_interno); guardarLocal(); reiniciarYRenderAnimales(); renderDashboard(); } }
     function abrirModalTraslado(id_interno, lote_actual) { document.getElementById('traslado-id-interno').value = id_interno; document.getElementById('traslado-nuevo-lote').value = lote_actual; new bootstrap.Modal(document.getElementById('modalTrasladoLote')).show(); }
-    function ejecutarTraslado(e) { e.preventDefault(); const id = document.getElementById('traslado-id-interno').value; const vaca = animales.find(a => a.id_interno === id || a.id === id); if(vaca) { vaca.lote = document.getElementById('traslado-nuevo-lote').value; guardarDatos(); } bootstrap.Modal.getInstance(document.getElementById('modalTrasladoLote')).hide(); reiniciarYRenderAnimales(); renderDashboard(); }
+    function ejecutarTraslado(e) { e.preventDefault(); const id = document.getElementById('traslado-id-interno').value; const vaca = animales.find(a => a.id_interno === id || a.id === id); if(vaca) { vaca.lote = document.getElementById('traslado-nuevo-lote').value; guardarLocal(); } bootstrap.Modal.getInstance(document.getElementById('modalTrasladoLote')).hide(); reiniciarYRenderAnimales(); renderDashboard(); }
     function abrirModalPeso(id_interno) { document.getElementById('peso-id-interno').value = id_interno; document.getElementById('peso-fecha').valueAsDate = new Date(); document.getElementById('peso-kilos').value = ''; new bootstrap.Modal(document.getElementById('modalRegistroPeso')).show(); }
-    function guardarPeso(e) { e.preventDefault(); const id = document.getElementById('peso-id-interno').value; const vaca = animales.find(a => a.id_interno === id || a.id === id); if(vaca) { vaca.historialPeso = vaca.historialPeso || []; vaca.historialPeso.push({ fecha: document.getElementById('peso-fecha').value, peso: parseFloat(document.getElementById('peso-kilos').value) }); vaca.historialPeso.sort((a,b) => new Date(a.fecha) - new Date(b.fecha)); guardarDatos(); } bootstrap.Modal.getInstance(document.getElementById('modalRegistroPeso')).hide(); reiniciarYRenderAnimales(); }
+    function guardarPeso(e) { e.preventDefault(); const id = document.getElementById('peso-id-interno').value; const vaca = animales.find(a => a.id_interno === id || a.id === id); if(vaca) { vaca.historialPeso = vaca.historialPeso || []; vaca.historialPeso.push({ fecha: document.getElementById('peso-fecha').value, peso: parseFloat(document.getElementById('peso-kilos').value) }); vaca.historialPeso.sort((a,b) => new Date(a.fecha) - new Date(b.fecha)); guardarLocal(); } bootstrap.Modal.getInstance(document.getElementById('modalRegistroPeso')).hide(); reiniciarYRenderAnimales(); }
     function busquedaInteligenteAnimales() { clearTimeout(temporizadorBusqueda); temporizadorBusqueda = setTimeout(() => { reiniciarYRenderAnimales(); }, 400); }
     function reiniciarYRenderAnimales() { limiteAnimalesMostrados = 50; renderAnimales(); }
     function cargarMasAnimales() { limiteAnimalesMostrados += 50; renderAnimales(); }
@@ -775,9 +788,9 @@
     function cargarMasOrdeno() { limiteOrdenoMostrados += 50; renderOrdeno(); }
     function renderOrdeno() { const tabla = document.getElementById('tabla-ordeno'); const btnCargarMas = document.getElementById('btn-cargar-mas-ordeno'); tabla.innerHTML = ''; const vacasOrdeno = animales.filter(a => a.lote === 'Ordeño' || a.especie === 'Bovino' || a.especie === 'Caprino'); const arrayPaginado = vacasOrdeno.slice(0, limiteOrdenoMostrados); arrayPaginado.forEach(vaca => { const hist = vaca.historialLeche || []; const ultimo = hist.length > 0 ? hist[hist.length-1] : null; let lecheHtml = '<span class="text-muted">Sin registros</span>'; if(ultimo) lecheHtml = `<span class="badge bg-primary fs-6 mb-1">${ultimo.litros} Lts</span><br><small class="text-muted">🧑‍🌾 ${ultimo.personal || 'N/A'}</small>`; const idMostrar = vaca.id_animal || vaca.id || ''; const nomMostrar = vaca.nombre && vaca.nombre !== 'undefined' ? vaca.nombre : ''; const idInternoReal = vaca.id_interno || vaca.id; tabla.innerHTML += `<tr><td><strong>#${idMostrar}</strong><br><small class="text-muted">${nomMostrar}</small></td><td>${ultimo ? ultimo.fecha.substring(5) : 'N/A'}</td><td>${lecheHtml}</td><td class="text-end"><div class="btn-group btn-group-sm"><button class="btn btn-outline-primary fw-bold" onclick="abrirModalLeche('${idInternoReal}')">➕</button><button class="btn btn-outline-info fw-bold" onclick="abrirGraficoIndividual('${idInternoReal}', '${idMostrar}', '${nomMostrar}', 'leche')">📊</button></div></td></tr>`; }); if (vacasOrdeno.length > limiteOrdenoMostrados) btnCargarMas.classList.remove('hidden'); else btnCargarMas.classList.add('hidden'); }
     function abrirModalLeche(id_interno) { document.getElementById('leche-id-interno').value = id_interno; document.getElementById('leche-fecha').valueAsDate = new Date(); document.getElementById('leche-litros').value = ''; document.getElementById('leche-personal').value = ''; new bootstrap.Modal(document.getElementById('modalLeche')).show(); }
-    function guardarLeche(e) { e.preventDefault(); const id = document.getElementById('leche-id-interno').value; const vaca = animales.find(a => a.id_interno === id || a.id === id); if(vaca) { vaca.historialLeche = vaca.historialLeche || []; vaca.historialLeche.push({ fecha: document.getElementById('leche-fecha').value, litros: parseFloat(document.getElementById('leche-litros').value), personal: document.getElementById('leche-personal').value.trim() }); vaca.historialLeche.sort((a,b) => new Date(a.fecha) - new Date(b.fecha)); guardarDatos(); } bootstrap.Modal.getInstance(document.getElementById('modalLeche')).hide(); reiniciarYRenderOrdeno(); }
-    function ejecutarBorradoLote(e) { e.preventDefault(); const lote = document.getElementById('borrar-lote-select').value; const confirmacion = document.getElementById('borrar-lote-confirmacion').value; if (confirmacion !== 'ELIMINAR') { alert('Escribe ELIMINAR.'); return; } animales = animales.filter(a => a.lote !== lote); guardarDatos(); bootstrap.Modal.getInstance(document.getElementById('modalBorrarLote')).hide(); document.getElementById('form-borrar-lote').reset(); reiniciarYRenderAnimales(); renderDashboard(); }
-    function aplicarVacuna(e) { e.preventDefault(); vacunas.push({ lote: document.getElementById('vacuna-lote').value, tipo: document.getElementById('vacuna-tipo').value.trim(), personal: document.getElementById('vacuna-personal').value.trim(), fecha: document.getElementById('vacuna-fecha').value }); guardarDatos(); e.target.reset(); renderVacunas(); }
+    function guardarLeche(e) { e.preventDefault(); const id = document.getElementById('leche-id-interno').value; const vaca = animales.find(a => a.id_interno === id || a.id === id); if(vaca) { vaca.historialLeche = vaca.historialLeche || []; vaca.historialLeche.push({ fecha: document.getElementById('leche-fecha').value, litros: parseFloat(document.getElementById('leche-litros').value), personal: document.getElementById('leche-personal').value.trim() }); vaca.historialLeche.sort((a,b) => new Date(a.fecha) - new Date(b.fecha)); guardarLocal(); } bootstrap.Modal.getInstance(document.getElementById('modalLeche')).hide(); reiniciarYRenderOrdeno(); }
+    function ejecutarBorradoLote(e) { e.preventDefault(); const lote = document.getElementById('borrar-lote-select').value; const confirmacion = document.getElementById('borrar-lote-confirmacion').value; if (confirmacion !== 'ELIMINAR') { alert('Escribe ELIMINAR.'); return; } animales = animales.filter(a => a.lote !== lote); guardarLocal(); bootstrap.Modal.getInstance(document.getElementById('modalBorrarLote')).hide(); document.getElementById('form-borrar-lote').reset(); reiniciarYRenderAnimales(); renderDashboard(); }
+    function aplicarVacuna(e) { e.preventDefault(); vacunas.push({ lote: document.getElementById('vacuna-lote').value, tipo: document.getElementById('vacuna-tipo').value.trim(), personal: document.getElementById('vacuna-personal').value.trim(), fecha: document.getElementById('vacuna-fecha').value }); guardarLocal(); e.target.reset(); renderVacunas(); }
     function renderVacunas() { const lista = document.getElementById('lista-vacunas'); lista.innerHTML = ''; const ultimasVacunas = vacunas.slice().reverse().slice(0, 50); ultimasVacunas.forEach(v => { lista.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-start border-0 border-bottom mb-1"><div><h6 class="mb-1 fw-bold text-dark">${v.tipo}</h6><small class="text-muted">Lote aplicado: ${v.lote}</small><br><small class="text-primary">🧑‍⚕️ Por: ${v.personal || 'N/A'}</small></div><span class="badge bg-secondary rounded-pill mt-2">${v.fecha}</span></li>`; }); }
 
     function renderDashboard() { 
@@ -804,7 +817,7 @@
     function importarExcel() { 
         const fileInput = document.getElementById('input-importar'); const file = fileInput.files[0]; if(!file) return alert("Selecciona un Excel.");
         const reader = new FileReader();
-        reader.onload = async function(e) {
+        reader.onload = function(e) {
             try {
                 const wb = XLSX.read(new Uint8Array(e.target.result), {type: 'array', cellDates: true});
                 const animalesSheet = XLSX.utils.sheet_to_json(wb.Sheets["Animales"] || wb.Sheets[wb.SheetNames[0]] || []);
@@ -829,7 +842,7 @@
                 });
                 
                 if(nuevosAnimales.length === 0) {
-                    alert("⚠️ No se encontraron animales en el Excel. Revisa que la primera columna se llame 'ID Por Animal' o 'Chapa'.");
+                    alert("⚠️ No se encontraron animales en el Excel.");
                     fileInput.value = ''; return;
                 }
 
@@ -840,15 +853,10 @@
 
                 animales = nuevosAnimales; vacunas = nuevasVacunas; productos = nuevosProductos;
                 
-                const resultado = await guardarDatos(); 
-                
-                if (resultado.success) {
-                    actualizarSelectsLotes(); 
-                    alert(`¡Éxito total! Se cargaron y sincronizaron ${nuevosAnimales.length} animales a la Nube. Tu información está 100% segura.`); 
-                    fileInput.value = ''; showView('dashboard'); 
-                } else {
-                    alert("⚠️ SUPABASE RECHAZÓ EL ARCHIVO.\n\nMotivo técnico:\n" + resultado.error);
-                }
+                guardarLocal(); // SOLO LOCAL
+                actualizarSelectsLotes(); 
+                alert(`¡Éxito! Se cargaron ${nuevosAnimales.length} animales a la memoria de tu dispositivo. Ve a 'Ajustes' para subirlos a la nube cuando tengas buena señal.`); 
+                fileInput.value = ''; showView('dashboard'); 
 
             } catch (error) { alert("Hubo un error interpretando el archivo. Asegúrate de que es un archivo .xlsx válido."); console.error(error); }
         };
