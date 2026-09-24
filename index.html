@@ -148,7 +148,7 @@
         <div class="mb-3 text-center">
             <img id="auth-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='90' fill='%23efebe9' stroke='%23795548' stroke-width='8'/><path d='M50 70 C40 50 30 40 20 40 C40 50 60 55 75 60 C85 85 115 85 125 60 C140 55 160 50 180 40 C170 40 160 50 150 70 C140 90 120 120 100 135 C80 120 60 90 50 70 Z' fill='%23795548'/><path d='M45 80 C25 80 15 90 20 100 C30 100 50 90 60 85 Z' fill='%23a1887f'/><path d='M155 80 C175 80 185 90 180 100 C170 100 150 90 140 85 Z' fill='%23a1887f'/><path d='M100 125 C120 150 130 125 100 170 C70 125 80 150 100 125 Z' fill='%234caf50'/></svg>" style="width: 80px; height: 80px; border-radius:50%; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
             <h3 class="fw-bold text-primary mb-1">AgroSystems</h3>
-            <p class="text-muted mb-0 small fw-bold">Plataforma de Gestión Administrativa <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V33</span></p>
+            <p class="text-muted mb-0 small fw-bold">Plataforma de Gestión Administrativa <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V34</span></p>
         </div>
         
         <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
@@ -683,6 +683,20 @@
         } catch (e) { alert("PRECAUCIÓN DE SISTEMA: El almacenamiento local ha colapsado por exceso de peso. Se requiere sincronización inmediata."); }
     }
 
+    function combinarCopias(local, nube) {
+        if (!local) return nube;
+        if (!nube) return local;
+        const resultado = JSON.parse(JSON.stringify(nube));
+        const unirPorId = (a,b,clave) => { const mapa=new Map(); [...(Array.isArray(a)?a:[]), ...(Array.isArray(b)?b:[])].forEach(item=>{ const id=String(item[clave]||item.id_interno||item.id||''); if(id) mapa.set(id,item); }); return Array.from(mapa.values()); };
+        resultado.animales = unirPorId(local.animales, nube.animales, 'id_animal');
+        resultado.productos = unirPorId(local.productos, nube.productos, 'id');
+        resultado.tareas = unirPorId(local.tareas, nube.tareas, 'id');
+        resultado.trabajadores = unirPorId(local.trabajadores, nube.trabajadores, 'id');
+        resultado.contactos = unirPorId(local.contactos, nube.contactos, 'id');
+        resultado.lotes = [...new Set([...(Array.isArray(nube.lotes)?nube.lotes:[]), ...(Array.isArray(local.lotes)?local.lotes:[])])];
+        return resultado;
+    }
+
     async function arrancarAplicacion() {
         document.getElementById('auth-screen').style.display = 'none'; document.getElementById('app-screen').style.display = 'block';
         
@@ -692,20 +706,13 @@
         if(miFincaInfo.rol !== 'admin') document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
 
         const localRaw = localStorage.getItem('agro_data_' + miFincaInfo.id);
-        let dataFinal = localRaw ? JSON.parse(localRaw) : null;
-        
-        if(!dataFinal || !Array.isArray(dataFinal.animales) || dataFinal.animales.length === 0) {
-            try {
-                const { data: todosLosCajones } = await supabaseClient.from('finca_data').select('data').eq('finca_id', miFincaInfo.id);
-                if (todosLosCajones && todosLosCajones.length > 0) {
-                    let maxAnimales = -1;
-                    todosLosCajones.forEach(cajon => { let cantidad = (cajon.data && cajon.data.animales) ? cajon.data.animales.length : 0; if(cantidad > maxAnimales) { maxAnimales = cantidad; dataFinal = cajon.data; } });
-                }
-            } catch(e) {}
+        const localData = localRaw ? JSON.parse(localRaw) : null;
+        const pendiente = localStorage.getItem('agro_pending_sync_' + miFincaInfo.id) === '1';
+        let dataFinal = localData;
+        if (typeof navigator === 'undefined' || navigator.onLine) {
+            try { const { data: nube, error: errorNube } = await supabaseClient.from('finca_data').select('data').eq('finca_id', miFincaInfo.id).maybeSingle(); if (!errorNube && nube && nube.data && !pendiente) { dataFinal = combinarCopias(localData, nube.data); if (localData && JSON.stringify(dataFinal) !== JSON.stringify(nube.data)) localStorage.setItem('agro_pending_sync_' + miFincaInfo.id, '1'); } } catch (e) { console.warn('No se pudo leer Supabase; se usará la copia local.', e); }
         }
-        
         if(!dataFinal) dataFinal = { animales: [], vacunas: [], productos: [], bajas: [], trabajadores: [], contactos: [], tareas: [], lotes: ['Ordeño', 'Horro', 'Mautes', 'Becerros'], fincaExtra: {} };
-
         animales = Array.isArray(dataFinal.animales) ? dataFinal.animales : []; vacunas = Array.isArray(dataFinal.vacunas) ? dataFinal.vacunas : []; productos = Array.isArray(dataFinal.productos) ? dataFinal.productos : []; bajas = Array.isArray(dataFinal.bajas) ? dataFinal.bajas : []; trabajadores = Array.isArray(dataFinal.trabajadores) ? dataFinal.trabajadores : []; contactos = Array.isArray(dataFinal.contactos) ? dataFinal.contactos : []; tareas = Array.isArray(dataFinal.tareas) ? dataFinal.tareas : []; lotes = Array.isArray(dataFinal.lotes) && dataFinal.lotes.length > 0 ? dataFinal.lotes : ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
         
         const extraInfo = dataFinal.fincaExtra || {}; telefono_tienda = extraInfo.telefono || ''; ubicacion_finca = extraInfo.ubicacion || ''; logo_finca = extraInfo.logo || '';
@@ -715,7 +722,7 @@
         
         try { const { data: miembros } = await supabaseClient.from('miembros').select('correo').eq('finca_id', miFincaInfo.id); if(miembros) correosAdmins = miembros.map(m => m.correo); } catch(e) {}
         
-        guardarLocal(); actualizarSelectsLotes(); actualizarSelectsResponsables(); activarSincronizacionTiempoReal(); showView('dashboard'); 
+        aplicandoCambioRemoto = true; guardarLocal(); aplicandoCambioRemoto = false; actualizarSelectsLotes(); actualizarSelectsResponsables(); activarSincronizacionTiempoReal(); showView('dashboard'); if (pendiente) setTimeout(sincronizarPendienteAlVolver, 300); 
     }
 
     let subidaEnCurso = false;
@@ -842,7 +849,14 @@
 
 
     function guardarPendienteOffline() { if(miFincaInfo) localStorage.setItem('agro_pending_sync_'+miFincaInfo.id, '1'); }
-    async function sincronizarPendienteAlVolver() { if(!navigator.onLine || !miFincaInfo) return; if(localStorage.getItem('agro_pending_sync_'+miFincaInfo.id)){ const ok=await forzarSubidaNube(true); if(ok) localStorage.removeItem('agro_pending_sync_'+miFincaInfo.id); } }
+    async function cargarCopiaNubeEnPantalla() {
+        if (!miFincaInfo || (typeof navigator !== 'undefined' && !navigator.onLine)) return false;
+        try { const {data,error}=await supabaseClient.from('finca_data').select('data').eq('finca_id',miFincaInfo.id).maybeSingle(); if(error)throw error; if(data&&data.data){ aplicandoCambioRemoto=true; aplicarEstadoCompleto(data.data); aplicandoCambioRemoto=false; const badge=document.getElementById('nube-status'); if(badge){badge.className='badge bg-success badge-nube';badge.title='Datos sincronizados desde Supabase';} return true; } } catch(e){ console.warn('No se pudo actualizar desde Supabase',e); } return false;
+    }
+    async function sincronizarPendienteAlVolver() { if((typeof navigator !== 'undefined' && !navigator.onLine) || !miFincaInfo) return; if(localStorage.getItem('agro_pending_sync_'+miFincaInfo.id)){ const ok=await forzarSubidaNube(true); if(ok) localStorage.removeItem('agro_pending_sync_'+miFincaInfo.id); } else await cargarCopiaNubeEnPantalla(); }
+    let inicioDeslizamiento=0;
+    document.addEventListener('touchstart',e=>{if(window.scrollY===0&&e.touches.length===1)inicioDeslizamiento=e.touches[0].clientY;},{passive:true});
+    document.addEventListener('touchend',e=>{const fin=e.changedTouches[0]?.clientY||0;if(inicioDeslizamiento&&fin-inicioDeslizamiento>90){inicioDeslizamiento=0;sincronizarPendienteAlVolver();}}, {passive:true});
     if (window && window.addEventListener) window.addEventListener('online', sincronizarPendienteAlVolver);
     if (window && window.addEventListener) window.addEventListener('offline', ()=>{ const b=document.getElementById('nube-status'); if(b)b.title='Sin conexión: los cambios se guardarán al volver la red.'; guardarPendienteOffline(); });
     function renderListaGeneralLotes() { const c=document.getElementById('lista-general-lotes'); if(!c)return; c.innerHTML=''; resumenPorLotes().forEach(x=>{const d=document.createElement('div');d.className='col-6 col-md-3 small';d.innerHTML='<div class="border rounded p-2"><strong>'+x.nombre+'</strong><br><span class="text-primary fw-bold">'+x.cantidad+'</span> animales</div>';c.appendChild(d);}); }
