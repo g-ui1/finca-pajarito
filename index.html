@@ -84,7 +84,7 @@
         #sidebar-logo { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin: 0 auto 15px auto; display: none; border: 3px solid var(--accent); background-color: #f4f1f0; padding: 4px; }
         .logo-text-finca { font-size: 1.2rem; font-weight: 700; color: white; letter-spacing: 0.5px; margin-bottom: 5px; text-align: center;}
         .user-info-text { font-size: 0.8rem; color: #bcaaa4; text-align: center; margin-bottom: 20px; border-bottom: 1px solid #5d4037; padding-bottom: 15px; }
-        .badge-nube { font-size: 0.7rem; font-weight: 600; vertical-align: middle; padding: 5px 10px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .badge-nube::after { content:"☁"; font-size:16px; } .badge-nube { font-size: 0 !important; width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; padding:0 !important; font-weight: 600; vertical-align: middle; padding: 5px 10px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         #dashboard-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: none; background-color: #f4f1f0; padding: 2px;}
 
         .fab-container { position: fixed; bottom: 25px; right: 25px; z-index: 1000; }
@@ -130,7 +130,7 @@
         .bottom-nav-item.active { color:#55745b; font-weight:700; } .bottom-nav-icon { font-size:1.2rem; line-height:1; }
         .bottom-nav-fab { width:56px; height:56px; margin-top:-28px; border-radius:50%; border:5px solid var(--secondary); background:#6f8f72; color:#fff; font-size:2rem; line-height:1; box-shadow:0 4px 12px rgba(50,75,55,.3); }
         .dashboard-calendar .calendar-grid-days { grid-template-columns:repeat(7,1fr); }
-        .dashboard-calendar .calendar-day { min-height:82px; }
+        .dashboard-calendar .calendar-day { min-height:82px; min-width:0; overflow:hidden; } .dashboard-calendar .calendar-header-row div { overflow:hidden; font-size:.65rem; }
         .auto-save-note { font-size:.68rem; color:#66806c; margin-left:.4rem; }
         @media (min-width:768px) { .bottom-nav { left:250px; } .bottom-nav-item { font-size:.78rem; } .bottom-nav-fab { width:62px;height:62px; } }
 
@@ -148,7 +148,7 @@
         <div class="mb-3 text-center">
             <img id="auth-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='90' fill='%23efebe9' stroke='%23795548' stroke-width='8'/><path d='M50 70 C40 50 30 40 20 40 C40 50 60 55 75 60 C85 85 115 85 125 60 C140 55 160 50 180 40 C170 40 160 50 150 70 C140 90 120 120 100 135 C80 120 60 90 50 70 Z' fill='%23795548'/><path d='M45 80 C25 80 15 90 20 100 C30 100 50 90 60 85 Z' fill='%23a1887f'/><path d='M155 80 C175 80 185 90 180 100 C170 100 150 90 140 85 Z' fill='%23a1887f'/><path d='M100 125 C120 150 130 125 100 170 C70 125 80 150 100 125 Z' fill='%234caf50'/></svg>" style="width: 80px; height: 80px; border-radius:50%; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
             <h3 class="fw-bold text-primary mb-1">AgroSystems</h3>
-            <p class="text-muted mb-0 small fw-bold">Plataforma de Gestión Administrativa <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V31</span></p>
+            <p class="text-muted mb-0 small fw-bold">Plataforma de Gestión Administrativa <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V33</span></p>
         </div>
         
         <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
@@ -210,7 +210,7 @@
 
     <div class="sidebar-desktop d-none d-md-flex flex-column">
         <div class="px-3 text-center">
-            <img id="sidebar-logo" src="" alt="Logo Finca">
+            <div class="position-relative d-inline-block"><img id="sidebar-logo" src="" alt="Logo Finca"><button type="button" class="btn btn-light btn-sm rounded-circle position-absolute bottom-0 end-0" onclick="document.getElementById('input-logo-finca').click()" title="Cambiar logo de la finca">+</button></div>
             <div class="logo-text-finca" id="finca-titulo-desk">AgroSystems</div>
             <div class="user-info-text">
                 <span id="badge-nombre">Usuario</span><br>
@@ -351,8 +351,9 @@
         </div>
 
         <div id="view-animales" class="view-section hidden">
+            <div class="card card-lote p-2 mb-3 bg-white"><div class="d-flex justify-content-between align-items-center"><strong class="text-primary">Animales por lote</strong><span class="small text-muted">Resumen actual</span></div><div class="row g-2 mt-1" id="lista-general-lotes"></div></div>
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="fw-bold m-0">Inventario Ganadero</h3>
+                <h3 class="fw-bold m-0">Lista General</h3>
                 <button class="btn btn-primary btn-sm fw-bold" onclick="prepararModalNuevoAnimal()" data-bs-toggle="modal" data-bs-target="#modalAnimal">Ingreso Manual</button>
             </div>
             <div class="row mb-3 g-2">
@@ -482,10 +483,10 @@
 
 
     <nav class="bottom-nav" aria-label="Navegación principal">
-        <button class="bottom-nav-item nav-btn-animales" onclick="showView('animales')"><span class="bottom-nav-icon">🐄</span><span>Inventario</span></button>
+        <button class="bottom-nav-item nav-btn-dashboard" onclick="showView('dashboard')"><span class="bottom-nav-icon">⌂</span><span>Inicio</span></button>
         <button class="bottom-nav-item nav-btn-tienda" onclick="showView('tienda')"><span class="bottom-nav-icon">🛒</span><span>MarketPlace</span></button>
         <button class="bottom-nav-fab" onclick="prepararModalNuevoAnimal(); new bootstrap.Modal(document.getElementById('modalAnimal')).show();" title="Agregar animal">+</button>
-        <button class="bottom-nav-item nav-btn-dashboard" onclick="showView('dashboard')"><span class="bottom-nav-icon">⌂</span><span>Inicio</span></button>
+        <button class="bottom-nav-item nav-btn-animales" onclick="showView('animales')"><span class="bottom-nav-icon">🐄</span><span>Lista General</span></button>
         <button class="bottom-nav-item nav-btn-calendario" onclick="showView('calendario')"><span class="bottom-nav-icon">▣</span><span>Agenda</span></button>
     </nav>
 
@@ -663,6 +664,7 @@
     let semanaDashboardOffset = 0;
     function programarAutoguardado() {
         if (aplicandoCambioRemoto || !miFincaInfo || !supabaseClient) return;
+        if (typeof navigator !== 'undefined' && !navigator.onLine) { guardarPendienteOffline(); return; }
         clearTimeout(autoGuardadoTimer);
         const statusBadge = document.getElementById('nube-status');
         if (statusBadge) { statusBadge.className = 'badge bg-warning text-dark badge-nube'; statusBadge.innerText = 'Cambios pendientes · guardado automático'; }
@@ -724,6 +726,7 @@
             error.hint ? 'Sugerencia: ' + error.hint : ''].filter(Boolean).join('\n');
     }
     async function forzarSubidaNube(silencioso = false) {
+        if (typeof navigator !== 'undefined' && !navigator.onLine) { guardarPendienteOffline(); if(!silencioso) alert('Sin conexión. Tus cambios quedan guardados en este dispositivo y se sincronizarán al volver Internet.'); return false; }
         if (subidaEnCurso) { alert('Ya hay un guardado en curso. Espera a que termine.'); return false; }
         const statusBadge = document.getElementById('nube-status');
         subidaEnCurso = true;
@@ -827,7 +830,7 @@
                 if (!payload.new || !payload.new.data || aplicandoCambioRemoto) return;
                 aplicandoCambioRemoto = true;
                 try { localStorage.setItem('agro_data_' + miFincaInfo.id, JSON.stringify(payload.new.data)); aplicarEstadoCompleto(payload.new.data); const badge=document.getElementById('nube-status'); if(badge){badge.className='badge bg-success badge-nube';badge.innerText='Actualizado en tiempo real';} } finally { setTimeout(()=>{ aplicandoCambioRemoto=false; }, 150); }
-            }).subscribe(status => { if (status === 'SUBSCRIBED') { const b=document.getElementById('nube-status'); if(b) b.innerText='Sincronización activa'; } });
+            }).subscribe(status => { if (status === 'SUBSCRIBED') { const b=document.getElementById('nube-status'); if(b){ b.innerText='Sincronización activa'; b.title='Sincronización activa'; } } if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT'){ setTimeout(activarSincronizacionTiempoReal, 3000); } });
     }
     function fechaHoyLocal() { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
     function fechaConOffset(dias) { const d=new Date(); d.setDate(d.getDate()+dias); return d.toISOString().split('T')[0]; }
@@ -837,6 +840,13 @@
     }
     function cambiarSemanaDashboard(dir) { semanaDashboardOffset += dir; renderDashboardCalendar(); }
 
+
+    function guardarPendienteOffline() { if(miFincaInfo) localStorage.setItem('agro_pending_sync_'+miFincaInfo.id, '1'); }
+    async function sincronizarPendienteAlVolver() { if(!navigator.onLine || !miFincaInfo) return; if(localStorage.getItem('agro_pending_sync_'+miFincaInfo.id)){ const ok=await forzarSubidaNube(true); if(ok) localStorage.removeItem('agro_pending_sync_'+miFincaInfo.id); } }
+    if (window && window.addEventListener) window.addEventListener('online', sincronizarPendienteAlVolver);
+    if (window && window.addEventListener) window.addEventListener('offline', ()=>{ const b=document.getElementById('nube-status'); if(b)b.title='Sin conexión: los cambios se guardarán al volver la red.'; guardarPendienteOffline(); });
+    function renderListaGeneralLotes() { const c=document.getElementById('lista-general-lotes'); if(!c)return; c.innerHTML=''; resumenPorLotes().forEach(x=>{const d=document.createElement('div');d.className='col-6 col-md-3 small';d.innerHTML='<div class="border rounded p-2"><strong>'+x.nombre+'</strong><br><span class="text-primary fw-bold">'+x.cantidad+'</span> animales</div>';c.appendChild(d);}); }
+
     function showView(viewId) { 
         document.querySelectorAll('.view-section').forEach(v => v.classList.add('hidden')); 
         document.querySelectorAll('.sidebar-menu a, .bottom-nav-item').forEach(a => a.classList.remove('active')); 
@@ -844,7 +854,7 @@
         document.querySelectorAll(`.nav-btn-${viewId}`).forEach(el => el.classList.add('active')); 
         if(viewId === 'dashboard') { renderDashboard(); renderMiniAgenda(); renderDashboardCalendar(); notificarActividadesMañana(); }
         if(viewId === 'calendario') renderFullCalendar();
-        if(viewId === 'animales') reiniciarYRenderAnimales(); if(viewId === 'ordeño') reiniciarYRenderOrdeno(); if(viewId === 'sanidad') renderVacunas(); if(viewId === 'tienda') renderTienda(); 
+        if(viewId === 'animales') { renderListaGeneralLotes(); reiniciarYRenderAnimales(); } if(viewId === 'ordeño') reiniciarYRenderOrdeno(); if(viewId === 'sanidad') renderVacunas(); if(viewId === 'tienda') renderTienda(); 
         if(viewId === 'equipo') renderEquipo(); if(viewId === 'directorio') renderDirectorio();
         cerrarMenuCelular(); window.scrollTo(0, 0); 
     }
@@ -966,6 +976,7 @@
     }
 
     function renderDashboard() {
+        if (typeof renderListaGeneralLotes === 'function') renderListaGeneralLotes();
         const contenedor = document.getElementById('dashboard-lotes-container');
         if (!contenedor) return;
         actualizarSelectsLotes();
@@ -1119,51 +1130,29 @@
     function aplicarVacuna(e) { e.preventDefault(); vacunas.push({ lote: document.getElementById('vacuna-lote').value, tipo: document.getElementById('vacuna-tipo').value.trim(), personal: document.getElementById('vacuna-personal') ? document.getElementById('vacuna-personal').value : 'No registrado', fecha: document.getElementById('vacuna-fecha').value }); guardarLocal(); e.target.reset(); renderVacunas(); }
     function renderVacunas() { const lista = document.getElementById('lista-vacunas'); lista.innerHTML = ''; const ultimasVacunas = vacunas.slice().reverse().slice(0, 50); ultimasVacunas.forEach(v => { lista.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-start border-0 border-bottom mb-1"><div><h6 class="mb-1 fw-bold text-dark">${v.tipo}</h6><small class="text-muted">Grupo Protocolo: ${v.lote} | Verificado por: <span class="text-primary">${v.personal}</span></small></div><span class="badge bg-secondary text-dark rounded mt-2">${v.fecha}</span></li>`; }); }
 
-    function exportarExcelSimple() { 
-        const wb = XLSX.utils.book_new();
-        const animalesData = animales.map(a => ({ "ID Animal": a.id_animal || a.id || '', "Nombre": a.nombre !== 'undefined' ? a.nombre : '', "Especie": a.especie || 'Bovino', "Raza": a.raza || 'S/D', "Genética": a.genetica || 'Puro', "Sexo": a.sexo || '', "Lote": a.lote, "Potrero": a.potrero || 'S/A', "Nacimiento": a.nacimiento !== 'undefined' ? a.nacimiento : '', "Madre": a.madre !== 'undefined' ? a.madre : '' })); 
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(animalesData), "Inventario Consolidado");
-        let lecheTotal = 0; animales.forEach(a => { if(a.historialLeche && a.historialLeche.length > 0) lecheTotal += a.historialLeche[a.historialLeche.length - 1].litros; });
-        const resumenData = [{"Total de Animales": animales.length, "Total Leche Diaria (Lts)": lecheTotal.toFixed(1), "Estimado Queso (Kg)": (lecheTotal / 8.5).toFixed(1), "Total Lotes Activos": lotes.length}];
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(resumenData), "Cuadro Mando (Dashboard)");
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([{"Anotaciones Operativas": "", "Observaciones": ""}]), "Espacio Auxiliar");
-        XLSX.writeFile(wb, "Reporte_Institucional_AgroSystems.xlsx");
+    function exportarExcelSimple() {
+        const wb=XLSX.utils.book_new();
+        const filas=animales.map(a=>({"ID Animal":a.id_animal||a.id||'',"Nombre":a.nombre||'',"Especie":a.especie||'Bovino',"Raza":a.raza||'',"Genética":a.genetica||'',"Sexo":a.sexo||'',"Lote":a.lote||'',"Potrero":a.potrero||'',"Procedencia":a.proveniente||'',"Nacimiento":a.nacimiento||'',"Madre":a.madre||'',"Peso actual":Array.isArray(a.historialPeso)&&a.historialPeso.length?a.historialPeso[a.historialPeso.length-1].peso:'',"Leche última":Array.isArray(a.historialLeche)&&a.historialLeche.length?a.historialLeche[a.historialLeche.length-1].litros:''}));
+        XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(filas), 'Animales');
+        XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(lotes.map(l=>({Lote:l,"Animales":animales.filter(a=>a.lote===l).length}))), 'Lotes');
+        XLSX.writeFile(wb,'AgroSystems_Respaldo_'+new Date().toISOString().slice(0,10)+'.xlsx');
     }
 
     function procesarFechaExcel(valor) { if (!valor) return ''; if (valor instanceof Date) { const offset = valor.getTimezoneOffset() * 60000; return new Date(valor.getTime() - offset).toISOString().split('T')[0]; } if (!isNaN(valor) && typeof valor === 'number') { return new Date(Math.round((valor - 25569) * 86400 * 1000)).toISOString().split('T')[0]; } let str = String(valor).trim(); if (str.includes('/')) { let partes = str.split('/'); if(partes[2] && partes[2].length === 4) { return `${partes[2]}-${partes[1].padStart(2, '0')}-${partes[0].padStart(2, '0')}`; } } return str; }
 
-    function importarExcelSimple() { 
-        const fileInput = document.getElementById('input-importar'); const file = fileInput.files[0]; if(!file) return alert("Parámetro en blanco. Indique documento base.");
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const wb = XLSX.read(new Uint8Array(e.target.result), {type: 'array', cellDates: true});
-                const animalesSheet = XLSX.utils.sheet_to_json(wb.Sheets["Inventario Consolidado"] || wb.Sheets["Rebaño General"] || wb.Sheets["Animales Activos"] || wb.Sheets["Animales"] || wb.Sheets[wb.SheetNames[0]] || []);
-                let procesados = 0;
-                
-                if (!Array.isArray(lotes) || lotes.length === 0) lotes = ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
-
-                animalesSheet.forEach(row => {
-                    let idLeido = row["ID Animal"] || row["ID Por Animal"] || row["Chapa"];
-                    if(!idLeido || String(idLeido).trim() === '') return;
-                    let loteLeido = String(row.Lote || 'Becerros').trim(); loteLeido = loteLeido.charAt(0).toUpperCase() + loteLeido.slice(1).toLowerCase();
-                    if(!lotes.includes(loteLeido)) lotes.push(loteLeido);
-                    const vacaIndex = animales.findIndex(a => a.id_animal === String(idLeido).trim());
-                    if(vacaIndex !== -1) {
-                        animales[vacaIndex].nombre = row.Nombre ? String(row.Nombre).trim() : animales[vacaIndex].nombre;
-                        animales[vacaIndex].lote = loteLeido;
-                        animales[vacaIndex].potrero = row.Potrero ? String(row.Potrero).trim() : animales[vacaIndex].potrero;
-                    } else {
-                        animales.push({ id_interno: Date.now().toString() + Math.random().toString(36).substr(2, 5), id_animal: String(idLeido).trim(), nombre: row.Nombre ? String(row.Nombre).trim() : '', especie: row.Especie ? String(row.Especie).trim() : 'Bovino', raza: row.Raza ? String(row.Raza).trim() : 'S/D', genetica: row.Genética ? String(row.Genética).trim() : 'Puro', potrero: row.Potrero ? String(row.Potrero).trim() : 'N/A', proveniente: 'S/D', sexo: row.Sexo ? String(row.Sexo).trim() : 'Hembra', lote: loteLeido, nacimiento: procesarFechaExcel(row.Nacimiento), madre: row.Madre ? String(row.Madre).trim() : 'S/D', foto: 'https://placehold.co/400x400/795548/ffffff?text=Sin+Foto', historialLeche: [], historialPeso: [], vacunas: [] });
-                    }
-                    procesados++;
-                });
-                if(procesados === 0) { alert("Anomalía: Ausencia de columna central ('ID Animal'). Importación cancelada."); fileInput.value = ''; return; }
-                guardarLocal(); actualizarSelectsLotes(); alert(`Transacción en firme. Integración completada de ${procesados} renglones operativos en base local.`); fileInput.value = ''; showView('dashboard'); 
-            } catch (error) { alert("Excepción crítica durante la interpolación de matrices del archivo."); }
-        };
-        reader.readAsArrayBuffer(file);
+    function importarExcelSimple() {
+        const input=document.getElementById('input-importar'), file=input && input.files[0]; if(!file)return alert('Selecciona un archivo Excel.');
+        const reader=new FileReader(); reader.onload=e=>{ try {
+            const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:true});
+            const nombreHoja=wb.SheetNames.find(n=>/animal|inventario|rebaño/i.test(n))||wb.SheetNames[0];
+            const filas=XLSX.utils.sheet_to_json(wb.Sheets[nombreHoja],{defval:''}); let procesados=0, creados=0, actualizados=0;
+            if(!Array.isArray(lotes)||!lotes.length)lotes=['Ordeño','Horro','Mautes','Becerros'];
+            const val=(r,nombres)=>{const k=Object.keys(r).find(k=>nombres.some(n=>k.toLowerCase().trim()===n));return k?String(r[k]).trim():'';};
+            filas.forEach(r=>{const id=val(r,['id animal','id','chapa','numero de control','número de control']);if(!id)return;let lote=val(r,['lote','grupo','asignacion','asignación'])||'Becerros';lote=lote.charAt(0).toUpperCase()+lote.slice(1).toLowerCase();if(!lotes.includes(lote))lotes.push(lote);const i=animales.findIndex(a=>String(a.id_animal||a.id).trim()===id);const previo=i>=0?animales[i]:null;const base=previo||{id_interno:Date.now().toString()+Math.random().toString(36).slice(2),historialLeche:[],historialPeso:[],vacunas:[]};Object.assign(base,{id_animal:id,nombre:val(r,['nombre','alias'])||base.nombre||'',especie:val(r,['especie','clasificación','clasificacion'])||base.especie||'Bovino',raza:val(r,['raza','línea racial','linea racial'])||base.raza||'S/D',genetica:val(r,['genética','genetica','pureza genética','pureza genetica'])||base.genetica||'Puro',sexo:val(r,['sexo','género','genero'])||base.sexo||'Hembra',lote,potrero:val(r,['potrero','sector'])||base.potrero||'N/A',proveniente:val(r,['procedencia','proveniente'])||base.proveniente||'',nacimiento:procesarFechaExcel(val(r,['nacimiento','fecha nacimiento']))||base.nacimiento||'',madre:val(r,['madre','trazabilidad materna'])||base.madre||'S/D',foto:base.foto||'https://placehold.co/400x400/795548/ffffff?text=Sin+Foto'});if(i>=0){animales[i]=base;actualizados++;}else{animales.push(base);creados++;}procesados++;});
+            guardarLocal();actualizarSelectsLotes();renderDashboard();renderListaGeneralLotes();alert('Importación acumulativa completada: '+procesados+' filas ('+creados+' nuevas, '+actualizados+' actualizadas).');input.value='';
+        } catch(err){alert('No se pudo importar el archivo: '+err.message);} }; reader.readAsArrayBuffer(file);
     }
+
 </script>
 </body>
 </html>
