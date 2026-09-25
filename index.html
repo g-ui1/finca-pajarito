@@ -142,6 +142,8 @@
         .bottom-nav-fab { flex:0 0 62px; width:62px; height:62px; margin-left:6px; margin-right:6px; }
         .btn.rounded-circle { width:36px; height:36px; padding:0; display:inline-flex; align-items:center; justify-content:center; }
         .profile-trigger { cursor:pointer; }
+        .permission-option { display:flex; align-items:center; gap:8px; padding:12px 10px; border:1px solid #dbe5da; border-radius:12px; background:#f8fbf7; cursor:pointer; font-size:.9rem; }
+        .permission-option input { width:18px; height:18px; accent-color:#6f8f72; }
         .fab-container { display:none !important; }
         @media (max-width:767.98px) { .fab-container { bottom:82px; right:14px; } .btn-fab { width:52px; height:52px; min-width:52px; min-height:52px; } .bottom-nav-fab { flex-basis:58px; width:58px; height:58px; } }
 
@@ -686,7 +688,7 @@
     function guardarLocal() {
         if(!miFincaInfo) return;
         if (!Array.isArray(lotes) || lotes.length === 0) lotes = ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
-        const estadoCompleto = { animales, vacunas, productos, lotes, bajas, trabajadores, contactos, tareas, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } };
+        const estadoCompleto = { animales, vacunas, productos, lotes, bajas, trabajadores, contactos, tareas, permisosPorMiembro, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } };
         try {
             localStorage.setItem('agro_data_' + miFincaInfo.id, JSON.stringify(estadoCompleto));
             const statusBadge = document.getElementById('nube-status');
@@ -699,6 +701,7 @@
         if (!local) return nube;
         if (!nube) return local;
         const resultado = JSON.parse(JSON.stringify(nube));
+        resultado.permisosPorMiembro = Object.assign({}, nube.permisosPorMiembro || {}, local.permisosPorMiembro || {});
         const unirPorId = (a,b,clave) => { const mapa=new Map(); [...(Array.isArray(a)?a:[]), ...(Array.isArray(b)?b:[])].forEach(item=>{ const id=String(item[clave]||item.id_interno||item.id||''); if(id) mapa.set(id,item); }); return Array.from(mapa.values()); };
         resultado.animales = unirPorId(local.animales, nube.animales, 'id_animal');
         resultado.productos = unirPorId(local.productos, nube.productos, 'id');
@@ -724,8 +727,8 @@
         if (typeof navigator === 'undefined' || navigator.onLine) {
             try { const { data: nube, error: errorNube } = await supabaseClient.from('finca_data').select('data').eq('finca_id', miFincaInfo.id).maybeSingle(); if (!errorNube && nube && nube.data && !pendiente) { dataFinal = combinarCopias(localData, nube.data); if (localData && JSON.stringify(dataFinal) !== JSON.stringify(nube.data)) localStorage.setItem('agro_pending_sync_' + miFincaInfo.id, '1'); } } catch (e) { console.warn('No se pudo leer Supabase; se usará la copia local.', e); }
         }
-        if(!dataFinal) dataFinal = { animales: [], vacunas: [], productos: [], bajas: [], trabajadores: [], contactos: [], tareas: [], lotes: ['Ordeño', 'Horro', 'Mautes', 'Becerros'], fincaExtra: {} };
-        animales = Array.isArray(dataFinal.animales) ? dataFinal.animales : []; vacunas = Array.isArray(dataFinal.vacunas) ? dataFinal.vacunas : []; productos = Array.isArray(dataFinal.productos) ? dataFinal.productos : []; bajas = Array.isArray(dataFinal.bajas) ? dataFinal.bajas : []; trabajadores = Array.isArray(dataFinal.trabajadores) ? dataFinal.trabajadores : []; contactos = Array.isArray(dataFinal.contactos) ? dataFinal.contactos : []; tareas = Array.isArray(dataFinal.tareas) ? dataFinal.tareas : []; lotes = Array.isArray(dataFinal.lotes) && dataFinal.lotes.length > 0 ? dataFinal.lotes : ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
+        if(!dataFinal) dataFinal = { animales: [], vacunas: [], productos: [], bajas: [], trabajadores: [], contactos: [], tareas: [], permisosPorMiembro: {}, lotes: ['Ordeño', 'Horro', 'Mautes', 'Becerros'], fincaExtra: {} };
+        animales = Array.isArray(dataFinal.animales) ? dataFinal.animales : []; vacunas = Array.isArray(dataFinal.vacunas) ? dataFinal.vacunas : []; productos = Array.isArray(dataFinal.productos) ? dataFinal.productos : []; bajas = Array.isArray(dataFinal.bajas) ? dataFinal.bajas : []; trabajadores = Array.isArray(dataFinal.trabajadores) ? dataFinal.trabajadores : []; contactos = Array.isArray(dataFinal.contactos) ? dataFinal.contactos : []; tareas = Array.isArray(dataFinal.tareas) ? dataFinal.tareas : []; permisosPorMiembro = dataFinal.permisosPorMiembro || {}; lotes = Array.isArray(dataFinal.lotes) && dataFinal.lotes.length > 0 ? dataFinal.lotes : ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
         
         const extraInfo = dataFinal.fincaExtra || {}; telefono_tienda = extraInfo.telefono || ''; ubicacion_finca = extraInfo.ubicacion || ''; logo_finca = extraInfo.logo || '';
         document.getElementById('display-finca-info').innerText = `${ubicacion_finca || 'Sede Principal'} | Móvil: ${telefono_tienda || 'N/A'}`; document.getElementById('display-wa-num').innerText = telefono_tienda || 'N/A'; document.getElementById('input-wa-numero').value = telefono_tienda;
@@ -762,13 +765,13 @@
             if (authError) throw authError;
             if (!authData.session) throw new Error('La sesión ha caducado. Inicia sesión de nuevo antes de guardar.');
             if(statusBadge) { statusBadge.className = 'badge bg-primary text-white badge-nube'; statusBadge.innerText = 'Guardando en Supabase...'; }
-            const estadoCompleto = JSON.parse(JSON.stringify({ animales, vacunas, productos, lotes, bajas, trabajadores, contactos, tareas, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } }));
+            const estadoCompleto = JSON.parse(JSON.stringify({ animales, vacunas, productos, lotes, bajas, trabajadores, contactos, tareas, permisosPorMiembro, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } }));
             const { data: guardado, error } = await supabaseClient.from('finca_data')
                 .upsert({ finca_id: miFincaInfo.id, data: estadoCompleto }, { onConflict: 'finca_id' })
                 .select('finca_id').single();
             if (error) throw error;
             if (!guardado || guardado.finca_id !== miFincaInfo.id) throw new Error('Supabase no confirmó el registro guardado.');
-            const estadoActual = JSON.stringify({ animales, vacunas, productos, lotes, bajas, trabajadores, contactos, tareas, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } });
+            const estadoActual = JSON.stringify({ animales, vacunas, productos, lotes, bajas, trabajadores, contactos, tareas, permisosPorMiembro, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } });
             const hayCambiosNuevos = estadoActual !== JSON.stringify(estadoCompleto);
             if(statusBadge) { statusBadge.className = 'badge bg-success badge-nube'; statusBadge.innerText = hayCambiosNuevos ? 'Copia guardada; hay cambios nuevos pendientes' : 'Guardado confirmado en Supabase'; }
             if (hayCambiosNuevos) { alert('Se guardó la copia enviada, pero hiciste cambios durante la subida. Vuelve a guardar para incluirlos.'); return false; }
@@ -969,12 +972,17 @@
 
     async function eliminarMiembro(idMiembro) { if(!confirm("Se ejecutará la anulación de perfil operativo. Proceder?")) return; await supabaseClient.from('miembros').delete().eq('id', idMiembro); renderEquipo(); }
     function gestionarPermisosMiembro(idMiembro, correo) {
-        const actual = permisosPorMiembro[idMiembro] || 'Lista General, Agenda';
-        const nuevo = prompt('Permisos para ' + correo + '. Escribe las áreas separadas por coma (ej.: Lista General, Agenda, MarketPlace):', actual);
-        if(nuevo === null) return;
-        permisosPorMiembro[idMiembro] = nuevo.split(',').map(x => x.trim()).filter(Boolean);
+        document.getElementById('permisos-miembro-id').value = idMiembro;
+        document.getElementById('permisos-empleado-label').innerText = 'Permisos para ' + correo;
+        const actuales = permisosPorMiembro[idMiembro] || ['dashboard','animales','calendario'];
+        document.querySelectorAll('#modalPermisos input[type="checkbox"]').forEach(c => c.checked = actuales.includes(c.value));
+        new bootstrap.Modal(document.getElementById('modalPermisos')).show();
+    }
+    function guardarPermisosDesdeModal() {
+        const id = document.getElementById('permisos-miembro-id').value;
+        permisosPorMiembro[id] = Array.from(document.querySelectorAll('#modalPermisos input[type="checkbox"]:checked')).map(c => c.value);
         guardarLocal();
-        alert('Permisos guardados localmente y se incluirán en el próximo autoguardado. Para aplicar seguridad real en Supabase también debes ejecutar security-policies.sql.');
+        bootstrap.Modal.getInstance(document.getElementById('modalPermisos'))?.hide();
     }
     
     function abrirModalTrabajador(id = null) {
@@ -1211,5 +1219,6 @@
     }
 
 </script>
+<div class="modal fade" id="modalPermisos" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h6 class="modal-title fw-bold m-0">Permisos del empleado</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><p class="small text-muted mb-3" id="permisos-empleado-label">Selecciona las áreas que puede consultar.</p><input type="hidden" id="permisos-miembro-id"><div class="row g-2"><div class="col-6"><label class="permission-option"><input type="checkbox" value="dashboard"> Inicio</label></div><div class="col-6"><label class="permission-option"><input type="checkbox" value="animales"> Lista General</label></div><div class="col-6"><label class="permission-option"><input type="checkbox" value="tienda"> MarketPlace</label></div><div class="col-6"><label class="permission-option"><input type="checkbox" value="calendario"> Agenda</label></div><div class="col-6"><label class="permission-option"><input type="checkbox" value="ordeño"> Producción</label></div><div class="col-6"><label class="permission-option"><input type="checkbox" value="sanidad"> Sanidad</label></div></div></div><div class="modal-footer border-0"><button class="btn btn-primary w-100" onclick="guardarPermisosDesdeModal()">Guardar permisos</button></div></div></div></div>
 </body>
 </html>
