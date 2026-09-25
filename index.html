@@ -141,6 +141,8 @@
         .bottom-nav-item { flex:1 1 0; min-width:0; height:68px; justify-content:center; text-align:center; padding:8px 4px; }
         .bottom-nav-fab { flex:0 0 62px; width:62px; height:62px; margin-left:6px; margin-right:6px; }
         .btn.rounded-circle { width:36px; height:36px; padding:0; display:inline-flex; align-items:center; justify-content:center; }
+        .profile-trigger { cursor:pointer; }
+        .fab-container { display:none !important; }
         @media (max-width:767.98px) { .fab-container { bottom:82px; right:14px; } .btn-fab { width:52px; height:52px; min-width:52px; min-height:52px; } .bottom-nav-fab { flex-basis:58px; width:58px; height:58px; } }
 
     </style>
@@ -219,8 +221,8 @@
 
     <div class="sidebar-desktop d-none d-md-flex flex-column">
         <div class="px-3 text-center">
-            <div class="position-relative d-inline-block"><img id="sidebar-logo" src="" alt="Logo Finca"><button type="button" class="btn btn-light btn-sm rounded-circle position-absolute bottom-0 end-0" onclick="document.getElementById('input-logo-finca').click()" title="Cambiar logo de la finca">+</button></div>
-            <div class="logo-text-finca" id="finca-titulo-desk">AgroSystems</div>
+            <div class="position-relative d-inline-block profile-trigger" onclick="showView('perfil')"><img id="sidebar-logo" src="" alt="Logo Finca"><button type="button" class="btn btn-light btn-sm rounded-circle position-absolute bottom-0 end-0" onclick="event.stopPropagation(); document.getElementById('input-logo-finca').click()" title="Cambiar logo de la finca">+</button></div>
+            <div class="logo-text-finca profile-trigger" id="finca-titulo-desk" onclick="showView('perfil')">AgroSystems</div>
             <div class="user-info-text">
                 <span id="badge-nombre">Usuario</span><br>
                 <span id="badge-rol" class="badge bg-secondary text-dark mt-1" style="font-size: 0.6rem;">Rol</span>
@@ -454,7 +456,7 @@
             <h6 class="fw-bold text-dark mt-4 mb-2">Personal Operativo y de Campo</h6>
             <div class="table-responsive bg-white rounded shadow-sm p-2 border">
                 <table class="table table-hover align-middle text-sm mb-0">
-                    <thead class="table-light"><tr><th class="small text-muted">Nombre Completo</th><th class="small text-muted">Identificación</th><th class="small text-muted">Residencia</th><th class="small text-muted text-end">Ficha</th></tr></thead>
+                    <thead class="table-light"><tr><th class="small text-muted">Nombre Completo</th><th class="small text-muted">Identificación</th><th class="small text-muted">Cargo</th><th class="small text-muted">Residencia</th><th class="small text-muted text-end">Ficha</th></tr></thead>
                     <tbody id="tabla-trabajadores"></tbody>
                 </table>
             </div>
@@ -494,10 +496,10 @@
 
     <nav class="bottom-nav" aria-label="Navegación principal">
         <button class="bottom-nav-item nav-btn-dashboard" onclick="showView('dashboard')"><span class="bottom-nav-icon">⌂</span><span>Inicio</span></button>
-        <button class="bottom-nav-item nav-btn-tienda" onclick="showView('tienda')"><span class="bottom-nav-icon">🛒</span><span>MarketPlace</span></button>
-        <button class="bottom-nav-fab" onclick="prepararModalNuevoAnimal(); new bootstrap.Modal(document.getElementById('modalAnimal')).show();" title="Agregar animal">+</button>
         <button class="bottom-nav-item nav-btn-animales" onclick="showView('animales')"><span class="bottom-nav-icon">🐄</span><span>Lista General</span></button>
-        <button class="bottom-nav-item nav-btn-calendario" onclick="showView('calendario')"><span class="bottom-nav-icon">▣</span><span>Agenda</span></button>
+        <button id="central-action-fab" class="bottom-nav-fab" onclick="accionBotonCentral()" title="Agregar">+</button>
+        <button class="bottom-nav-item nav-btn-tienda" onclick="showView('tienda')"><span class="bottom-nav-icon">🛒</span><span>MarketPlace</span></button>
+        <button class="bottom-nav-item nav-btn-equipo admin-only" onclick="showView('equipo')"><span class="bottom-nav-icon">⚙</span><span>Administración</span></button>
     </nav>
 
 <!-- ============================================== -->
@@ -525,7 +527,7 @@
 <div class="modal fade" id="modalBorrarLote" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-danger shadow-lg"><div class="modal-header bg-danger text-white"><h6 class="modal-title fw-bold m-0">Autorización Crítica</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="cerrarModal('modalBorrarLote')"></button></div><div class="modal-body"><form id="form-borrar-lote" onsubmit="ejecutarBorradoLote(event)"><p class="small text-muted">La eliminación sistemática de un lote purgará de la base de datos a todos los individuos adscritos. Operación no reversible.</p><label class="fw-bold small">Directorio Objetivo:</label><select id="borrar-lote-select" class="form-select form-select-sm mb-3" required></select><label class="fw-bold text-danger small">Clave de Autorización (Escriba ELIMINAR):</label><input type="text" id="borrar-lote-confirmacion" class="form-control form-control-sm border-danger" placeholder="..." required></form></div><div class="modal-footer border-0 p-2"><button type="button" class="btn btn-light btn-sm" onclick="cerrarModal('modalBorrarLote')">Abortar</button><button type="submit" form="form-borrar-lote" class="btn btn-danger btn-sm fw-bold">Ejecutar Purga</button></div></div></div></div>
 <div class="modal fade" id="modalImagenGrande" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content bg-transparent border-0"><div class="modal-body text-center position-relative p-0"><button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 shadow" data-bs-dismiss="modal" style="background-color: rgba(255,255,255,0.8); padding: 12px; border-radius: 50%; z-index: 1055;"></button><img id="img-zoom" src="" class="img-fluid rounded shadow-lg w-100" style="max-height: 85vh; border: 4px solid white; object-fit: contain;" alt="Evidencia Visual"></div></div></div></div>
 
-<div class="modal fade" id="modalTrabajador" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h6 class="modal-title fw-bold m-0" id="tituloModalTrabajador">Expediente de Personal</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="cerrarModal('modalTrabajador')"></button></div><div class="modal-body"><form id="form-trabajador" onsubmit="guardarTrabajador(event)"><input type="hidden" id="trabajador-id"><div class="row g-2"><div class="col-12 mb-1"><label class="fw-bold text-muted small">Nombres y Apellidos</label><input type="text" id="trabajador-nombre" class="form-control form-control-sm" required></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Documento de Identidad</label><input type="text" id="trabajador-cedula" class="form-control form-control-sm" required></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Teléfono Móvil</label><input type="text" id="trabajador-telefono" class="form-control form-control-sm"></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Nacimiento</label><input type="date" id="trabajador-nac" class="form-control form-control-sm"></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Localidad / Residencia</label><input type="text" id="trabajador-origen" class="form-control form-control-sm"></div></div></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-trabajador" class="btn btn-primary btn-sm w-100 fw-bold">Almacenar Ficha</button></div></div></div></div>
+<div class="modal fade" id="modalTrabajador" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h6 class="modal-title fw-bold m-0" id="tituloModalTrabajador">Expediente de Personal</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="cerrarModal('modalTrabajador')"></button></div><div class="modal-body"><form id="form-trabajador" onsubmit="guardarTrabajador(event)"><input type="hidden" id="trabajador-id"><div class="row g-2"><div class="col-12 mb-1"><label class="fw-bold text-muted small">Nombres y Apellidos</label><input type="text" id="trabajador-nombre" class="form-control form-control-sm" required></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Documento de Identidad</label><input type="text" id="trabajador-cedula" class="form-control form-control-sm" required></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Cargo o función</label><input type="text" id="trabajador-cargo" class="form-control form-control-sm" placeholder="Ej. Ordeñador"></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Teléfono Móvil</label><input type="text" id="trabajador-telefono" class="form-control form-control-sm"></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Nacimiento</label><input type="date" id="trabajador-nac" class="form-control form-control-sm"></div><div class="col-12 mb-1"><label class="fw-bold text-muted small">Localidad / Residencia</label><input type="text" id="trabajador-origen" class="form-control form-control-sm"></div></div></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-trabajador" class="btn btn-primary btn-sm w-100 fw-bold">Almacenar Ficha</button></div></div></div></div>
 <div class="modal fade" id="modalContacto" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-dark text-white"><h6 class="modal-title fw-bold m-0" id="tituloModalContacto">Registro de Proveedor Externo</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="cerrarModal('modalContacto')"></button></div><div class="modal-body"><form id="form-contacto" onsubmit="guardarContacto(event)"><input type="hidden" id="contacto-id"><div class="row g-2"><div class="col-12 mb-1"><label class="fw-bold text-muted small">Denominación o Profesional</label><input type="text" id="contacto-nombre" class="form-control form-control-sm" required></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Línea Telefónica</label><input type="text" id="contacto-telefono" class="form-control form-control-sm" required></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Área de Servicio</label><select id="contacto-especialidad" class="form-select form-select-sm" onchange="verificarEspecialidad()" required><option value="Veterinario">Veterinario</option><option value="Electricista">Mantenimiento Eléctrico</option><option value="Plomero">Sistemas Hidráulicos</option><option value="Albañil">Obras Civiles</option><option value="Maquinista">Operador Maquinaria</option><option value="Transportista">Logística Transporte</option><option value="Otro">Otro (Especificar)</option></select><input type="text" id="contacto-especialidad-otro" class="form-control form-control-sm mt-1 hidden" placeholder="Detallar competencia"></div></div></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-contacto" class="btn btn-dark btn-sm w-100 fw-bold">Actualizar Directorio</button></div></div></div></div>
 <div class="modal fade" id="modalTarea" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h6 class="modal-title fw-bold m-0" id="tituloModalTarea">Gestión de Tarea</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" onclick="cerrarModal('modalTarea')"></button></div><div class="modal-body"><form id="form-tarea" onsubmit="guardarTarea(event)"><input type="hidden" id="tarea-id"><div class="row g-2"><div class="col-12 mb-1"><label class="fw-bold text-muted small">Objetivo de la Operación</label><input type="text" id="tarea-titulo" class="form-control form-control-sm" placeholder="Ej: Mantenimiento Preventivo Pozo" required></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Programación</label><input type="date" id="tarea-fecha" class="form-control form-control-sm" required></div><div class="col-6 mb-1"><label class="fw-bold text-muted small">Estatus</label><select id="tarea-estado" class="form-select form-select-sm" required><option value="Pendiente">En Espera</option><option value="Realizado">Completado</option><option value="Suspendido">Abortado</option></select></div></div></form></div><div class="modal-footer border-0 p-2"><button type="submit" form="form-tarea" class="btn btn-primary btn-sm w-100 fw-bold">Procesar Orden</button></div></div></div></div>
 
@@ -560,7 +562,7 @@
     let currentDateCal = new Date(); 
 
     let animales = []; let vacunas = []; let productos = []; let lotes = []; let bajas = []; 
-    let trabajadores = []; let contactos = []; let tareas = []; let correosAdmins = [];
+    let trabajadores = []; let contactos = []; let tareas = []; let correosAdmins = []; let permisosPorMiembro = {};
     let telefono_tienda = ''; let ubicacion_finca = ''; let logo_finca = '';
     
     let limiteAnimalesMostrados = 50; let limiteOrdenoMostrados = 50; let temporizadorBusqueda; let chartModalUnico = null; let categoriaTiendaActual = 'Todos';
@@ -887,7 +889,22 @@
         if(viewId === 'calendario') renderFullCalendar();
         if(viewId === 'animales') { renderListaGeneralLotes(); reiniciarYRenderAnimales(); } if(viewId === 'ordeño') reiniciarYRenderOrdeno(); if(viewId === 'sanidad') renderVacunas(); if(viewId === 'tienda') renderTienda(); 
         if(viewId === 'equipo') renderEquipo(); if(viewId === 'directorio') renderDirectorio();
-        cerrarMenuCelular(); window.scrollTo(0, 0); 
+        actualizarAccionCentral(viewId); cerrarMenuCelular(); window.scrollTo(0, 0); 
+    }
+
+    function actualizarAccionCentral(viewId) {
+        const boton = document.getElementById('central-action-fab'); if(!boton) return;
+        const acciones = { dashboard:['+', 'Registrar animal'], animales:['+', 'Registrar animal'], tienda:['+', 'Publicar producto'], calendario:['+', 'Programar actividad'], equipo:['+', 'Agregar empleado'], directorio:['+', 'Agregar contacto'], datos:['⇩', 'Importar archivo'] };
+        const a = acciones[viewId] || ['+', 'Agregar']; boton.textContent = a[0]; boton.title = a[1];
+    }
+    function accionBotonCentral() {
+        const actual = document.querySelector('.view-section:not(.hidden)')?.id?.replace('view-','') || 'dashboard';
+        if(actual === 'calendario') return abrirModalTareaNueva(new Date().toISOString().slice(0,10));
+        if(actual === 'equipo') return abrirModalTrabajador();
+        if(actual === 'directorio') return abrirModalContacto();
+        if(actual === 'tienda') return abrirModalNuevoProducto();
+        if(actual === 'datos') return document.getElementById('input-importar')?.click();
+        prepararModalNuevoAnimal(); new bootstrap.Modal(document.getElementById('modalAnimal')).show();
     }
 
     function abrirModalTareaNueva(fechaStr) {
@@ -940,25 +957,34 @@
             miembros.forEach(m => {
                 const rolBadge = m.rol === 'admin' ? '<span class="text-primary fw-bold">Admin</span>' : '<span class="text-muted">Operario</span>';
                 const btnEliminar = m.rol !== 'admin' ? `<button class="btn btn-sm btn-outline-danger py-0" onclick="eliminarMiembro('${m.id}')">Revocar</button>` : '';
-                tabla.innerHTML += `<tr><td>${m.correo}</td><td>${rolBadge}</td><td class="text-end">${btnEliminar}</td></tr>`;
+                const btnPermisos = m.rol !== 'admin' ? `<button class="btn btn-sm btn-outline-primary py-0 me-1" onclick="gestionarPermisosMiembro('${m.id}','${m.correo}')">Permisos</button>` : '';
+                tabla.innerHTML += `<tr><td>${m.correo}</td><td>${rolBadge}</td><td class="text-end">${btnPermisos}${btnEliminar}</td></tr>`;
             });
         } catch(e) { tabla.innerHTML = '<tr><td colspan="3" class="text-danger small">Fallo estructural de lectura.</td></tr>'; }
         
         const tablaTrab = document.getElementById('tabla-trabajadores'); tablaTrab.innerHTML = '';
-        if(trabajadores.length === 0) { tablaTrab.innerHTML = '<tr><td colspan="4" class="text-center text-muted small py-3">Directorio en blanco. Emplee el botón adyacente.</td></tr>'; }
-        trabajadores.forEach(t => { tablaTrab.innerHTML += `<tr><td class="fw-bold">${t.nombre}</td><td>${t.cedula}</td><td>${t.origen || 'N/A'}</td><td class="text-end"><button class="btn btn-sm btn-outline-primary py-0 me-1" onclick="abrirModalTrabajador('${t.id}')">Inspeccionar</button><button class="btn btn-sm btn-outline-danger py-0" onclick="eliminarTrabajador('${t.id}')">X</button></td></tr>`; });
+        if(trabajadores.length === 0) { tablaTrab.innerHTML = '<tr><td colspan="5" class="text-center text-muted small py-3">Directorio en blanco. Emplee el botón adyacente.</td></tr>'; }
+        trabajadores.forEach(t => { tablaTrab.innerHTML += `<tr><td class="fw-bold">${t.nombre}</td><td>${t.cedula}</td><td>${t.cargo || 'Sin cargo'}</td><td>${t.origen || 'N/A'}</td><td class="text-end"><button class="btn btn-sm btn-outline-primary py-0 me-1" onclick="abrirModalTrabajador('${t.id}')">Inspeccionar</button><button class="btn btn-sm btn-outline-danger py-0" onclick="eliminarTrabajador('${t.id}')">X</button></td></tr>`; });
     }
 
     async function eliminarMiembro(idMiembro) { if(!confirm("Se ejecutará la anulación de perfil operativo. Proceder?")) return; await supabaseClient.from('miembros').delete().eq('id', idMiembro); renderEquipo(); }
+    function gestionarPermisosMiembro(idMiembro, correo) {
+        const actual = permisosPorMiembro[idMiembro] || 'Lista General, Agenda';
+        const nuevo = prompt('Permisos para ' + correo + '. Escribe las áreas separadas por coma (ej.: Lista General, Agenda, MarketPlace):', actual);
+        if(nuevo === null) return;
+        permisosPorMiembro[idMiembro] = nuevo.split(',').map(x => x.trim()).filter(Boolean);
+        guardarLocal();
+        alert('Permisos guardados localmente y se incluirán en el próximo autoguardado. Para aplicar seguridad real en Supabase también debes ejecutar security-policies.sql.');
+    }
     
     function abrirModalTrabajador(id = null) {
         document.getElementById('form-trabajador').reset(); document.getElementById('trabajador-id').value = ''; document.getElementById('tituloModalTrabajador').innerText = 'Expediente de Personal';
-        if(id) { const t = trabajadores.find(x => x.id === id); if(t) { document.getElementById('trabajador-id').value = t.id; document.getElementById('trabajador-nombre').value = t.nombre; document.getElementById('trabajador-cedula').value = t.cedula; document.getElementById('trabajador-telefono').value = t.telefono; document.getElementById('trabajador-nac').value = t.nac; document.getElementById('trabajador-origen').value = t.origen; } }
+        if(id) { const t = trabajadores.find(x => x.id === id); if(t) { document.getElementById('trabajador-id').value = t.id; document.getElementById('trabajador-nombre').value = t.nombre; document.getElementById('trabajador-cedula').value = t.cedula; document.getElementById('trabajador-telefono').value = t.telefono; document.getElementById('trabajador-nac').value = t.nac; document.getElementById('trabajador-origen').value = t.origen; document.getElementById('trabajador-cargo').value = t.cargo || ''; } }
         new bootstrap.Modal(document.getElementById('modalTrabajador')).show();
     }
     
     function guardarTrabajador(e) {
-        e.preventDefault(); const id = document.getElementById('trabajador-id').value; const obj = { id: id || Date.now().toString(), nombre: document.getElementById('trabajador-nombre').value.trim(), cedula: document.getElementById('trabajador-cedula').value.trim(), telefono: document.getElementById('trabajador-telefono').value.trim(), nac: document.getElementById('trabajador-nac').value, origen: document.getElementById('trabajador-origen').value.trim() };
+        e.preventDefault(); const id = document.getElementById('trabajador-id').value; const obj = { id: id || Date.now().toString(), nombre: document.getElementById('trabajador-nombre').value.trim(), cedula: document.getElementById('trabajador-cedula').value.trim(), telefono: document.getElementById('trabajador-telefono').value.trim(), nac: document.getElementById('trabajador-nac').value, origen: document.getElementById('trabajador-origen').value.trim(), cargo: document.getElementById('trabajador-cargo').value.trim() };
         if(id) { const i = trabajadores.findIndex(x => x.id === id); if(i!==-1) trabajadores[i] = obj; } else { trabajadores.push(obj); }
         guardarLocal(); actualizarSelectsResponsables(); cerrarModal('modalTrabajador'); renderEquipo();
     }
