@@ -133,6 +133,15 @@
         .dashboard-calendar .calendar-day { min-height:82px; min-width:0; overflow:hidden; } .dashboard-calendar .calendar-header-row div { overflow:hidden; font-size:.65rem; }
         .auto-save-note { font-size:.68rem; color:#66806c; margin-left:.4rem; }
         @media (min-width:768px) { .bottom-nav { left:250px; } .bottom-nav-item { font-size:.78rem; } .bottom-nav-fab { width:62px;height:62px; } }
+        /* V35: controles redondos y centrados en escritorio y móvil */
+        .btn-fab, .bottom-nav-fab { aspect-ratio: 1 / 1; border-radius: 999px !important; display:inline-flex; align-items:center; justify-content:center; padding:0; line-height:1; }
+        .fab-container { bottom: 88px; right: 22px; display:flex; align-items:center; justify-content:center; }
+        .btn-fab { width:56px; height:56px; min-width:56px; min-height:56px; font-size:26px; }
+        .bottom-nav { padding: 0 max(8px, env(safe-area-inset-right)) 0 max(8px, env(safe-area-inset-left)); }
+        .bottom-nav-item { flex:1 1 0; min-width:0; height:68px; justify-content:center; text-align:center; padding:8px 4px; }
+        .bottom-nav-fab { flex:0 0 62px; width:62px; height:62px; margin-left:6px; margin-right:6px; }
+        .btn.rounded-circle { width:36px; height:36px; padding:0; display:inline-flex; align-items:center; justify-content:center; }
+        @media (max-width:767.98px) { .fab-container { bottom:82px; right:14px; } .btn-fab { width:52px; height:52px; min-width:52px; min-height:52px; } .bottom-nav-fab { flex-basis:58px; width:58px; height:58px; } }
 
     </style>
 </head>
@@ -148,7 +157,7 @@
         <div class="mb-3 text-center">
             <img id="auth-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='90' fill='%23efebe9' stroke='%23795548' stroke-width='8'/><path d='M50 70 C40 50 30 40 20 40 C40 50 60 55 75 60 C85 85 115 85 125 60 C140 55 160 50 180 40 C170 40 160 50 150 70 C140 90 120 120 100 135 C80 120 60 90 50 70 Z' fill='%23795548'/><path d='M45 80 C25 80 15 90 20 100 C30 100 50 90 60 85 Z' fill='%23a1887f'/><path d='M155 80 C175 80 185 90 180 100 C170 100 150 90 140 85 Z' fill='%23a1887f'/><path d='M100 125 C120 150 130 125 100 170 C70 125 80 150 100 125 Z' fill='%234caf50'/></svg>" style="width: 80px; height: 80px; border-radius:50%; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
             <h3 class="fw-bold text-primary mb-1">AgroSystems</h3>
-            <p class="text-muted mb-0 small fw-bold">Plataforma de Gestión Administrativa <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V34</span></p>
+            <p class="text-muted mb-0 small fw-bold">Plataforma de Gestión Administrativa <span class="badge bg-dark ms-1" style="font-size: 0.6rem;">V35</span></p>
         </div>
         
         <p id="auth-error" class="text-danger fw-bold small" style="min-height: 20px;"></p>
@@ -192,9 +201,9 @@
             <input type="text" id="nueva-finca-telefono" class="form-control form-control-sm mb-3" placeholder="Teléfono de Contacto">
             <button type="button" id="btn-crear-finca" class="btn btn-primary w-100 fw-bold mb-4 btn-sm" onclick="crearNuevaFinca()">Registrar Propiedad</button>
             
-            <h6 class="fw-bold text-start small mb-2 text-dark">Personal (Vincularse):</h6>
-            <input type="text" id="unirme-codigo" class="form-control form-control-sm mb-2" placeholder="Código de Invitación">
-            <button type="button" id="btn-unirme-finca" class="btn btn-outline-primary w-100 fw-bold btn-sm" onclick="unirmeAFinca()">Validar Credencial</button>
+            <div class="alert alert-info small text-start mb-0">
+                Los empleados deben ser creados o invitados por el administrador desde la pestaña Administración.
+            </div>
         </div>
     </div>
 </div>
@@ -220,12 +229,12 @@
         <div class="sidebar-menu px-3 w-100">
             <a href="#" onclick="showView('dashboard')" class="nav-btn-dashboard active">Inicio</a>
             <a href="#" onclick="showView('calendario')" class="nav-btn-calendario">Agenda de Actividades</a>
-            <a href="#" onclick="showView('animales')" class="nav-btn-animales">Inventario Ganadero</a>
+            <a href="#" onclick="showView('animales')" class="nav-btn-animales">Lista General</a>
             <a href="#" onclick="showView('ordeño')" class="nav-btn-ordeño">Control de Producción</a>
             <a href="#" onclick="showView('sanidad')" class="nav-btn-sanidad">Gestión Sanitaria</a>
-            <a href="#" onclick="showView('tienda')" class="nav-btn-tienda">Almacén y Ventas</a>
+            <a href="#" onclick="showView('tienda')" class="nav-btn-tienda">MarketPlace</a>
             <hr class="border-light opacity-25 w-100 my-3">
-            <a href="#" onclick="showView('equipo')" class="nav-btn-equipo admin-only">Personal Interno</a>
+            <a href="#" onclick="showView('equipo')" class="nav-btn-equipo admin-only">Administración</a>
             <a href="#" onclick="showView('directorio')" class="nav-btn-directorio admin-only">Directorio Externo</a>
             <a href="#" onclick="showView('perfil')" class="nav-btn-perfil">Ajustes y Nube</a>
             <a href="#" onclick="showView('datos')" class="nav-btn-datos admin-only">Respaldos Excel</a>
@@ -241,12 +250,12 @@
         <div class="offcanvas-body sidebar-menu flex-column p-3">
             <a href="#" onclick="showView('dashboard')" class="nav-btn-dashboard active">Inicio</a>
             <a href="#" onclick="showView('calendario')" class="nav-btn-calendario">Agenda de Actividades</a>
-            <a href="#" onclick="showView('animales')" class="nav-btn-animales">Inventario Ganadero</a>
+            <a href="#" onclick="showView('animales')" class="nav-btn-animales">Lista General</a>
             <a href="#" onclick="showView('ordeño')" class="nav-btn-ordeño">Control de Producción</a>
             <a href="#" onclick="showView('sanidad')" class="nav-btn-sanidad">Gestión Sanitaria</a>
-            <a href="#" onclick="showView('tienda')" class="nav-btn-tienda">Almacén y Ventas</a>
+            <a href="#" onclick="showView('tienda')" class="nav-btn-tienda">MarketPlace</a>
             <hr class="border-light opacity-25 w-100 my-3">
-            <a href="#" onclick="showView('equipo')" class="nav-btn-equipo admin-only">Personal Interno</a>
+            <a href="#" onclick="showView('equipo')" class="nav-btn-equipo admin-only">Administración</a>
             <a href="#" onclick="showView('directorio')" class="nav-btn-directorio admin-only">Directorio Externo</a>
             <a href="#" onclick="showView('perfil')" class="nav-btn-perfil">Ajustes y Nube</a>
             <a href="#" onclick="showView('datos')" class="nav-btn-datos admin-only">Respaldos Excel</a>
@@ -427,7 +436,8 @@
         </div>
 
         <div id="view-equipo" class="view-section hidden admin-only position-relative" style="min-height: 80vh;">
-            <h3 class="fw-bold mb-3">Gestión de Personal</h3>
+            <h3 class="fw-bold mb-3">Administración de la finca</h3>
+            <p class="text-muted small">Desde aquí el administrador gestiona empleados, accesos y la información administrativa. Las invitaciones y permisos definitivos se validan en Supabase.</p>
             <div class="alert alert-secondary border shadow-sm small py-2">
                 <strong>Clave de Acceso (Empleados de Oficina):</strong> 
                 <span id="display-codigo-equipo" class="fs-6 fw-bold ms-2 text-primary bg-white px-2 py-1 rounded border"></span>
@@ -629,7 +639,7 @@
                 const fincaData = fincaDataArray && fincaDataArray.length > 0 ? fincaDataArray[0] : null;
                 if(!fincaData) throw new Error("Instalación no ubicada.");
                 miFincaInfo = { id: fincaData.id, nombre: fincaData.nombre, rol: miembroData.rol, codigo: fincaData.codigo_invitacion };
-                arrancarAplicacion(); 
+        await arrancarAplicacion();
             } else { showAuthView('setup-finca'); }
         } catch (e) { showAuthView('setup-finca'); }
     }
@@ -722,7 +732,14 @@
         
         try { const { data: miembros } = await supabaseClient.from('miembros').select('correo').eq('finca_id', miFincaInfo.id); if(miembros) correosAdmins = miembros.map(m => m.correo); } catch(e) {}
         
-        aplicandoCambioRemoto = true; guardarLocal(); aplicandoCambioRemoto = false; actualizarSelectsLotes(); actualizarSelectsResponsables(); activarSincronizacionTiempoReal(); showView('dashboard'); if (pendiente) setTimeout(sincronizarPendienteAlVolver, 300); 
+        aplicandoCambioRemoto = true; guardarLocal(); aplicandoCambioRemoto = false; actualizarSelectsLotes(); actualizarSelectsResponsables(); activarSincronizacionTiempoReal(); showView('dashboard');
+        setTimeout(() => {
+            try {
+                if (typeof renderDashboard === 'function') renderDashboard();
+                if (typeof renderMiniAgenda === 'function') renderMiniAgenda();
+                if (typeof renderDashboardCalendar === 'function') renderDashboardCalendar();
+            } catch (e) { console.warn('No se pudo completar el primer render', e); }
+        }, 0); if (pendiente) setTimeout(sincronizarPendienteAlVolver, 300); 
     }
 
     let subidaEnCurso = false;
