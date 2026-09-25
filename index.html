@@ -441,7 +441,11 @@
 
         <div id="view-equipo" class="view-section hidden admin-only position-relative" style="min-height: 80vh;">
             <h3 class="fw-bold mb-3">Administración de la finca</h3>
-            <p class="text-muted small">Desde aquí el administrador gestiona empleados, accesos y la información administrativa. Las invitaciones y permisos definitivos se validan en Supabase.</p>
+            <p class="text-muted small">Desde aquí el administrador gestiona empleados, nómina, facturas, accesos y la información administrativa.</p>
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-xl-6"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="d-flex justify-content-between align-items-center mb-2"><h5 class="fw-bold m-0">Nómina</h5><button class="btn btn-primary btn-sm admin-only" onclick="abrirModalNomina()">+ Registrar pago</button></div><p class="small text-muted">Pagos y salarios del personal de la finca.</p><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Empleado</th><th>Periodo</th><th>Total</th><th></th></tr></thead><tbody id="tabla-nomina"></tbody></table></div></div></div></div>
+                <div class="col-12 col-xl-6"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="d-flex justify-content-between align-items-center mb-2"><h5 class="fw-bold m-0">Facturas y compras</h5><button class="btn btn-primary btn-sm admin-only" onclick="abrirModalFactura()">+ Añadir factura</button></div><p class="small text-muted">Registro de compras, proveedores y comprobantes.</p><div class="table-responsive"><table class="table table-sm align-middle mb-0"><thead><tr><th>Proveedor</th><th>Fecha</th><th>Total</th><th></th></tr></thead><tbody id="tabla-facturas"></tbody></table></div></div></div></div>
+            </div>
             <div class="alert alert-secondary border shadow-sm small py-2">
                 <strong>Clave de Acceso (Empleados de Oficina):</strong> 
                 <span id="display-codigo-equipo" class="fs-6 fw-bold ms-2 text-primary bg-white px-2 py-1 rounded border"></span>
@@ -563,7 +567,7 @@
     let supabaseClient = null; let session = null; let miFincaInfo = null; 
     let currentDateCal = new Date(); 
 
-    let animales = []; let vacunas = []; let productos = []; let lotes = []; let bajas = []; 
+    let animales = []; let vacunas = []; let productos = []; let lotes = []; let bajas = []; let nomina = []; let facturas = [];
     let trabajadores = []; let contactos = []; let tareas = []; let correosAdmins = []; let permisosPorMiembro = {};
     let telefono_tienda = ''; let ubicacion_finca = ''; let logo_finca = '';
     
@@ -688,7 +692,7 @@
     function guardarLocal() {
         if(!miFincaInfo) return;
         if (!Array.isArray(lotes) || lotes.length === 0) lotes = ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
-        const estadoCompleto = { animales, vacunas, productos, lotes, bajas, trabajadores, contactos, tareas, permisosPorMiembro, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } };
+        const estadoCompleto = { animales, vacunas, productos, lotes, bajas, nomina, facturas, trabajadores, contactos, tareas, permisosPorMiembro, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } };
         try {
             localStorage.setItem('agro_data_' + miFincaInfo.id, JSON.stringify(estadoCompleto));
             const statusBadge = document.getElementById('nube-status');
@@ -704,6 +708,8 @@
         resultado.permisosPorMiembro = Object.assign({}, nube.permisosPorMiembro || {}, local.permisosPorMiembro || {});
         const unirPorId = (a,b,clave) => { const mapa=new Map(); [...(Array.isArray(a)?a:[]), ...(Array.isArray(b)?b:[])].forEach(item=>{ const id=String(item[clave]||item.id_interno||item.id||''); if(id) { const previo=mapa.get(id); if(previo && clave==='id_animal') { const leche=[...(previo.historialLeche||[]), ...(item.historialLeche||[])]; const pesos=[...(previo.historialPeso||[]), ...(item.historialPeso||[])]; const vacunas=[...(previo.vacunas||[]), ...(item.vacunas||[])]; const unico=(arr,k)=>Array.from(new Map(arr.map(x=>[k==='fecha' ? String(x.fecha||'')+'|'+String(x.litros||x.peso||'')+'|'+String(x.personal||'') : String(x[k]||JSON.stringify(x)),x])).values()); item={...previo,...item,historialLeche:unico(leche,'fecha'),historialPeso:unico(pesos,'fecha'),vacunas:unico(vacunas,'fecha')}; } mapa.set(id,item); } }); return Array.from(mapa.values()); };
         resultado.animales = unirPorId(local.animales, nube.animales, 'id_animal');
+        resultado.nomina = [...(Array.isArray(nube.nomina)?nube.nomina:[]), ...(Array.isArray(local.nomina)?local.nomina:[])].filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i);
+        resultado.facturas = [...(Array.isArray(nube.facturas)?nube.facturas:[]), ...(Array.isArray(local.facturas)?local.facturas:[])].filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i);
         resultado.productos = unirPorId(local.productos, nube.productos, 'id');
         resultado.tareas = unirPorId(local.tareas, nube.tareas, 'id');
         resultado.trabajadores = unirPorId(local.trabajadores, nube.trabajadores, 'id');
@@ -714,7 +720,7 @@
 
     function pintarCopiaLocalInmediatamente(data) {
         if(!data) return;
-        animales = Array.isArray(data.animales) ? data.animales : []; vacunas = Array.isArray(data.vacunas) ? data.vacunas : []; productos = Array.isArray(data.productos) ? data.productos : []; bajas = Array.isArray(data.bajas) ? data.bajas : []; trabajadores = Array.isArray(data.trabajadores) ? data.trabajadores : []; contactos = Array.isArray(data.contactos) ? data.contactos : []; tareas = Array.isArray(data.tareas) ? data.tareas : []; permisosPorMiembro = data.permisosPorMiembro || {}; lotes = Array.isArray(data.lotes) && data.lotes.length ? data.lotes : ['Ordeño','Horro','Mautes','Becerros'];
+        animales = Array.isArray(data.animales) ? data.animales : []; vacunas = Array.isArray(data.vacunas) ? data.vacunas : []; productos = Array.isArray(data.productos) ? data.productos : []; bajas = Array.isArray(data.bajas) ? data.bajas : []; nomina = Array.isArray(data.nomina) ? data.nomina : []; facturas = Array.isArray(data.facturas) ? data.facturas : []; trabajadores = Array.isArray(data.trabajadores) ? data.trabajadores : []; contactos = Array.isArray(data.contactos) ? data.contactos : []; tareas = Array.isArray(data.tareas) ? data.tareas : []; permisosPorMiembro = data.permisosPorMiembro || {}; lotes = Array.isArray(data.lotes) && data.lotes.length ? data.lotes : ['Ordeño','Horro','Mautes','Becerros'];
         const extra = data.fincaExtra || {}; telefono_tienda = extra.telefono || ''; ubicacion_finca = extra.ubicacion || ''; logo_finca = extra.logo || '';
         actualizarSelectsLotes(); actualizarSelectsResponsables(); showView('dashboard');
     }
@@ -735,8 +741,8 @@
         if (typeof navigator === 'undefined' || navigator.onLine) {
             try { const { data: nube, error: errorNube } = await supabaseClient.from('finca_data').select('data').eq('finca_id', miFincaInfo.id).maybeSingle(); if (!errorNube && nube && nube.data && !pendiente) { dataFinal = combinarCopias(localData, nube.data); if (localData && JSON.stringify(dataFinal) !== JSON.stringify(nube.data)) localStorage.setItem('agro_pending_sync_' + miFincaInfo.id, '1'); } } catch (e) { console.warn('No se pudo leer Supabase; se usará la copia local.', e); }
         }
-        if(!dataFinal) dataFinal = { animales: [], vacunas: [], productos: [], bajas: [], trabajadores: [], contactos: [], tareas: [], permisosPorMiembro: {}, lotes: ['Ordeño', 'Horro', 'Mautes', 'Becerros'], fincaExtra: {} };
-        animales = Array.isArray(dataFinal.animales) ? dataFinal.animales : []; vacunas = Array.isArray(dataFinal.vacunas) ? dataFinal.vacunas : []; productos = Array.isArray(dataFinal.productos) ? dataFinal.productos : []; bajas = Array.isArray(dataFinal.bajas) ? dataFinal.bajas : []; trabajadores = Array.isArray(dataFinal.trabajadores) ? dataFinal.trabajadores : []; contactos = Array.isArray(dataFinal.contactos) ? dataFinal.contactos : []; tareas = Array.isArray(dataFinal.tareas) ? dataFinal.tareas : []; permisosPorMiembro = dataFinal.permisosPorMiembro || {}; lotes = Array.isArray(dataFinal.lotes) && dataFinal.lotes.length > 0 ? dataFinal.lotes : ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
+        if(!dataFinal) dataFinal = { animales: [], vacunas: [], productos: [], bajas: [], nomina: [], facturas: [], trabajadores: [], contactos: [], tareas: [], permisosPorMiembro: {}, lotes: ['Ordeño', 'Horro', 'Mautes', 'Becerros'], fincaExtra: {} };
+        animales = Array.isArray(dataFinal.animales) ? dataFinal.animales : []; vacunas = Array.isArray(dataFinal.vacunas) ? dataFinal.vacunas : []; productos = Array.isArray(dataFinal.productos) ? dataFinal.productos : []; bajas = Array.isArray(dataFinal.bajas) ? dataFinal.bajas : []; nomina = Array.isArray(dataFinal.nomina) ? dataFinal.nomina : []; facturas = Array.isArray(dataFinal.facturas) ? dataFinal.facturas : []; trabajadores = Array.isArray(dataFinal.trabajadores) ? dataFinal.trabajadores : []; contactos = Array.isArray(dataFinal.contactos) ? dataFinal.contactos : []; tareas = Array.isArray(dataFinal.tareas) ? dataFinal.tareas : []; permisosPorMiembro = dataFinal.permisosPorMiembro || {}; lotes = Array.isArray(dataFinal.lotes) && dataFinal.lotes.length > 0 ? dataFinal.lotes : ['Ordeño', 'Horro', 'Mautes', 'Becerros'];
         
         const extraInfo = dataFinal.fincaExtra || {}; telefono_tienda = extraInfo.telefono || ''; ubicacion_finca = extraInfo.ubicacion || ''; logo_finca = extraInfo.logo || '';
         document.getElementById('display-finca-info').innerText = `${ubicacion_finca || 'Sede Principal'} | Móvil: ${telefono_tienda || 'N/A'}`; document.getElementById('display-wa-num').innerText = telefono_tienda || 'N/A'; document.getElementById('input-wa-numero').value = telefono_tienda;
@@ -773,13 +779,13 @@
             if (authError) throw authError;
             if (!authData.session) throw new Error('La sesión ha caducado. Inicia sesión de nuevo antes de guardar.');
             if(statusBadge) { statusBadge.className = 'badge bg-primary text-white badge-nube'; statusBadge.innerText = 'Guardando en Supabase...'; }
-            const estadoCompleto = JSON.parse(JSON.stringify({ animales, vacunas, productos, lotes, bajas, trabajadores, contactos, tareas, permisosPorMiembro, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } }));
+            const estadoCompleto = JSON.parse(JSON.stringify({ animales, vacunas, productos, lotes, bajas, nomina, facturas, trabajadores, contactos, tareas, permisosPorMiembro, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } }));
             const { data: guardado, error } = await supabaseClient.from('finca_data')
                 .upsert({ finca_id: miFincaInfo.id, data: estadoCompleto }, { onConflict: 'finca_id' })
                 .select('finca_id').single();
             if (error) throw error;
             if (!guardado || guardado.finca_id !== miFincaInfo.id) throw new Error('Supabase no confirmó el registro guardado.');
-            const estadoActual = JSON.stringify({ animales, vacunas, productos, lotes, bajas, trabajadores, contactos, tareas, permisosPorMiembro, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } });
+            const estadoActual = JSON.stringify({ animales, vacunas, productos, lotes, bajas, nomina, facturas, trabajadores, contactos, tareas, permisosPorMiembro, fincaExtra: { ubicacion: ubicacion_finca, telefono: telefono_tienda, logo: logo_finca } });
             const hayCambiosNuevos = estadoActual !== JSON.stringify(estadoCompleto);
             if(statusBadge) { statusBadge.className = 'badge bg-success badge-nube'; statusBadge.innerText = hayCambiosNuevos ? 'Copia guardada; hay cambios nuevos pendientes' : 'Guardado confirmado en Supabase'; }
             if (hayCambiosNuevos) { alert('Se guardó la copia enviada, pero hiciste cambios durante la subida. Vuelve a guardar para incluirlos.'); return false; }
@@ -972,6 +978,7 @@
                 tabla.innerHTML += `<tr><td>${m.correo}</td><td>${rolBadge}</td><td class="text-end">${btnPermisos}${btnEliminar}</td></tr>`;
             });
         } catch(e) { tabla.innerHTML = '<tr><td colspan="3" class="text-danger small">Fallo estructural de lectura.</td></tr>'; }
+        renderNominaFacturas();
         
         const tablaTrab = document.getElementById('tabla-trabajadores'); tablaTrab.innerHTML = '';
         if(trabajadores.length === 0) { tablaTrab.innerHTML = '<tr><td colspan="5" class="text-center text-muted small py-3">Directorio en blanco. Emplee el botón adyacente.</td></tr>'; }
@@ -979,6 +986,17 @@
     }
 
     async function eliminarMiembro(idMiembro) { if(!confirm("Se ejecutará la anulación de perfil operativo. Proceder?")) return; await supabaseClient.from('miembros').delete().eq('id', idMiembro); renderEquipo(); }
+    function renderNominaFacturas() {
+        const tn=document.getElementById('tabla-nomina'), tf=document.getElementById('tabla-facturas'); if(!tn||!tf)return;
+        tn.innerHTML = nomina.length ? nomina.slice().reverse().map(x=>`<tr><td>${x.empleado}</td><td>${x.periodo}</td><td>$${Number(x.total||0).toFixed(2)}</td><td><button class="btn btn-sm btn-outline-danger py-0" onclick="eliminarNomina('${x.id}')">X</button></td></tr>`).join('') : '<tr><td colspan="4" class="text-muted small">Sin pagos registrados.</td></tr>';
+        tf.innerHTML = facturas.length ? facturas.slice().reverse().map(x=>`<tr><td>${x.proveedor}</td><td>${x.fecha}</td><td>$${Number(x.total||0).toFixed(2)}</td><td><button class="btn btn-sm btn-outline-danger py-0" onclick="eliminarFactura('${x.id}')">X</button></td></tr>`).join('') : '<tr><td colspan="4" class="text-muted small">Sin facturas registradas.</td></tr>';
+    }
+    function abrirModalNomina(){ document.getElementById('form-nomina').reset(); document.getElementById('nomina-fecha').value=new Date().toISOString().slice(0,10); new bootstrap.Modal(document.getElementById('modalNomina')).show(); }
+    function guardarNomina(e){ e.preventDefault(); nomina.push({id:Date.now().toString(),empleado:document.getElementById('nomina-empleado').value.trim(),periodo:document.getElementById('nomina-periodo').value, total:parseFloat(document.getElementById('nomina-total').value)||0, fecha:document.getElementById('nomina-fecha').value, notas:document.getElementById('nomina-notas').value.trim()}); guardarLocal(); bootstrap.Modal.getInstance(document.getElementById('modalNomina')).hide(); renderNominaFacturas(); }
+    function eliminarNomina(id){ if(confirm('¿Eliminar este pago de nómina?')){nomina=nomina.filter(x=>x.id!==id);guardarLocal();renderNominaFacturas();} }
+    function abrirModalFactura(){ document.getElementById('form-factura').reset(); document.getElementById('factura-fecha').value=new Date().toISOString().slice(0,10); new bootstrap.Modal(document.getElementById('modalFactura')).show(); }
+    function guardarFactura(e){ e.preventDefault(); facturas.push({id:Date.now().toString(),proveedor:document.getElementById('factura-proveedor').value.trim(),fecha:document.getElementById('factura-fecha').value,total:parseFloat(document.getElementById('factura-total').value)||0,numero:document.getElementById('factura-numero').value.trim(),detalle:document.getElementById('factura-detalle').value.trim()}); guardarLocal(); bootstrap.Modal.getInstance(document.getElementById('modalFactura')).hide(); renderNominaFacturas(); }
+    function eliminarFactura(id){ if(confirm('¿Eliminar esta factura?')){facturas=facturas.filter(x=>x.id!==id);guardarLocal();renderNominaFacturas();} }
     function gestionarPermisosMiembro(idMiembro, correo) {
         document.getElementById('permisos-miembro-id').value = idMiembro;
         document.getElementById('permisos-empleado-label').innerText = 'Permisos para ' + correo;
@@ -1228,5 +1246,7 @@
 
 </script>
 <div class="modal fade" id="modalPermisos" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-primary text-white"><h6 class="modal-title fw-bold m-0">Permisos del empleado</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><p class="small text-muted mb-3" id="permisos-empleado-label">Selecciona las áreas que puede consultar.</p><input type="hidden" id="permisos-miembro-id"><div class="row g-2"><div class="col-6"><label class="permission-option"><input type="checkbox" value="dashboard"> Inicio</label></div><div class="col-6"><label class="permission-option"><input type="checkbox" value="animales"> Lista General</label></div><div class="col-6"><label class="permission-option"><input type="checkbox" value="tienda"> MarketPlace</label></div><div class="col-6"><label class="permission-option"><input type="checkbox" value="calendario"> Agenda</label></div><div class="col-6"><label class="permission-option"><input type="checkbox" value="ordeño"> Producción</label></div><div class="col-6"><label class="permission-option"><input type="checkbox" value="sanidad"> Sanidad</label></div></div></div><div class="modal-footer border-0"><button class="btn btn-primary w-100" onclick="guardarPermisosDesdeModal()">Guardar permisos</button></div></div></div></div>
+<div class="modal fade" id="modalNomina" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header bg-primary text-white"><h6 class="modal-title">Registrar pago de nómina</h6><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-nomina" onsubmit="guardarNomina(event)"><input id="nomina-empleado" class="form-control form-control-sm mb-2" placeholder="Empleado" required><input id="nomina-periodo" class="form-control form-control-sm mb-2" placeholder="Periodo (ej. septiembre 2026)" required><input id="nomina-total" type="number" step="0.01" class="form-control form-control-sm mb-2" placeholder="Total pagado" required><input id="nomina-fecha" type="date" class="form-control form-control-sm mb-2" required><textarea id="nomina-notas" class="form-control form-control-sm" placeholder="Notas"></textarea></form></div><div class="modal-footer"><button class="btn btn-primary w-100" type="submit" form="form-nomina">Guardar pago</button></div></div></div></div>
+<div class="modal fade" id="modalFactura" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header bg-primary text-white"><h6 class="modal-title">Registrar factura o compra</h6><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="form-factura" onsubmit="guardarFactura(event)"><input id="factura-proveedor" class="form-control form-control-sm mb-2" placeholder="Proveedor" required><input id="factura-numero" class="form-control form-control-sm mb-2" placeholder="Número de factura"><input id="factura-fecha" type="date" class="form-control form-control-sm mb-2" required><input id="factura-total" type="number" step="0.01" class="form-control form-control-sm mb-2" placeholder="Total" required><textarea id="factura-detalle" class="form-control form-control-sm" placeholder="Detalle de la compra"></textarea></form></div><div class="modal-footer"><button class="btn btn-primary w-100" type="submit" form="form-factura">Guardar factura</button></div></div></div></div>
 </body>
 </html>
