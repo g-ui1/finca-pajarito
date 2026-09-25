@@ -702,7 +702,7 @@
         if (!nube) return local;
         const resultado = JSON.parse(JSON.stringify(nube));
         resultado.permisosPorMiembro = Object.assign({}, nube.permisosPorMiembro || {}, local.permisosPorMiembro || {});
-        const unirPorId = (a,b,clave) => { const mapa=new Map(); [...(Array.isArray(a)?a:[]), ...(Array.isArray(b)?b:[])].forEach(item=>{ const id=String(item[clave]||item.id_interno||item.id||''); if(id) mapa.set(id,item); }); return Array.from(mapa.values()); };
+        const unirPorId = (a,b,clave) => { const mapa=new Map(); [...(Array.isArray(a)?a:[]), ...(Array.isArray(b)?b:[])].forEach(item=>{ const id=String(item[clave]||item.id_interno||item.id||''); if(id) { const previo=mapa.get(id); if(previo && clave==='id_animal') { const leche=[...(previo.historialLeche||[]), ...(item.historialLeche||[])]; const pesos=[...(previo.historialPeso||[]), ...(item.historialPeso||[])]; const vacunas=[...(previo.vacunas||[]), ...(item.vacunas||[])]; const unico=(arr,k)=>Array.from(new Map(arr.map(x=>[k==='fecha' ? String(x.fecha||'')+'|'+String(x.litros||x.peso||'')+'|'+String(x.personal||'') : String(x[k]||JSON.stringify(x)),x])).values()); item={...previo,...item,historialLeche:unico(leche,'fecha'),historialPeso:unico(pesos,'fecha'),vacunas:unico(vacunas,'fecha')}; } mapa.set(id,item); } }); return Array.from(mapa.values()); };
         resultado.animales = unirPorId(local.animales, nube.animales, 'id_animal');
         resultado.productos = unirPorId(local.productos, nube.productos, 'id');
         resultado.tareas = unirPorId(local.tareas, nube.tareas, 'id');
@@ -710,6 +710,13 @@
         resultado.contactos = unirPorId(local.contactos, nube.contactos, 'id');
         resultado.lotes = [...new Set([...(Array.isArray(nube.lotes)?nube.lotes:[]), ...(Array.isArray(local.lotes)?local.lotes:[])])];
         return resultado;
+    }
+
+    function pintarCopiaLocalInmediatamente(data) {
+        if(!data) return;
+        animales = Array.isArray(data.animales) ? data.animales : []; vacunas = Array.isArray(data.vacunas) ? data.vacunas : []; productos = Array.isArray(data.productos) ? data.productos : []; bajas = Array.isArray(data.bajas) ? data.bajas : []; trabajadores = Array.isArray(data.trabajadores) ? data.trabajadores : []; contactos = Array.isArray(data.contactos) ? data.contactos : []; tareas = Array.isArray(data.tareas) ? data.tareas : []; permisosPorMiembro = data.permisosPorMiembro || {}; lotes = Array.isArray(data.lotes) && data.lotes.length ? data.lotes : ['Ordeño','Horro','Mautes','Becerros'];
+        const extra = data.fincaExtra || {}; telefono_tienda = extra.telefono || ''; ubicacion_finca = extra.ubicacion || ''; logo_finca = extra.logo || '';
+        actualizarSelectsLotes(); actualizarSelectsResponsables(); showView('dashboard');
     }
 
     async function arrancarAplicacion() {
@@ -722,6 +729,7 @@
 
         const localRaw = localStorage.getItem('agro_data_' + miFincaInfo.id);
         const localData = localRaw ? JSON.parse(localRaw) : null;
+        if (localData) pintarCopiaLocalInmediatamente(localData);
         const pendiente = localStorage.getItem('agro_pending_sync_' + miFincaInfo.id) === '1';
         let dataFinal = localData;
         if (typeof navigator === 'undefined' || navigator.onLine) {
